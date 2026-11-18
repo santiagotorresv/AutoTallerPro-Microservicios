@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AutoTaller Pro</title>
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/frontend.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🔧</div>
+                <div class="brand-text">
+                    <span class="brand-title">AUTOTALLER</span>
+                    <span class="brand-subtitle">PRO</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu" aria-label="Menú principal">
+                <a class="menu-item @(Context.Request.Path == "/" || Context.Request.Path == "/Index" ? "active" : "")" asp-page="/Index" aria-label="Inicio">
+                    <span class="menu-icon" aria-hidden="true">⌂</span>
+                    <span>Inicio</span>
+                </a>
+
+                <div class="menu-group">
+                    <button class="menu-item menu-toggle" type="button" aria-expanded="false" aria-controls="personal-menu" aria-label="Personal">
+                        <span class="menu-icon" aria-hidden="true">👤</span>
+                        <span>Personal</span>
+                        <span class="menu-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div class="submenu" id="personal-menu">
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Mecanicos/Index">
+                            <span>Mecánicos</span>
+                        </button>
+                        <a class="submenu-item @(Context.Request.Path.StartsWithSegments("/Administracion/Usuarios") ? "active" : "")" asp-page="/Administracion/Usuarios/Index">
+                            <span>Usuarios</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <button class="menu-item menu-toggle" type="button" aria-expanded="false" aria-controls="clientes-menu" aria-label="Clientes y Vehículos">
+                        <span class="menu-icon" aria-hidden="true">👥</span>
+                        <span>Clientes y Vehículos</span>
+                        <span class="menu-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div class="submenu" id="clientes-menu">
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Clientes/Index">
+                            <span>Clientes</span>
+                        </button>
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Vehiculos/Index">
+                            <span>Vehículos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <button class="menu-item menu-toggle" type="button" aria-expanded="false" aria-controls="taller-menu" aria-label="Operaciones del Taller">
+                        <span class="menu-icon" aria-hidden="true">🔧</span>
+                        <span>Operaciones del Taller</span>
+                        <span class="menu-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div class="submenu" id="taller-menu">
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Servicios/Index">
+                            <span>Servicios</span>
+                        </button>
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Ordenes/Index">
+                            <span>Órdenes de trabajo</span>
+                        </button>
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Historial/Index">
+                            <span>Historial</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <button class="menu-item menu-toggle" type="button" aria-expanded="false" aria-controls="inventario-menu" aria-label="Inventario">
+                        <span class="menu-icon" aria-hidden="true">📦</span>
+                        <span>Inventario</span>
+                        <span class="menu-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div class="submenu" id="inventario-menu">
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Productos/Index">
+                            <span>Productos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <button class="menu-item menu-toggle" type="button" aria-expanded="false" aria-controls="administracion-menu" aria-label="Administración">
+                        <span class="menu-icon" aria-hidden="true">💼</span>
+                        <span>Administración</span>
+                        <span class="menu-chevron" aria-hidden="true">›</span>
+                    </button>
+                    <div class="submenu" id="administracion-menu">
+                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Reportes/Index">
+                            <span>Reportes</span>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <button class="menu-item" type="button" disabled aria-label="Cambiar contraseña" title="Autenticación pendiente" data-pagina-pendiente="/Auth/CambiarContrasena">
+                    <span class="menu-icon" aria-hidden="true">🔑</span>
+                    <span>Cambiar contraseña</span>
+                </button>
+                <button class="menu-item logout-button" type="button" disabled aria-label="Cerrar sesión" title="Autenticación pendiente" data-pagina-pendiente="/Auth/Logout">
+                    <span class="menu-icon" aria-hidden="true">↪</span>
+                    <span>Cerrar sesión</span>
+                </button>
+                <div class="sidebar-footer">
+                    <span>Sistema de Gestión</span>
+                    <small>© 2026 AutoTaller Pro</small>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <span class="topbar-label">GESTIÓN DEL TALLER</span>
+                </div>
+                <div class="topbar-user">
+                    <span class="user-icon" aria-hidden="true">👤</span>
+                    <span>Autenticación pendiente</span>
+                </div>
+            </header>
+            <section class="page-content">
+                @RenderBody()
+            </section>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

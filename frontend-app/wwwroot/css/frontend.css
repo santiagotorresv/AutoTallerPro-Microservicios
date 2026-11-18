@@ -1,0 +1,23 @@
+.submenu-item:disabled,
+.sidebar-bottom .menu-item:disabled {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    text-align: left;
+    cursor: not-allowed;
+}
+
+.sidebar-bottom .logout-button:disabled {
+    background-color: #b72d42;
+}
+
+.home [aria-disabled="true"] {
+    cursor: not-allowed;
+}
+
+.metric-status {
+    color: var(--text-subtle);
+    font-size: 11px;
+    line-height: 1.4;
+}

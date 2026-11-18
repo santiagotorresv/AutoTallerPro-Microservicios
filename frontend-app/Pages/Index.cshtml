@@ -1,0 +1,90 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="home">
+    <section class="home-hero">
+        <div class="home-hero-overlay"></div>
+        <div class="home-hero-content">
+            <h1>Potencia la eficiencia de tu taller mecánico</h1>
+            <p>Centraliza el registro de vehículos, optimiza la carga laboral de tus especialistas y mantén un control absoluto sobre tu catálogo de servicios</p>
+        </div>
+    </section>
+
+    <section class="home-features">
+        <div class="home-card" aria-disabled="true" title="Sección pendiente de migración" data-pagina-pendiente="/Vehiculos/Index">
+            <div class="home-card-icon">🚗</div>
+            <h2>Gestión de Vehículos</h2>
+            <p>Registro clínico de cada vehículo: ficha completa, historial y seguimiento centralizado.</p>
+        </div>
+
+        <div class="home-card" aria-disabled="true" title="Sección pendiente de migración" data-pagina-pendiente="/Mecanicos/Index">
+            <div class="home-card-icon">👨‍🔧</div>
+            <h2>Especialistas en Acción</h2>
+            <p>Asignación y control de la carga laboral de tus mecánicos especialistas.</p>
+        </div>
+
+        <div class="home-card" aria-disabled="true" title="Sección pendiente de migración" data-pagina-pendiente="/Servicios/Index">
+            <div class="home-card-icon">📋</div>
+            <h2>Catálogo de Servicios</h2>
+            <p>Estandarización de costos y tiempos para cada servicio del taller.</p>
+        </div>
+    </section>
+
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <div>
+                <h1>Panel de control</h1>
+                <p>Resumen general del taller mecánico — Datos no disponibles.</p>
+            </div>
+
+            <div class="dashboard-date">
+                <span>Hoy</span>
+                <strong>@Model.FechaActual</strong>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon">👨‍🔧</div>
+                <div class="metric-info">
+                    <span class="metric-label">Mecánicos disponibles</span>
+                    <strong class="metric-value" aria-label="Dato no disponible">—</strong>
+                    <span class="metric-status">Sin conexión</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">🚗</div>
+                <div class="metric-info">
+                    <span class="metric-label">Vehículos registrados</span>
+                    <strong class="metric-value" aria-label="Dato no disponible">—</strong>
+                    <span class="metric-status">Sin conexión</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">🔧</div>
+                <div class="metric-info">
+                    <span class="metric-label">Servicios registrados</span>
+                    <strong class="metric-value" aria-label="Dato no disponible">—</strong>
+                    <span class="metric-status">Sin conexión</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="home-audit">
+        <div class="home-audit-content">
+            <h2>Auditoría de Costos en Tiempo Real</h2>
+            <p>El historial de cambios estará disponible cuando se migre este módulo.</p>
+            <span class="home-audit-link" aria-disabled="true" title="Sección pendiente de migración" data-pagina-pendiente="/Historial/Index">Ver historial de cambios</span>
+        </div>
+    </section>
+
+    <footer class="home-footer">
+        <span>AutoTaller Pro - v1.0</span>
+    </footer>
+</div>

@@ -1,0 +1,221 @@
+name: autotaller-ec3
+
+services:
+  postgres-clientes:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_CLIENTES_DB:?Define POSTGRES_CLIENTES_DB}
+      POSTGRES_USER: ${POSTGRES_CLIENTES_USER:?Define POSTGRES_CLIENTES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_CLIENTES_PASSWORD:?Define POSTGRES_CLIENTES_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_CLIENTES_PORT:-5433}:5432"
+    volumes:
+      - postgres-clientes-data:/var/lib/postgresql/data
+    healthcheck: &postgres-health
+      test: [CMD-SHELL, 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -w -qAtc "SELECT 1"']
+      interval: 5s
+      timeout: 5s
+      start_period: 20s
+      retries: 20
+
+  mysql-servicios:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_SERVICIOS_DB:?Define MYSQL_SERVICIOS_DB}
+      MYSQL_USER: ${MYSQL_SERVICIOS_USER:?Define MYSQL_SERVICIOS_USER}
+      MYSQL_PASSWORD: ${MYSQL_SERVICIOS_PASSWORD:?Define MYSQL_SERVICIOS_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_SERVICIOS_ROOT_PASSWORD:?Define MYSQL_SERVICIOS_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:${MYSQL_SERVICIOS_PORT:-3307}:3306"
+    volumes:
+      - mysql-servicios-data:/var/lib/mysql
+    healthcheck: &mysql-health
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql --protocol=TCP -h 127.0.0.1 -u "$$MYSQL_USER" -D "$$MYSQL_DATABASE" -Nse "SELECT 1"']
+      interval: 5s
+      timeout: 5s
+      start_period: 40s
+      retries: 24
+
+  mongo-mecanicos:
+    image: mongo:8.0
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_MECANICOS_DB:?Define MONGO_MECANICOS_DB}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_MECANICOS_ROOT_USER:?Define MONGO_MECANICOS_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_MECANICOS_ROOT_PASSWORD:?Define MONGO_MECANICOS_ROOT_PASSWORD}
+      MONGO_APP_USERNAME: ${MONGO_MECANICOS_USER:?Define MONGO_MECANICOS_USER}
+      MONGO_APP_PASSWORD: ${MONGO_MECANICOS_PASSWORD:?Define MONGO_MECANICOS_PASSWORD}
+    ports:
+      - "127.0.0.1:${MONGO_MECANICOS_PORT:-27018}:27017"
+    volumes:
+      - mongo-mecanicos-data:/data/db
+      - mongo-mecanicos-config:/data/configdb
+      - ./infra/mongo/crear-usuario.js:/docker-entrypoint-initdb.d/crear-usuario.js:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          test "$$(cat /proc/1/comm)" = mongod &&
+          mongosh --quiet --norc --host 127.0.0.1 --port 27017
+          --username "$$MONGO_APP_USERNAME" --password "$$MONGO_APP_PASSWORD"
+          --authenticationDatabase "$$MONGO_INITDB_DATABASE"
+          --eval 'if (db.runCommand({ping: 1}).ok !== 1) quit(1)'
+      interval: 5s
+      timeout: 8s
+      start_period: 30s
+      retries: 24
+
+  mysql-usuarios:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_USUARIOS_DB:?Define MYSQL_USUARIOS_DB}
+      MYSQL_USER: ${MYSQL_USUARIOS_USER:?Define MYSQL_USUARIOS_USER}
+      MYSQL_PASSWORD: ${MYSQL_USUARIOS_PASSWORD:?Define MYSQL_USUARIOS_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_USUARIOS_ROOT_PASSWORD:?Define MYSQL_USUARIOS_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:${MYSQL_USUARIOS_PORT:-3308}:3306"
+    volumes:
+      - mysql-usuarios-data:/var/lib/mysql
+    healthcheck: *mysql-health
+
+  postgres-keycloak:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_KEYCLOAK_DB:?Define POSTGRES_KEYCLOAK_DB}
+      POSTGRES_USER: ${POSTGRES_KEYCLOAK_USER:?Define POSTGRES_KEYCLOAK_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_KEYCLOAK_PASSWORD:?Define POSTGRES_KEYCLOAK_PASSWORD}
+    volumes:
+      - postgres-keycloak-data:/var/lib/postgresql/data
+    healthcheck: *postgres-health
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2
+    command: [start-dev]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres-keycloak
+      KC_DB_URL_DATABASE: ${POSTGRES_KEYCLOAK_DB:?Define POSTGRES_KEYCLOAK_DB}
+      KC_DB_USERNAME: ${POSTGRES_KEYCLOAK_USER:?Define POSTGRES_KEYCLOAK_USER}
+      KC_DB_PASSWORD: ${POSTGRES_KEYCLOAK_PASSWORD:?Define POSTGRES_KEYCLOAK_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME:?Define KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD:?Define KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8180}:8080"
+    depends_on:
+      postgres-keycloak:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - /bin/bash
+        - -ec
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000;
+          printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&3;
+          read -r status <&3;
+          [[ "$$status" == *" 200 "* ]]
+      interval: 5s
+      timeout: 5s
+      start_period: 60s
+      retries: 30
+
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    ports:
+      - "127.0.0.1:${MAILPIT_WEB_PORT:-8025}:8025"
+    volumes:
+      - mailpit-data:/data
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 5s
+      timeout: 5s
+      start_period: 10s
+      retries: 12
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend-app/Dockerfile
+    ports:
+      - "127.0.0.1:5105:8080"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/AutoTallerPro.Gateway/Dockerfile
+    environment:
+      ReverseProxy__Clusters__ms-clientes__Destinations__principal__Address: http://ms-clientes:8080/
+      ReverseProxy__Clusters__ms-servicios__Destinations__principal__Address: http://ms-servicios:8080/
+      ReverseProxy__Clusters__ms-mecanicos__Destinations__principal__Address: http://ms-mecanicos:8080/
+      ReverseProxy__Clusters__ms-usuarios__Destinations__principal__Address: http://ms-usuarios:8080/
+    ports:
+      - "127.0.0.1:5100:8080"
+
+  ms-clientes:
+    build:
+      context: .
+      dockerfile: microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Api/Dockerfile
+    environment:
+      Database__Host: postgres-clientes
+      Database__Port: "5432"
+      Database__Name: ${POSTGRES_CLIENTES_DB:?Define POSTGRES_CLIENTES_DB}
+      Database__User: ${POSTGRES_CLIENTES_USER:?Define POSTGRES_CLIENTES_USER}
+      Database__Password: ${POSTGRES_CLIENTES_PASSWORD:?Define POSTGRES_CLIENTES_PASSWORD}
+    ports:
+      - "127.0.0.1:5101:8080"
+
+  ms-servicios:
+    build:
+      context: .
+      dockerfile: microservices/servicios/AutoTallerPro.Servicios.Api/Dockerfile
+    environment:
+      Database__Host: mysql-servicios
+      Database__Port: "3306"
+      Database__Name: ${MYSQL_SERVICIOS_DB:?Define MYSQL_SERVICIOS_DB}
+      Database__User: ${MYSQL_SERVICIOS_USER:?Define MYSQL_SERVICIOS_USER}
+      Database__Password: ${MYSQL_SERVICIOS_PASSWORD:?Define MYSQL_SERVICIOS_PASSWORD}
+    ports:
+      - "127.0.0.1:5102:8080"
+
+  ms-mecanicos:
+    build:
+      context: .
+      dockerfile: microservices/mecanicos/AutoTallerPro.Mecanicos.Api/Dockerfile
+    environment:
+      Database__Host: mongo-mecanicos
+      Database__Port: "27017"
+      Database__Name: ${MONGO_MECANICOS_DB:?Define MONGO_MECANICOS_DB}
+      Database__User: ${MONGO_MECANICOS_USER:?Define MONGO_MECANICOS_USER}
+      Database__Password: ${MONGO_MECANICOS_PASSWORD:?Define MONGO_MECANICOS_PASSWORD}
+      Database__AuthSource: ${MONGO_MECANICOS_DB:?Define MONGO_MECANICOS_DB}
+    ports:
+      - "127.0.0.1:5103:8080"
+
+  ms-usuarios:
+    build:
+      context: .
+      dockerfile: microservices/usuarios/AutoTallerPro.Usuarios.Api/Dockerfile
+    environment:
+      Database__Host: mysql-usuarios
+      Database__Port: "3306"
+      Database__Name: ${MYSQL_USUARIOS_DB:?Define MYSQL_USUARIOS_DB}
+      Database__User: ${MYSQL_USUARIOS_USER:?Define MYSQL_USUARIOS_USER}
+      Database__Password: ${MYSQL_USUARIOS_PASSWORD:?Define MYSQL_USUARIOS_PASSWORD}
+    ports:
+      - "127.0.0.1:5104:8080"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  postgres-clientes-data:
+  mysql-servicios-data:
+  mongo-mecanicos-data:
+  mongo-mecanicos-config:
+  mysql-usuarios-data:
+  postgres-keycloak-data:
+  mailpit-data:

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../AutoTallerPro.Usuarios.Application/AutoTallerPro.Usuarios.Application.csproj" />
+    <ProjectReference Include="../AutoTallerPro.Usuarios.Infrastructure/AutoTallerPro.Usuarios.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

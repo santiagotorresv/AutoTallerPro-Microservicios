@@ -1,0 +1,17 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">No se pudo completar la solicitud.</h1>
+<p>Intenta nuevamente. Si el problema continúa, contacta al administrador del taller e indica el identificador de solicitud.</p>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Identificador de solicitud:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+<a asp-page="/Index">Volver al inicio</a>

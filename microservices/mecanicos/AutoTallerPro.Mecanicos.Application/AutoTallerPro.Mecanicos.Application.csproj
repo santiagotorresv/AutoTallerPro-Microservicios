@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../AutoTallerPro.Mecanicos.Domain/AutoTallerPro.Mecanicos.Domain.csproj" />
+  </ItemGroup>
+</Project>

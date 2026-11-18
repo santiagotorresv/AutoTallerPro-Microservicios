@@ -1,0 +1,100 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Administracion.Usuarios.IndexModel
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usuarios.css" asp-append-version="true" />
+}
+
+<div class="container py-4 hu3-usuarios">
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold">Gestión de Usuarios</h1>
+            <p class="text-muted">Listado de usuarios registrados en el sistema.</p>
+        </div>
+        <button type="button" class="btn btn-primary" disabled title="Operación temporalmente inhabilitada" data-operacion-usuario>
+            <i class="bi bi-person-plus"></i> Crear Usuario
+        </button>
+    </div>
+
+    <section class="hu3-estadisticas" aria-label="Estadísticas de usuarios">
+        <div class="hu3-estadistica">
+            <span>Total de usuarios</span>
+            <strong aria-label="Dato no disponible">—</strong>
+            <small class="metric-status">Sin conexión</small>
+        </div>
+        <div class="hu3-estadistica">
+            <span>Usuarios activos</span>
+            <strong aria-label="Dato no disponible">—</strong>
+            <small class="metric-status">Sin conexión</small>
+        </div>
+        <div class="hu3-estadistica">
+            <span>Administradores activos</span>
+            <strong aria-label="Dato no disponible">—</strong>
+            <small class="metric-status">Sin conexión</small>
+        </div>
+    </section>
+
+    <section class="hu3-filtros" aria-label="Filtros de usuarios">
+        <h2>Buscar y filtrar usuarios</h2>
+        <div id="hu3AutoFilterForm" role="search" aria-describedby="usuarios-busqueda-estado">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-6">
+                    <label for="hu3Busqueda" class="form-label">Usuario o correo electrónico</label>
+                    <input asp-for="Busqueda" id="hu3Busqueda" class="form-control" type="search" autocomplete="off"
+                           aria-controls="usuarios-resultados" maxlength="100" placeholder="Buscar por nombre o correo..." />
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="hu3RolFiltro" class="form-label">Rol</label>
+                    <select asp-for="RolFiltro" class="form-select" id="hu3RolFiltro">
+                        <option value="">Todos los roles</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Recepcionista">Recepcionista</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label for="hu3ActivoFiltro" class="form-label">Estado</label>
+                    <select asp-for="ActivoFiltro" class="form-select" id="hu3ActivoFiltro">
+                        <option value="">Todos</option>
+                        <option value="true">Activos</option>
+                        <option value="false">Inactivos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="hu3-filtros-pie">
+                <p class="mb-0 text-muted small">Vista previa de los filtros. No se realizan consultas.</p>
+                <button type="button" class="hu3-limpiar bg-transparent" data-limpiar-usuarios>Limpiar filtros</button>
+            </div>
+        </div>
+    </section>
+
+    <p id="usuarios-busqueda-estado" class="usuarios-busqueda-estado" role="status" aria-live="polite" aria-atomic="true">Sin conexión al servicio de usuarios. La búsqueda está temporalmente inhabilitada.</p>
+    <div id="usuarios-resultados" aria-busy="false">
+        <partial name="_ResultadosUsuarios" model="Model" />
+    </div>
+
+    <dialog id="usuario-estado-dialog" class="usuarios-confirmacion"
+            aria-labelledby="usuario-estado-titulo" aria-describedby="usuario-estado-nombre usuario-estado-descripcion">
+        <div class="usuarios-confirmacion-cabecera">
+            <span class="usuarios-confirmacion-icono" aria-hidden="true">!</span>
+            <div>
+                <p class="usuarios-confirmacion-kicker">ACCESO AL SISTEMA</p>
+                <h2 id="usuario-estado-titulo">Desactivar usuario</h2>
+            </div>
+        </div>
+        <div class="usuarios-confirmacion-contenido">
+            <p id="usuario-estado-nombre" class="usuarios-confirmacion-nombre" data-usuario-confirmacion>No hay un usuario seleccionado.</p>
+            <p id="usuario-estado-descripcion">El cambio de estado está temporalmente inhabilitado.</p>
+        </div>
+        <div class="usuarios-confirmacion-acciones">
+            <button type="button" class="btn usuarios-confirmacion-cancelar" data-cancelar-usuario autofocus>Cancelar</button>
+            <button type="button" class="btn usuarios-confirmacion-aceptar" data-confirmar-usuario disabled data-operacion-usuario>Desactivar usuario</button>
+        </div>
+    </dialog>
+</div>
+
+@section Scripts {
+    <script src="~/js/usuarios.js" asp-append-version="true"></script>
+}
