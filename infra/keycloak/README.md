@@ -45,9 +45,75 @@ Con ese puerto el realm se importa tal como está. Si cambias `KEYCLOAK_PORT`,
 Compose ajusta `KC_HOSTNAME` y el puerto publicado. Como la URL pública del
 realm tiene prioridad, ajusta también **Realm settings → General → Frontend
 URL** o, para un realm nuevo, modifica una copia local del JSON antes de
-importarlo. Mailpit recibe SMTP en `mailpit:1025` desde Keycloak y su bandeja
-web se abre desde Windows en `http://127.0.0.1:8025/`. SMTP local usa la red
-de Compose sin credenciales ni TLS.
+importarlo. Un realm nuevo usa Mailpit por defecto. Su bandeja web se abre
+desde Windows en `http://127.0.0.1:8025/`.
+
+## Elegir SMTP para las invitaciones
+
+Keycloak envía los correos del realm `autotaller`. Desde la raíz del repositorio,
+con Keycloak en ejecución y Node.js 22 o posterior, consulta el modo guardado
+en el realm.
+
+```powershell
+node infra/keycloak/configurar-usuarios-admin.cjs --smtp estado
+```
+
+El modo `mailpit` usa `mailpit:1025` en la red de Compose sin credenciales ni
+TLS. El modo `gmail` usa `smtp.gmail.com:587`, autenticación por contraseña de
+aplicación y STARTTLS obligatorio con validación del certificado. El nombre
+visible del remitente es **AutoTaller Pro**.
+[SMTP de Gmail](https://support.google.com/mail/answer/7104828)
+[STARTTLS en Keycloak 26.8.2](https://www.keycloak.org/docs/26.8.2/upgrading/#smtp-starttls-is-required-when-enabled-cve-2026-107121)
+
+Para activar Gmail, habilita la verificación en dos pasos de la cuenta de
+Google y genera una contraseña de aplicación. Completa en el `.env` local
+`KEYCLOAK_SMTP_GMAIL_USER` con el correo de esa cuenta y
+`KEYCLOAK_SMTP_GMAIL_APP_PASSWORD` con la contraseña de aplicación. Deja
+`KEYCLOAK_SMTP_GMAIL_FROM` vacío para usar la misma cuenta, o completa ese
+campo con un alias previamente verificado en Gmail.
+[Contraseñas de aplicación de Google](https://support.google.com/accounts/answer/185833)
+
+```powershell
+node infra/keycloak/configurar-usuarios-admin.cjs --smtp gmail
+```
+
+Este comando usa las credenciales locales `KEYCLOAK_BOOTSTRAP_ADMIN_*` para
+actualizar únicamente `smtpServer` mediante la API administrativa. No
+reimporta el realm ni reinicia contenedores. El comando confirma qué modo
+quedó guardado y no envía mensajes por sí solo. El cliente técnico de Usuarios
+conserva sus permisos existentes.
+
+Para volver a desarrollo, ejecuta lo siguiente. Keycloak reemplaza la
+configuración SMTP del realm por la de Mailpit, que no usa credenciales.
+
+```powershell
+node infra/keycloak/configurar-usuarios-admin.cjs --smtp mailpit
+node infra/keycloak/configurar-usuarios-admin.cjs --smtp estado
+```
+
+Mantén la contraseña de aplicación fuera de Git y de la salida de comandos.
+Keycloak guarda el SMTP activo en su propia base. Trata cualquier exportación
+del realm o copia de su base como confidencial porque puede incluir secretos;
+usa el JSON versionado como plantilla compartida.
+
+### Verificar entrega con Gmail
+
+1. Antes de invitar a alguien, usa **Realm settings → Email → Test connection**
+   con una cuenta administrativa cuyo correo sea un buzón de prueba autorizado.
+   Keycloak envía esta prueba a la dirección de la cuenta administrativa
+   conectada. Una respuesta exitosa confirma que el servidor SMTP aceptó el
+   mensaje. Confirma por separado que llegó a Recibidos o Spam del buzón.
+2. Usa una cuenta temporal del realm con un destinatario autorizado. Sigue
+   [el flujo de invitación](#invitar-a-un-usuario) con `VERIFY_EMAIL` y
+   `UPDATE_PASSWORD`. Abre el correo en el navegador de Windows de la
+   computadora anfitriona y comprueba que ambas acciones se completan. Retira
+   la cuenta temporal al finalizar.
+
+**Los enlaces de invitación apuntan a `http://127.0.0.1:8180`. Solo funcionan
+desde la computadora anfitriona.** Desde otro dispositivo, esa dirección
+apunta al propio dispositivo. Para incorporar destinatarios externos habrá
+que desplegar Keycloak en una URL HTTPS accesible y coordinar la migración
+de hostname e issuer en otra etapa.
 
 ## Conectividad OIDC entre Windows y Docker
 
@@ -99,8 +165,9 @@ apunten al DNS interno. El loopback de un contenedor apunta a ese contenedor.
    `PUT /admin/realms/autotaller/users/{id}/execute-actions-email` con cuerpo
    JSON `["VERIFY_EMAIL","UPDATE_PASSWORD"]`. El envío puede hacerse sin
    redirección de aplicación mientras Razor aún no participa.
-4. Abre en Mailpit el mensaje del destinatario y sigue el enlace desde una
-   sesión de navegador separada de la consola administrativa. Confirma la
+4. Abre el mensaje en Mailpit o en el buzón autorizado según el SMTP activo.
+   Sigue el enlace desde una sesión de navegador en la computadora anfitriona,
+   separada de la consola administrativa. Confirma la
    invitación y escribe la contraseña que elija el destinatario. Comprueba
    que el correo quede verificado, las dos acciones se completen y la cuenta
    inicie sesión al usar su nueva contraseña.
