@@ -1,13 +1,17 @@
-const { readFileSync } = require('node:fs');
+const { existsSync, readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { parseEnv } = require('node:util');
 
 const realm = JSON.parse(readFileSync(join(__dirname, 'autotaller-realm.json'), 'utf8'));
 const definicion = realm.clients.find(client => client.clientId === 'autotaller-usuarios-api');
 const socio = 'p43-cuenta-tecnica';
+const gmail = { host: 'smtp.gmail.com', port: '587', auth: 'true', authType: 'basic', ssl: 'false',
+    starttls: 'true', fromDisplayName: realm.smtpServer.fromDisplayName };
+
+class ErrorConfiguracion extends Error {}
 
 function exigir(condicion, mensaje) {
-    if (!condicion) throw new Error(mensaje);
+    if (!condicion) throw new ErrorConfiguracion(mensaje);
 }
 
 function iguales(a = [], b = []) {
@@ -15,10 +19,17 @@ function iguales(a = [], b = []) {
 }
 
 async function configurar() {
-    const local = process.env.KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME && process.env.KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD
-        ? process.env
-        : parseEnv(readFileSync('.env', 'utf8'));
-    const url = new URL(process.argv[2] ?? ('http://127.0.0.1:' + (local.KEYCLOAK_PORT || 8180)));
+    const [, , operacion, modo, direccionSmtp] = process.argv;
+    const smtp = operacion === '--smtp';
+    exigir(!smtp || (['estado', 'gmail', 'mailpit'].includes(modo) && process.argv.length <= 5),
+        'Usa --smtp estado, --smtp gmail o --smtp mailpit.');
+    const archivo = existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')) : {};
+    const local = { ...archivo, ...process.env };
+    const smtpServer = smtp && modo === 'gmail' ? prepararGmail(local) : realm.smtpServer;
+    exigir(local.KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME && local.KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD,
+        'Completa las credenciales administrativas locales de Keycloak.');
+    const direccion = smtp ? direccionSmtp : operacion;
+    const url = new URL(direccion ?? ('http://127.0.0.1:' + (local.KEYCLOAK_PORT || 8180)));
     exigir(!url.username && !url.password && !url.search && !url.hash &&
         (url.protocol === 'https:' || (url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))),
         'Usa HTTPS o HTTP en loopback.');
@@ -46,6 +57,19 @@ async function configurar() {
         return respuesta;
     }
     const leer = async ruta => (await solicitar(ruta)).json();
+    if (smtp) {
+        if (modo !== 'estado') await solicitar('', 'PUT', { smtpServer }, [204]);
+        const { smtpServer: activo } = await leer('');
+        const modoActivo = identificarSmtp(activo);
+        if (modo !== 'estado') {
+            const camposVerificables = Object.entries(smtpServer).filter(([campo]) => campo !== 'password');
+            exigir(modoActivo === modo && camposVerificables.every(([campo, valor]) => activo[campo] === valor),
+                'Keycloak no confirmó la configuración SMTP solicitada.');
+        }
+        console.log('SMTP activo en ' + realm.realm + ' · ' + modoActivo);
+        return;
+    }
+
     const buscarCliente = async id => {
         const clientes = await leer('/clients?clientId=' + id);
         exigir(clientes.length < 2, 'Cliente ambiguo: ' + id);
@@ -180,8 +204,27 @@ async function configurar() {
     console.log('Cuenta técnica, grupos, permisos FGAP y perfil de alta de Usuarios verificados.');
 }
 
+function prepararGmail(local) {
+    const user = local.KEYCLOAK_SMTP_GMAIL_USER?.trim();
+    const password = local.KEYCLOAK_SMTP_GMAIL_APP_PASSWORD?.replace(/ /g, '');
+    const from = local.KEYCLOAK_SMTP_GMAIL_FROM?.trim() || user;
+    const direccionValida = /^[^\s<>,;@]+@[^\s<>,;@]+\.[^\s<>,;@]+$/;
+    exigir(user && direccionValida.test(user), 'Completa KEYCLOAK_SMTP_GMAIL_USER con la cuenta autenticada.');
+    exigir(password && /^[A-Za-z0-9]{16}$/.test(password),
+        'Completa KEYCLOAK_SMTP_GMAIL_APP_PASSWORD con una contraseña de aplicación de Google.');
+    exigir(direccionValida.test(from), 'KEYCLOAK_SMTP_GMAIL_FROM debe ser una dirección individual de alias verificado.');
+    return { ...gmail, user, password, from };
+}
+
+function identificarSmtp(activo = {}) {
+    if (Object.entries(realm.smtpServer).every(([campo, valor]) => activo[campo] === valor)
+        && !activo.password && !activo.user && !activo.authTokenClientSecret) return 'mailpit';
+    if (Object.entries(gmail).every(([campo, valor]) => activo[campo] === valor)
+        && activo.user && activo.password && activo.from) return 'gmail';
+    return 'otra configuración';
+}
+
 configurar().catch(error => {
-    console.error(error instanceof Error && !/https?:\/\/|token=|password=/i.test(error.message)
-        ? error.message : 'Falló la configuración de Keycloak.');
+    console.error(error instanceof ErrorConfiguracion ? error.message : 'Falló la comunicación o configuración de Keycloak.');
     process.exitCode = 1;
 });

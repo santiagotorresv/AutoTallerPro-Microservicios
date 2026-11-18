@@ -130,13 +130,15 @@ verificación de la conexión se documentan en la
 - La configuración compartida de Gateway y Compose seguirá la convención de rutas
   anterior. El Frontend se sirve en su puerto propio.
 
-## Keycloak y Mailpit
+## Keycloak y correo de invitación
 
 Abre la consola de Keycloak en el navegador de Windows y usa la cuenta
 administrativa inicial de `.env`. Keycloak espera el estado saludable de su
 PostgreSQL antes de arrancar y usa esa base para guardar su configuración.
 Mailpit recibe correo de desarrollo por SMTP en `mailpit:1025`, sin autenticación
 ni TLS en la red Compose. Los correos recibidos se muestran en su interfaz web.
+Consulta el modo activo y los pasos para alternar con Gmail en la
+[guía SMTP de Keycloak](keycloak/README.md#elegir-smtp-para-las-invitaciones).
 
 ## Persistencia y comprobación
 
