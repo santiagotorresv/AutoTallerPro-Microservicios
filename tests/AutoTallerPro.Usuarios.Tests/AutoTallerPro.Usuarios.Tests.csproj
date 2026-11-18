@@ -16,5 +16,7 @@
           Link="Sql/001_persistencia_usuarios.sql" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../infra/mysql/usuarios/002_altas_usuarios.sql"
           Link="Sql/002_altas_usuarios.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../infra/mysql/usuarios/003_administracion_usuarios.sql"
+          Link="Sql/003_administracion_usuarios.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

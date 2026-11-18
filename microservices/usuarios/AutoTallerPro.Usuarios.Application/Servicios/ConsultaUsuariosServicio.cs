@@ -1,6 +1,8 @@
 using AutoTallerPro.Usuarios.Application.Identidad;
 using AutoTallerPro.Usuarios.Application.Persistencia;
 using AutoTallerPro.Usuarios.Domain;
+using AutoTallerPro.Usuarios.Domain.Resultados;
+using AutoTallerPro.Usuarios.Domain.Validaciones;
 
 namespace AutoTallerPro.Usuarios.Application.Servicios;
 
@@ -14,27 +16,30 @@ public sealed record ResumenUsuarios(int Total, int Activos, int Administradores
 
 public sealed class ConsultaUsuariosServicio(IConsultaFichasUsuarios fichas, IIdentidadesKeycloak identidades)
 {
-    public async Task<PaginaUsuarios> ListarAsync(
+    public async Task<Resultado<PaginaUsuarios>> ListarAsync(
         string emisor, string? busqueda, string? rol, bool? activo, int pagina, int tamanoPagina,
         CancellationToken cancellationToken)
     {
         busqueda = busqueda?.Trim();
-        if (busqueda is { Length: > 254 } || (rol is not null && !Roles.EsDeNegocio(rol))
-            || pagina < 1 || tamanoPagina is < 1 or > 100)
+        var validacion = Validacion.Requerir(busqueda is not { Length: > 254 } && (rol is null || Roles.EsDeNegocio(rol))
+            && pagina >= 1 && tamanoPagina is >= 1 and <= 100, ErrorUsuarios.DatosInvalidos);
+        if (!validacion.EsExitoso)
         {
-            throw new OperacionUsuariosException(ErrorUsuarios.DatosInvalidos);
+            return Resultado<PaginaUsuarios>.Fallido(validacion.Error);
         }
 
         var usuarios = await ConsultarAsync(emisor, busqueda, rol, activo, cancellationToken);
         long omitir = ((long)pagina - 1) * tamanoPagina;
         var resultados = omitir < usuarios.Length ? usuarios.Skip((int)omitir).Take(tamanoPagina).ToArray() : [];
-        return new PaginaUsuarios(resultados, usuarios.Length, pagina, tamanoPagina);
+        return Resultado<PaginaUsuarios>.Exitoso(new PaginaUsuarios(resultados, usuarios.Length, pagina, tamanoPagina));
     }
 
-    public async Task<UsuarioAdministrado?> DetalleAsync(string emisor, int id, CancellationToken cancellationToken)
+    public async Task<Resultado<UsuarioAdministrado>> DetalleAsync(string emisor, int id, CancellationToken cancellationToken)
     {
         var ficha = await fichas.ObtenerAsync(emisor, id, cancellationToken);
-        return ficha is null ? null : await ObtenerUsuarioAsync(ficha, null, null, null, cancellationToken);
+        var usuario = ficha is null ? null : await ObtenerUsuarioAsync(ficha, null, null, null, cancellationToken);
+        return usuario is null ? Resultado<UsuarioAdministrado>.Fallido(ErrorUsuarios.UsuarioNoEncontrado)
+            : Resultado<UsuarioAdministrado>.Exitoso(usuario);
     }
 
     public async Task<ResumenUsuarios> ResumenAsync(string emisor, CancellationToken cancellationToken)
@@ -100,4 +105,3 @@ internal static class EstadoInvitacion
             ? "completada"
             : DesdeRegistro(estado);
 }
-

@@ -27,6 +27,7 @@ internal static class ConfiguracionPersistenciaUsuarios
         builder.Services.AddScoped<IConsultaFichasUsuarios>(s => s.GetRequiredService<FichasAdministrativasMySql>());
         builder.Services.AddScoped<IAuditoriaAdministrativa, AuditoriaAdministrativaMySql>();
         builder.Services.AddScoped<IAltasUsuarios, AltasUsuariosMySql>();
+        builder.Services.AddScoped<IAdministracionUsuarios, AdministracionUsuariosMySql>();
     }
 
     internal static async Task VerificarConexionAsync(IServiceProvider servicios)

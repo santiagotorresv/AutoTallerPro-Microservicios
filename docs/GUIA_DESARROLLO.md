@@ -153,7 +153,7 @@ Clientes/Vehículos y Servicios usan esta división para Arquitectura Hexagonal,
 | P5 · Usuarios Frontend | Conectar las vistas Razor existentes con la gestión de usuarios y desarrollar los flujos de autenticación acordados con P4. |
 | P6 · Integración e infraestructura | Gateway, Docker, coordinación de servicios, integración, pruebas y documentación. |
 
-Result y Adapter se incorporarán más adelante. Órdenes, Productos y Reportes quedan fuera del alcance funcional actual. La disponibilidad de un nombre en el menú indica su ubicación prevista.
+El backend de Usuarios utiliza Result, Adapter, Facade y Factory Method. Sus responsabilidades y ejemplos están en la [guía de la API de Usuarios](USUARIOS_API.md). Órdenes, Productos y Reportes quedan fuera del alcance funcional actual. La disponibilidad de un nombre en el menú indica su ubicación prevista.
 
 ## Infraestructura Docker
 
@@ -214,7 +214,7 @@ code .env
 git check-ignore -- .env
 ```
 
-Sustituye cada valor de ejemplo de las variables que terminan en `_PASSWORD` por una contraseña aleatoria distinta. Mantén los nombres y cuentas de la plantilla, o coordina cambios antes de inicializar volúmenes. Usa `KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME` y `KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD` para la cuenta inicial. Los puertos de infraestructura se pueden ajustar con sus variables `_PORT` si están ocupados. Ajusta también la dirección que uses desde Windows si cambias uno. Los puertos publicados por las aplicaciones .NET están fijos en Compose y cualquier cambio se coordina con P6. Consulta [.env.example](../.env.example).
+Asigna una contraseña aleatoria distinta a cada variable que termina en `_PASSWORD`. Mantén los nombres y cuentas de la plantilla, o coordina cambios antes de inicializar volúmenes. Usa `KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME` y `KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD` para la cuenta inicial. Los puertos de infraestructura se pueden ajustar con sus variables `_PORT` si están ocupados. Ajusta también la dirección que uses desde Windows si cambias uno. Los puertos publicados por las aplicaciones .NET están fijos en Compose y cualquier cambio se coordina con P6. Consulta [.env.example](../.env.example).
 
 Comprueba puertos, valida, compila, levanta y revisa el estado.
 
@@ -369,7 +369,7 @@ Acuerda de antemano con P6 cambios en `docker-compose.yml` y Gateway. En Fronten
 
 ## Seguridad y buenas prácticas
 
-- Conserva `.env` en tu equipo y verifica `git check-ignore -- .env` y `git diff --cached`. Usa [.env.example](../.env.example) para documentar variables con valores de muestra. Mantén fuera de Git claves privadas, certificados locales y credenciales de bases, SMTP o identidad.
+- Conserva `.env` en tu equipo y verifica `git check-ignore -- .env` y `git diff --cached`. Usa [.env.example](../.env.example) para documentar los nombres de las variables y los valores de configuración que no son secretos. Mantén fuera de Git claves privadas, certificados locales y credenciales de bases, SMTP o identidad.
 - Usa exclusivamente las cuentas y bases locales del módulo. Evita conexiones a Aiven y operaciones, migraciones o borrados sobre bases de terceros.
 - Coordina cambios de Compose y Gateway con P6. Usa `docker compose stop` para conservar los datos. Evita `docker compose down -v`, `docker system prune` y otros comandos que borren volúmenes.
 - Conserva la dirección de dependencias y la autonomía de cada módulo. Agrega solo los paquetes y referencias necesarios para el cambio y justifica las decisiones arquitectónicas.
@@ -396,8 +396,8 @@ Acuerda de antemano con P6 cambios en `docker-compose.yml` y Gateway. En Fronten
 
 | Estado | Alcance |
 | --- | --- |
-| Implementado y probado | Solución de 19 proyectos, seis imágenes .NET, Inicio y vistas Razor existentes, cuatro respuestas `/salud` directas y por Gateway, red y volúmenes Docker, realm y cliente OIDC de Keycloak, invitaciones por Mailpit y validación JWT con políticas en Gateway. |
-| Preparado, pendiente de implementación | CRUD y persistencia de los cuatro módulos, Frontends de P1/P2/P3, integración de Usuarios, login y logout de Razor, validación y autorización en cada API, auditoría, Result y Adapter, pruebas de integración y documentación final. |
+| Implementado y probado | Solución con 19 proyectos de aplicación y un proyecto de pruebas, seis imágenes .NET, Inicio y vistas Razor existentes, cuatro respuestas `/salud` directas y por Gateway, red y volúmenes Docker, realm y cliente OIDC de Keycloak, invitaciones por Mailpit y validación JWT con políticas en Gateway. En P4, API administrativa, alta inicial, MySQL, integración con Keycloak, auditoría, idempotencia y recuperación. |
+| Preparado, pendiente de implementación | CRUD y persistencia de Clientes/Vehículos, Servicios y Mecánicos, Frontends de P1/P2/P3, conexión del Frontend de Usuarios (P5), login y logout de Razor y documentación final. |
 | Fuera del alcance funcional actual | Órdenes, Productos y Reportes. El uso de Aiven y de la infraestructura anterior queda fuera del entorno EC3. |
 
 ## Observaciones

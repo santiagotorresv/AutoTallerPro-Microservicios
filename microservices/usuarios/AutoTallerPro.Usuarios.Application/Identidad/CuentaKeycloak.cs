@@ -14,4 +14,7 @@ public sealed record CuentaKeycloak(
 public sealed record NuevaCuentaKeycloak(
     string Username, string Correo, string? Nombre = null, string? Apellido = null, Guid? CorrelacionAlta = null);
 
-public sealed record DatosCuentaKeycloak(string? NuevoCorreo = null, string? Nombre = null, string? Apellido = null);
+public sealed record DatosCuentaKeycloak(string? NuevoCorreo = null, string? Nombre = null, string? Apellido = null,
+    IReadOnlyList<string>? AccionesRequeridas = null);
+
+public enum AccionInvitacion { VERIFY_EMAIL, UPDATE_PASSWORD }

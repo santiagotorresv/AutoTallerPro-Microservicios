@@ -30,8 +30,6 @@ del arranque de la API.
 Get-Content -Raw infra/mysql/usuarios/001_persistencia_usuarios.sql |
     docker compose exec -T mysql-usuarios sh -ec $clienteUsuarios
 'SHOW TABLES;' | docker compose exec -T mysql-usuarios sh -ec $clienteUsuarios
-docker compose up -d --build --no-deps ms-usuarios
-docker compose exec -T ms-usuarios dotnet AutoTallerPro.Usuarios.Api.dll --verificar-mysql
 ```
 
 El verificador usa el mismo origen de conexiones que los repositorios y
@@ -57,6 +55,32 @@ Get-Content -Raw infra/mysql/usuarios/002_altas_usuarios.sql |
 
 El contrato HTTP y los estados de recuperación están en la
 [guía de Usuarios para P5](../../../docs/USUARIOS_API.md).
+
+## Esquema de administración P4.5
+
+Aplica `003_administracion_usuarios.sql` después de `002`. Crea
+`OperacionesUsuarios` para el progreso de cambios administrativos y
+`ControlInvitacionesUsuarios` para coordinar el envío inicial y los
+reenvíos. Si ya había altas con correos solicitados o inciertos, registra
+la hora de la migración como referencia conservadora para el primer
+intervalo. Si reaplicas el esquema, conserva los intentos ya registrados.
+
+```powershell
+Get-Content -Raw infra/mysql/usuarios/003_administracion_usuarios.sql |
+    docker compose exec -T mysql-usuarios sh -ec $clienteUsuarios
+'SHOW TABLES;' | docker compose exec -T mysql-usuarios sh -ec $clienteUsuarios
+```
+
+Con los tres scripts aplicados y el cliente técnico configurado, inicia
+Usuarios y comprueba la conexión con su misma configuración.
+
+```powershell
+docker compose up -d --no-deps --build ms-usuarios
+docker compose exec -T ms-usuarios dotnet AutoTallerPro.Usuarios.Api.dll --verificar-mysql
+```
+
+Continúa con el [primer administrador](../../keycloak/usuarios-admin.md#primer-administrador-de-negocio)
+si se trata de una instalación nueva.
 
 ## Probar con una base aislada
 

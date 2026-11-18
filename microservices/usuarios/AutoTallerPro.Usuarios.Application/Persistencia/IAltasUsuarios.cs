@@ -1,4 +1,5 @@
 using AutoTallerPro.Usuarios.Domain;
+using AutoTallerPro.Usuarios.Domain.Resultados;
 
 namespace AutoTallerPro.Usuarios.Application.Persistencia;
 
@@ -13,10 +14,12 @@ public enum EstadoAlta
 }
 
 public sealed record AltaUsuario(Guid Id, string? Username, string? Sujeto, int? FichaId, EstadoAlta Estado);
+public sealed record AltaInicial(Guid Clave, AltaUsuario Alta);
 
 public interface IAltasUsuarios
 {
-    Task<IAltaUsuario> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
+    Task<Resultado<AltaInicial?>> BuscarAprovisionamientoAsync(IdentidadKeycloak actor, CancellationToken cancellationToken);
+    Task<Resultado<IAltaUsuario>> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
         CancellationToken cancellationToken);
 }
 
@@ -30,4 +33,3 @@ public interface IAltaUsuario : IAsyncDisposable
 }
 
 public sealed class PersistenciaEstadoAltaException() : Exception("No se pudo confirmar el estado del alta.");
-

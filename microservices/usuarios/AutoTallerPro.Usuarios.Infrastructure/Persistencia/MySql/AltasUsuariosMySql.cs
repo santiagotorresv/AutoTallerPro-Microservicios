@@ -4,19 +4,49 @@ using System.Text;
 using AutoTallerPro.Usuarios.Application.Persistencia;
 using AutoTallerPro.Usuarios.Application.Servicios;
 using AutoTallerPro.Usuarios.Domain;
+using AutoTallerPro.Usuarios.Domain.Resultados;
 using MySqlConnector;
 
 namespace AutoTallerPro.Usuarios.Infrastructure.Persistencia.MySql;
 
 public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
 {
-    public async Task<IAltaUsuario> AbrirAsync(
+    public async Task<Resultado<AltaInicial?>> BuscarAprovisionamientoAsync(
+        IdentidadKeycloak actor, CancellationToken cancellationToken)
+    {
+        await using var conexion = await origen.OpenConnectionAsync(cancellationToken);
+        await using var comando = conexion.CreateCommand();
+        comando.CommandText = """
+            SELECT Clave, Id, Username, Sujeto, FichaId, Estado FROM AltasUsuarios
+            WHERE Emisor = @Emisor AND ActorSujeto = @Actor AND Estado BETWEEN 0 AND 3
+            LIMIT 2;
+            """;
+        comando.Parameters.AddWithValue("@Emisor", actor.Emisor);
+        comando.Parameters.AddWithValue("@Actor", actor.Sujeto);
+        await using var fila = await comando.ExecuteReaderAsync(cancellationToken);
+        if (!await fila.ReadAsync(cancellationToken))
+        {
+            return Resultado<AltaInicial?>.Exitoso(null);
+        }
+
+        var encontrada = new AltaInicial(fila.GetGuid(0), new AltaUsuario(fila.GetGuid(1),
+            fila.IsDBNull(2) ? null : fila.GetString(2), fila.IsDBNull(3) ? null : fila.GetString(3),
+            fila.IsDBNull(4) ? null : fila.GetInt32(4), (EstadoAlta)fila.GetByte(5)));
+        if (await fila.ReadAsync(cancellationToken))
+        {
+            return Resultado<AltaInicial?>.Fallido(ErrorUsuarios.PrimerAdministradorNoDisponible);
+        }
+
+        return Resultado<AltaInicial?>.Exitoso(encontrada);
+    }
+    public async Task<Resultado<IAltaUsuario>> AbrirAsync(
         IdentidadKeycloak actor, Guid clave, string correo, byte[] huella, CancellationToken cancellationToken)
     {
         var conexion = await origen.OpenConnectionAsync(cancellationToken);
         string bloqueo = Convert.ToHexString(SHA256.HashData(
             Encoding.UTF8.GetBytes($"{conexion.Database}:p44:{actor.Emisor}:{clave:D}")));
         bool adquirido = false;
+        bool entregada = false;
         try
         {
             await using var comando = conexion.CreateCommand();
@@ -25,20 +55,29 @@ public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
             adquirido = Convert.ToInt32(await comando.ExecuteScalarAsync(cancellationToken)) == 1;
             if (!adquirido)
             {
-                throw new OperacionUsuariosException(ErrorUsuarios.AltaEnCurso);
+                return Resultado<IAltaUsuario>.Fallido(ErrorUsuarios.AltaEnCurso);
             }
 
-            AltaUsuario alta = await LeerOReservarAsync(conexion, actor, clave, correo, huella, cancellationToken);
-            return new Sesion(conexion, bloqueo, actor, alta);
+            var alta = await LeerOReservarAsync(conexion, actor, clave, correo, huella, cancellationToken);
+            if (!alta.EsExitoso)
+            {
+                return Resultado<IAltaUsuario>.Fallido(alta.Error);
+            }
+
+            var resultado = Resultado<IAltaUsuario>.Exitoso(new Sesion(conexion, bloqueo, actor, alta.Valor));
+            entregada = true;
+            return resultado;
         }
-        catch
+        finally
         {
-            await CerrarAsync(conexion, adquirido ? bloqueo : null);
-            throw;
+            if (!entregada)
+            {
+                await CerrarAsync(conexion, adquirido ? bloqueo : null);
+            }
         }
     }
 
-    private static async Task<AltaUsuario> LeerOReservarAsync(
+    private static async Task<Resultado<AltaUsuario>> LeerOReservarAsync(
         MySqlConnection conexion, IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
         CancellationToken cancellationToken)
     {
@@ -55,12 +94,12 @@ public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
             {
                 if (fila.GetString(1) != actor.Sujeto || !CryptographicOperations.FixedTimeEquals((byte[])fila[2], huella))
                 {
-                    throw new OperacionUsuariosException(ErrorUsuarios.ClaveReutilizada);
+                    return Resultado<AltaUsuario>.Fallido(ErrorUsuarios.ClaveReutilizada);
                 }
 
-                return new AltaUsuario(fila.GetGuid(0), fila.IsDBNull(3) ? null : fila.GetString(3),
+                return Resultado<AltaUsuario>.Exitoso(new AltaUsuario(fila.GetGuid(0), fila.IsDBNull(3) ? null : fila.GetString(3),
                     fila.IsDBNull(4) ? null : fila.GetString(4), fila.IsDBNull(5) ? null : fila.GetInt32(5),
-                    (EstadoAlta)fila.GetByte(6));
+                    (EstadoAlta)fila.GetByte(6)));
             }
         }
 
@@ -79,10 +118,10 @@ public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
         }
         catch (MySqlException error) when (error.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
         {
-            throw new OperacionUsuariosException(ErrorUsuarios.CorreoDuplicado);
+            return Resultado<AltaUsuario>.Fallido(ErrorUsuarios.CorreoDuplicado);
         }
 
-        return new AltaUsuario(id, null, null, null, EstadoAlta.Preparada);
+        return Resultado<AltaUsuario>.Exitoso(new AltaUsuario(id, null, null, null, EstadoAlta.Preparada));
     }
 
     private static async ValueTask CerrarAsync(MySqlConnection conexion, string? bloqueo)
@@ -147,7 +186,8 @@ public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
             int id = await FichasAdministrativasMySql.CrearAsync(
                 conexion, transaccion, identidad, fecha, actor, cancellationToken);
             await AuditoriaAdministrativaMySql.RegistrarAsync(conexion, transaccion,
-                new RegistroAuditoria(actor, "USUARIO_CREADO", "Usuario", id.ToString(CultureInfo.InvariantCulture),
+                new RegistroAuditoria(actor, actor.Sujeto == AltaUsuariosServicio.ActorAprovisionamiento
+                    ? "PRIMER_ADMINISTRADOR_CREADO" : "USUARIO_CREADO", "Usuario", id.ToString(CultureInfo.InvariantCulture),
                     fecha, ResultadoAuditoria.Exitoso, CorrelacionId: Alta.Id.ToString("D")), cancellationToken);
 
             await using var comando = conexion.CreateCommand();
@@ -176,4 +216,3 @@ public sealed class AltasUsuariosMySql(MySqlDataSource origen) : IAltasUsuarios
         public ValueTask DisposeAsync() => CerrarAsync(conexion, bloqueo);
     }
 }
-

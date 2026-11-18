@@ -121,6 +121,11 @@ public sealed class KeycloakIdentidadesCliente(
             cambios.Add("lastName", apellido);
         }
 
+        if (datos.AccionesRequeridas is { } acciones)
+        {
+            cambios.Add("requiredActions", acciones);
+        }
+
         if (cambios.Count != 0)
         {
             await EscribirAsync(HttpMethod.Put, ruta, nameof(ActualizarDatosAsync), cambios, cancellationToken);
@@ -128,9 +133,16 @@ public sealed class KeycloakIdentidadesCliente(
     }
 
     public async Task<IReadOnlyList<string>> ObtenerRolesAsync(string id, CancellationToken cancellationToken = default)
+        => await ObtenerRolesAsync(id, "/composite", nameof(ObtenerRolesAsync), cancellationToken);
+
+    public Task<IReadOnlyList<string>> ObtenerRolesDirectosAsync(string id, CancellationToken cancellationToken = default)
+        => ObtenerRolesAsync(id, "", nameof(ObtenerRolesDirectosAsync), cancellationToken);
+
+    private async Task<IReadOnlyList<string>> ObtenerRolesAsync(
+        string id, string sufijo, string operacion, CancellationToken cancellationToken)
     {
-        var roles = await ObtenerJsonAsync<RolRemoto[]>(RutaUsuario(id) + "/role-mappings/realm/composite",
-            nameof(ObtenerRolesAsync), cancellationToken);
+        var roles = await ObtenerJsonAsync<RolRemoto[]>(RutaUsuario(id) + "/role-mappings/realm" + sufijo,
+            operacion, cancellationToken);
         return roles.Where(rol => Roles.EsDeNegocio(rol.Name) && !rol.ClientRole && !string.IsNullOrWhiteSpace(rol.Id))
             .Select(rol => rol.Name!).Distinct(StringComparer.Ordinal).ToArray();
     }
@@ -152,6 +164,86 @@ public sealed class KeycloakIdentidadesCliente(
     public Task SolicitarInvitacionAsync(string id, CancellationToken cancellationToken = default) =>
         EscribirAsync(HttpMethod.Put, RutaUsuario(id) + "/execute-actions-email", nameof(SolicitarInvitacionAsync),
             AccionesInvitacion, cancellationToken);
+
+    public Task SolicitarInvitacionAsync(string id, IReadOnlyList<AccionInvitacion> acciones,
+        CancellationToken cancellationToken = default)
+    {
+        if (acciones.Count == 0 || acciones.Any(accion => !Enum.IsDefined(accion)))
+        {
+            throw new ArgumentException("Indica las acciones de invitación pendientes.", nameof(acciones));
+        }
+        return EscribirAsync(HttpMethod.Put, RutaUsuario(id) + "/execute-actions-email", nameof(SolicitarInvitacionAsync),
+            acciones.Select(accion => accion.ToString()).Distinct().ToArray(), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<string>> ObtenerGruposAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var grupos = await ObtenerJsonAsync<GrupoRemoto[]>(RutaUsuario(id) + "/groups?briefRepresentation=false",
+            nameof(ObtenerGruposAsync), cancellationToken);
+        if (grupos.Any(grupo => string.IsNullOrWhiteSpace(grupo.Path)))
+        {
+            throw new OperacionIdentidadException(nameof(ObtenerGruposAsync), ErrorIdentidad.RespuestaInvalida);
+        }
+        return grupos.Select(grupo => grupo.Path!).ToArray();
+    }
+
+    public async Task<IReadOnlyList<CuentaKeycloak>> ListarAdministradasAsync(CancellationToken cancellationToken = default)
+    {
+        const string operacion = nameof(ListarAdministradasAsync);
+        const int tamano = 100;
+        var grupo = await ObtenerJsonAsync<GrupoRemoto>("group-by-path/" + GrupoGestionado[1..], operacion, cancellationToken);
+        if (grupo.Path != GrupoGestionado || !Guid.TryParseExact(grupo.Id, "D", out _))
+        {
+            throw new OperacionIdentidadException(operacion, ErrorIdentidad.RespuestaInvalida);
+        }
+
+        var usuarios = new Dictionary<string, CuentaKeycloak>(StringComparer.Ordinal);
+        for (int offset = 0; ; offset = checked(offset + tamano))
+        {
+            var ruta = FormattableString.Invariant(
+                $"groups/{grupo.Id}/members?first={offset}&max={tamano}&briefRepresentation=false");
+            var pagina = await ObtenerJsonAsync<UsuarioRemoto[]>(ruta, operacion, cancellationToken);
+            foreach (var remoto in pagina)
+            {
+                var cuenta = Convertir(remoto, operacion);
+                if (!usuarios.TryAdd(cuenta.Id, cuenta))
+                {
+                    throw new OperacionIdentidadException(operacion, ErrorIdentidad.RespuestaInvalida);
+                }
+            }
+            if (pagina.Length < tamano)
+            {
+                return usuarios.Values.ToArray();
+            }
+        }
+    }
+
+    public async Task<bool> TieneContrasenaAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var credenciales = await ObtenerJsonAsync<TipoCredencial[]>(RutaUsuario(id) + "/credentials",
+            nameof(TieneContrasenaAsync), cancellationToken);
+        return credenciales.Any(credencial => credencial.Type == "password");
+    }
+
+    public async Task<bool> TieneSesionesAsync(string id, CancellationToken cancellationToken = default)
+    {
+        var sesiones = await ObtenerJsonAsync<JsonElement[]>(RutaUsuario(id) + "/sessions",
+            nameof(TieneSesionesAsync), cancellationToken);
+        return sesiones.Length > 0;
+    }
+
+    public async Task<string> ObtenerEmisorAsync(CancellationToken cancellationToken = default)
+    {
+        const string operacion = nameof(ObtenerEmisorAsync);
+        var baseUrl = opciones.ObtenerBase(operacion);
+        using var solicitud = new HttpRequestMessage(HttpMethod.Get,
+            new Uri(baseUrl, $"realms/{opciones.Realm}/.well-known/openid-configuration"));
+        using var respuesta = await TransporteKeycloak.EnviarAsync(http, solicitud, operacion, false, cancellationToken);
+        TransporteKeycloak.ExigirEstado(respuesta, HttpStatusCode.OK, operacion, false);
+        var metadatos = await TransporteKeycloak.LeerAsync<MetadatosOidc>(respuesta, operacion, cancellationToken);
+        return !string.IsNullOrWhiteSpace(metadatos.Issuer) ? metadatos.Issuer
+            : throw new OperacionIdentidadException(operacion, ErrorIdentidad.RespuestaInvalida);
+    }
 
     private async Task<CuentaKeycloak?> BuscarExactoAsync(
         string campo, string valor, string operacion, CancellationToken cancellationToken)
@@ -274,6 +366,8 @@ public sealed class KeycloakIdentidadesCliente(
         Dictionary<string, string[]>? Attributes);
     private sealed record RolRemoto(string? Id, string? Name, bool ClientRole, bool Composite);
     private sealed record GrupoRemoto(string? Id, string? Path);
+    private sealed record TipoCredencial(string? Type);
+    private sealed record MetadatosOidc(string? Issuer);
     private sealed record ConflictoRemoto(string? ErrorMessage);
     private sealed record MapeosRemotos(RolRemoto[]? RealmMappings, Dictionary<string, object>? ClientMappings);
 }

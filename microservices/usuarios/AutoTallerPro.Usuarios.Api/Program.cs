@@ -1,23 +1,35 @@
 using System.Security.Claims;
+using AutoTallerPro.Usuarios.Api.Adaptadores.Http;
 using AutoTallerPro.Usuarios.Api.Persistencia;
 using AutoTallerPro.Usuarios.Api.Seguridad;
 using AutoTallerPro.Usuarios.Api.Usuarios;
+using AutoTallerPro.Usuarios.Application.Fachadas;
 using AutoTallerPro.Usuarios.Application.Identidad;
 using AutoTallerPro.Usuarios.Application.Servicios;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 bool verificarMySql = args is ["--verificar-mysql"];
 bool verificarKeycloak = args is ["--verificar-keycloak-admin"];
-var builder = WebApplication.CreateBuilder(verificarMySql || verificarKeycloak ? [] : args);
+bool aprovisionar = args is ["--aprovisionar-primer-administrador"];
+var builder = WebApplication.CreateBuilder(verificarMySql || verificarKeycloak || aprovisionar ? [] : args);
 builder.AddAutenticacionUsuarios();
 builder.AddPersistenciaUsuarios();
 builder.AddKeycloakAdmin();
 builder.Services.AddScoped<AltaUsuariosServicio>();
+builder.Services.AddScoped<AdministracionUsuariosFacade>();
 builder.Services.AddScoped<ConsultaUsuariosServicio>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ProblemasUsuarios>();
 
 var app = builder.Build();
+
+if (aprovisionar)
+{
+    await using var aplicacion = app;
+    Environment.ExitCode = await AprovisionamientoInicial.EjecutarAsync(app.Services,
+        builder.Configuration["Authentication:Authority"]!);
+    return;
+}
 
 if (verificarMySql)
 {

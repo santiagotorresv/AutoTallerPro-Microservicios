@@ -1,8 +1,78 @@
-**/bin/
-**/obj/
+# .NET
+**/[Bb]in/
+**/[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+.artifacts/
+
+# Visual Studio
 .vs/
-.idea/
-*.user
 *.suo
-TestResults/
-/.env
+*.user
+*.rsuser
+*.sln.docstates
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+.idea/
+
+# Variables de entorno
+.env
+.env.*
+*.env
+!.env.example
+
+# Secretos y certificados
+*.pfx
+*.p12
+*.pem
+*.key
+*.publishsettings
+
+# Pruebas y cobertura
+**/TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos temporales
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Datos locales y respaldos
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+respaldos/
+backups/
+tmp/
+
+# Publicaciones
+publish/
+*.pubxml
+*.azurePubxml

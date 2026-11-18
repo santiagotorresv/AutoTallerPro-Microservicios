@@ -17,4 +17,3 @@ CREATE TABLE IF NOT EXISTS AltasUsuarios (
     CONSTRAINT CK_AltasUsuarios_Estado CHECK (Estado BETWEEN 0 AND 5),
     CONSTRAINT CK_AltasUsuarios_FichaEstado CHECK ((FichaId IS NOT NULL) = (Estado BETWEEN 1 AND 3))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_bin;
-

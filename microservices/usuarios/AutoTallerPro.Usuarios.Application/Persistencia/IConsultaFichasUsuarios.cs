@@ -7,4 +7,3 @@ public interface IConsultaFichasUsuarios
     Task<IReadOnlyList<FichaUsuario>> ListarAsync(string emisor, CancellationToken cancellationToken);
     Task<FichaUsuario?> ObtenerAsync(string emisor, int id, CancellationToken cancellationToken);
 }
-

@@ -69,8 +69,9 @@ public sealed class FichasAdministrativasMySql(MySqlDataSource origen) : IFichas
         await using var conexion = await origen.OpenConnectionAsync(cancellationToken);
         await using var comando = conexion.CreateCommand();
         comando.CommandText = """
-            SELECT f.Id, f.KeycloakSujeto, a.Estado
+            SELECT f.Id, f.KeycloakSujeto, COALESCE(c.Estado, a.Estado)
             FROM FichasAdministrativas f LEFT JOIN AltasUsuarios a ON a.FichaId = f.Id
+            LEFT JOIN ControlInvitacionesUsuarios c ON c.FichaId = f.Id
             WHERE f.KeycloakEmisor = @Emisor
             """;
         comando.Parameters.AddWithValue("@Emisor", emisor);
@@ -96,7 +97,14 @@ public sealed class FichasAdministrativasMySql(MySqlDataSource origen) : IFichas
         IdentidadKeycloak? actor, CancellationToken cancellationToken = default)
     {
         await using var conexion = await origen.OpenConnectionAsync(cancellationToken);
+        return await ActualizarMetadatosAsync(conexion, null, id, fechaModificacion, actor, cancellationToken);
+    }
+
+    internal static async Task<bool> ActualizarMetadatosAsync(MySqlConnection conexion, MySqlTransaction? transaccion,
+        int id, DateTimeOffset fechaModificacion, IdentidadKeycloak? actor, CancellationToken cancellationToken)
+    {
         await using var comando = conexion.CreateCommand();
+        comando.Transaction = transaccion;
         comando.CommandText = """
             UPDATE FichasAdministrativas
             SET FechaModificacionUtc = @Fecha, ModificadoPorEmisor = @ActorEmisor,

@@ -72,8 +72,9 @@ dotnet sln AutoTallerPro.sln list
 ## Arranque con Docker
 
 Con Docker Desktop en modo de contenedores Linux, clona el repositorio y abre la
-raíz. Crea `.env` desde la plantilla y cambia cada contraseña de ejemplo por
-una distinta antes del primer arranque. Conserva ese archivo local.
+raíz. Crea `.env` desde la plantilla y asigna una contraseña aleatoria distinta
+a cada variable que termina en `_PASSWORD` antes del primer arranque. Conserva
+ese archivo local.
 
 ```powershell
 if (-not (Test-Path -LiteralPath '.env')) {

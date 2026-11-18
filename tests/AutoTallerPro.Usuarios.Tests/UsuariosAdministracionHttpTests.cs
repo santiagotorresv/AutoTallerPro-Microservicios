@@ -6,6 +6,7 @@ using AutoTallerPro.Usuarios.Application.Identidad;
 using AutoTallerPro.Usuarios.Application.Persistencia;
 using AutoTallerPro.Usuarios.Application.Servicios;
 using AutoTallerPro.Usuarios.Domain;
+using AutoTallerPro.Usuarios.Domain.Resultados;
 using AutoTallerPro.Usuarios.Tests.Persistencia;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,10 @@ public sealed class UsuariosAdministracionHttpTests(UsuariosApiFactory api) : IC
     [InlineData("GET", "/usuarios")]
     [InlineData("GET", "/usuarios/1")]
     [InlineData("GET", "/usuarios/resumen")]
+    [InlineData("PUT", "/usuarios/1")]
+    [InlineData("POST", "/usuarios/1/desactivar")]
+    [InlineData("POST", "/usuarios/1/reactivar")]
+    [InlineData("POST", "/usuarios/1/reenviar-invitacion")]
     public async Task Endpoints_ExigenTokenYAdministrador(string metodo, string ruta)
     {
         using var http = api.CreateClient();
@@ -32,18 +37,25 @@ public sealed class UsuariosAdministracionHttpTests(UsuariosApiFactory api) : IC
     }
 
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task Alta_RechazaTokenAnteriorALaDesactivacionODegradacion(bool desactivar)
+    [InlineData("desactivado")]
+    [InlineData("degradado")]
+    [InlineData("correo_pendiente")]
+    public async Task Alta_RechazaTokenSiElAdministradorYaNoPuedeOperar(string estado)
     {
         var identidades = new KeycloakPrueba(Actor);
-        if (desactivar)
+        if (estado == "desactivado")
         {
             await identidades.CambiarHabilitacionAsync(Actor.Sujeto, false);
         }
+        else if (estado == "degradado")
+        {
+            await identidades.RetirarRolAsync(Actor.Sujeto, Roles.Administrador);
+            await identidades.AsignarRolAsync(Actor.Sujeto, Roles.Recepcionista);
+        }
         else
         {
-            await identidades.AsignarRolAsync(Actor.Sujeto, Roles.Recepcionista);
+            await identidades.ActualizarDatosAsync(Actor.Sujeto, new("cambiado@ejemplo.invalid",
+                AccionesRequeridas: ["VERIFY_EMAIL"]));
         }
 
         using var personalizada = Personalizar(identidades);
@@ -100,9 +112,11 @@ public sealed class UsuariosAdministracionHttpTests(UsuariosApiFactory api) : IC
             servicios.RemoveAll<IIdentidadesKeycloak>();
             servicios.RemoveAll<IAltasUsuarios>();
             servicios.RemoveAll<IConsultaFichasUsuarios>();
+            servicios.RemoveAll<IAdministracionUsuarios>();
             servicios.AddSingleton(identidades);
             servicios.AddSingleton(altas ?? new AltasDuplicadas());
             servicios.AddSingleton<IConsultaFichasUsuarios, SinFichas>();
+            servicios.AddSingleton<IAdministracionUsuarios, SinAdministracion>();
         }));
 
     private HttpClient ComoAdministrador(HttpClient http)
@@ -121,17 +135,23 @@ public sealed class UsuariosAdministracionHttpTests(UsuariosApiFactory api) : IC
 
     private sealed class AltasDuplicadas : IAltasUsuarios
     {
-        public Task<IAltaUsuario> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
+        public Task<Resultado<AltaInicial?>> BuscarAprovisionamientoAsync(IdentidadKeycloak actor, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public Task<Resultado<IAltaUsuario>> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
             CancellationToken cancellationToken)
         {
             Assert.Equal(Actor, actor);
-            throw new OperacionUsuariosException(ErrorUsuarios.CorreoDuplicado);
+            return Task.FromResult(Resultado<IAltaUsuario>.Fallido(ErrorUsuarios.CorreoDuplicado));
         }
     }
 
     private sealed class AltasNoDisponibles : IAltasUsuarios
     {
-        public Task<IAltaUsuario> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
+        public Task<Resultado<AltaInicial?>> BuscarAprovisionamientoAsync(IdentidadKeycloak actor, CancellationToken cancellationToken) =>
+            throw new NotSupportedException();
+
+        public Task<Resultado<IAltaUsuario>> AbrirAsync(IdentidadKeycloak actor, Guid clave, string correo, byte[] huella,
             CancellationToken cancellationToken) =>
             throw new OperacionIdentidadException("detalle-reservado", ErrorIdentidad.NoDisponible, 503);
     }
@@ -143,5 +163,10 @@ public sealed class UsuariosAdministracionHttpTests(UsuariosApiFactory api) : IC
         public Task<FichaUsuario?> ObtenerAsync(string emisor, int id, CancellationToken cancellationToken) =>
             Task.FromResult<FichaUsuario?>(null);
     }
-}
 
+    private sealed class SinAdministracion : IAdministracionUsuarios
+    {
+        public Task<Resultado<ISesionAdministracionUsuarios>> AbrirAsync(string emisor, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("Esta prueba no debe iniciar administración.");
+    }
+}

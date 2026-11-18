@@ -14,4 +14,12 @@ public interface IIdentidadesKeycloak
     Task CambiarHabilitacionAsync(string id, bool habilitada, CancellationToken cancellationToken = default);
     Task CerrarSesionesAsync(string id, CancellationToken cancellationToken = default);
     Task SolicitarInvitacionAsync(string id, CancellationToken cancellationToken = default);
+    Task SolicitarInvitacionAsync(string id, IReadOnlyList<AccionInvitacion> acciones,
+        CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> ObtenerGruposAsync(string id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CuentaKeycloak>> ListarAdministradasAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> ObtenerRolesDirectosAsync(string id, CancellationToken cancellationToken = default);
+    Task<bool> TieneContrasenaAsync(string id, CancellationToken cancellationToken = default);
+    Task<bool> TieneSesionesAsync(string id, CancellationToken cancellationToken = default);
+    Task<string> ObtenerEmisorAsync(CancellationToken cancellationToken = default);
 }

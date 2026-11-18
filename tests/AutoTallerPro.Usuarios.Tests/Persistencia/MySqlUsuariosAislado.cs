@@ -49,18 +49,20 @@ public sealed class MySqlUsuariosAislado : IAsyncLifetime
     }
 
     internal WebApplicationFactory<Program> CrearApi(string? password = null) =>
-        new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder
-            .UseSetting("Database:Host", _opciones.Server)
+        new WebApplicationFactory<Program>().WithWebHostBuilder(builder => ConfigurarApi(builder, password));
+
+    internal void ConfigurarApi(IWebHostBuilder builder, string? password = null) =>
+        builder.UseSetting("Database:Host", _opciones.Server)
             .UseSetting("Database:Port", _opciones.Port.ToString(CultureInfo.InvariantCulture))
             .UseSetting("Database:Name", _opciones.Database)
             .UseSetting("Database:User", _opciones.UserID)
-            .UseSetting("Database:Password", password ?? _opciones.Password));
+            .UseSetting("Database:Password", password ?? _opciones.Password);
 
     internal async Task AplicarEsquemaAsync()
     {
         await using var conexion = new MySqlConnection(_opciones.ConnectionString);
         await conexion.OpenAsync();
-        foreach (string archivo in new[] { "001_persistencia_usuarios.sql", "002_altas_usuarios.sql" })
+        foreach (string archivo in new[] { "001_persistencia_usuarios.sql", "002_altas_usuarios.sql", "003_administracion_usuarios.sql" })
         {
             string sql = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", archivo));
             await using var comando = new MySqlCommand(sql, conexion);

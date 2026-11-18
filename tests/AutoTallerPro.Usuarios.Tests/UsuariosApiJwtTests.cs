@@ -20,6 +20,18 @@ namespace AutoTallerPro.Usuarios.Tests;
 
 public sealed class UsuariosApiJwtTests(UsuariosApiFactory api) : IClassFixture<UsuariosApiFactory>
 {
+    [Theory]
+    [InlineData("DELETE", "/usuarios/1")]
+    [InlineData("POST", "/usuarios/1/contrasena")]
+    [InlineData("POST", "/aprovisionar-primer-administrador")]
+    public async Task Api_NoExponeOperacionesReservadas(string metodo, string ruta)
+    {
+        using var cliente = api.CreateClient();
+        cliente.DefaultRequestHeaders.Authorization = Bearer(api.EmitirToken([Roles.Administrador]));
+        using var respuesta = await cliente.SendAsync(new HttpRequestMessage(new HttpMethod(metodo), ruta));
+        Assert.Contains(respuesta.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
+    }
+
     [Fact]
     public async Task Salud_AdmiteAccesoAnonimo()
     {
