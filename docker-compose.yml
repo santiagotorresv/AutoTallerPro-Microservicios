@@ -149,6 +149,9 @@ services:
       context: .
       dockerfile: gateway/AutoTallerPro.Gateway/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Authentication__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
       ReverseProxy__Clusters__ms-clientes__Destinations__principal__Address: http://ms-clientes:8080/
       ReverseProxy__Clusters__ms-servicios__Destinations__principal__Address: http://ms-servicios:8080/
       ReverseProxy__Clusters__ms-mecanicos__Destinations__principal__Address: http://ms-mecanicos:8080/

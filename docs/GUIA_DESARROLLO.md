@@ -271,14 +271,20 @@ Cada responsable implementará drivers, mapeos, modelos, tablas o colecciones y 
 
 [Program.cs](../gateway/AutoTallerPro.Gateway/Program.cs) carga `ReverseProxy` de la configuración y llama a `MapReverseProxy`. [appsettings.json](../gateway/AutoTallerPro.Gateway/appsettings.json) define las rutas y usa los destinos locales para ejecución con el SDK. Compose sobrescribe sus direcciones con `ReverseProxy__Clusters__<servicio>__Destinations__principal__Address`.
 
-| Ruta pública | Destino en Compose |
+| Prefijo | Destino en Compose |
 | --- | --- |
 | `/api/clientes-vehiculos/{**catch-all}` | `http://ms-clientes:8080/` |
 | `/api/servicios/{**catch-all}` | `http://ms-servicios:8080/` |
 | `/api/mecanicos/{**catch-all}` | `http://ms-mecanicos:8080/` |
 | `/api/usuarios/{**catch-all}` | `http://ms-usuarios:8080/` |
 
-`PathRemovePrefix` elimina el prefijo del módulo. Define en la API únicamente lo que viene después de ese prefijo. Por ejemplo, `GET /api/mecanicos/salud` se reenvía como `GET http://ms-mecanicos:8080/salud`. Realm del proyecto, clientes OIDC, mapeo de roles, validación de tokens y políticas están pendientes.
+`PathRemovePrefix` elimina el prefijo del módulo. Por ejemplo, `GET /api/mecanicos/salud` se reenvía como `GET http://ms-mecanicos:8080/salud`.
+
+Gateway usa JWT Bearer y obtiene las claves de firma desde el JWKS anunciado por Keycloak. Valida la firma, el emisor exacto `http://127.0.0.1:8180/realms/autotaller`, la audiencia `autotaller-api` y la vigencia. Acepta access tokens de Keycloak con `typ` igual a `Bearer` y lee los roles de negocio de `realm_access.roles`. En Docker usa el discovery interno de `keycloak:8080`. Al usar el perfil `http` del SDK en Windows, el discovery deriva del emisor público. Los metadatos HTTP se permiten en `Development`. Véase la [configuración de audiencia en Keycloak](../infra/keycloak/README.md#audiencia-de-las-api).
+
+Los cuatro GET `/api/<módulo>/salud` son anónimos y sus rutas tienen prioridad sobre las generales. Las demás solicitudes bajo esos prefijos requieren la política `PersonalAutorizado`, que admite `Administrador` y `Recepcionista`. La política `SoloAdministrador` queda disponible para futuros endpoints que lo requieran. Usuarios aplica por ahora la política general. Gateway responde 401 cuando falta un access token válido y 403 cuando el usuario autenticado carece del rol requerido. Una solicitud autorizada puede recibir 404 de la API si el endpoint todavía no existe.
+
+Las APIs siguen accesibles directamente en los puertos publicados de Compose y esa conexión evita la validación de Gateway. P1–P4 deben incorporar validación de access tokens y políticas en sus propias APIs, coordinar la audiencia y acordar las operaciones de cada rol. La autorización de cada API debe usar los claims del token validado.
 
 ```powershell
 'clientes-vehiculos', 'servicios', 'mecanicos', 'usuarios' | ForEach-Object {
@@ -390,8 +396,8 @@ Acuerda de antemano con P6 cambios en `docker-compose.yml` y Gateway. En Fronten
 
 | Estado | Alcance |
 | --- | --- |
-| Implementado y probado en las etapas iniciales | Solución de 19 proyectos, seis imágenes .NET, Inicio y vistas Razor existentes, cuatro respuestas `/salud` directas y por Gateway, red y volúmenes Docker, cinco bases accesibles, consola de Keycloak y Mailpit. |
-| Preparado, pendiente de implementación | CRUD de los cuatro módulos, drivers y conexiones de persistencia en las APIs, Frontends de P1/P2/P3, integración de Usuarios, realm y clientes OIDC del proyecto, autenticación y autorización, auditoría, Result y Adapter, pruebas de integración y documentación final. |
+| Implementado y probado | Solución de 19 proyectos, seis imágenes .NET, Inicio y vistas Razor existentes, cuatro respuestas `/salud` directas y por Gateway, red y volúmenes Docker, realm y cliente OIDC de Keycloak, invitaciones por Mailpit y validación JWT con políticas en Gateway. |
+| Preparado, pendiente de implementación | CRUD y persistencia de los cuatro módulos, Frontends de P1/P2/P3, integración de Usuarios, login y logout de Razor, validación y autorización en cada API, auditoría, Result y Adapter, pruebas de integración y documentación final. |
 | Fuera del alcance funcional actual | Órdenes, Productos y Reportes. El uso de Aiven y de la infraestructura anterior queda fuera del entorno EC3. |
 
 ## Observaciones
