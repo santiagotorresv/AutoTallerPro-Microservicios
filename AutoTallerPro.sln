@@ -59,6 +59,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend-app", "frontend-ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTallerPro.Frontend", "frontend-app\AutoTallerPro.Frontend.csproj", "{708B2494-05AE-4042-B827-5FBC365863FC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTallerPro.Usuarios.Tests", "tests\AutoTallerPro.Usuarios.Tests\AutoTallerPro.Usuarios.Tests.csproj", "{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -297,6 +301,18 @@ Global
 		{708B2494-05AE-4042-B827-5FBC365863FC}.Release|x64.Build.0 = Release|Any CPU
 		{708B2494-05AE-4042-B827-5FBC365863FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{708B2494-05AE-4042-B827-5FBC365863FC}.Release|x86.Build.0 = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|x64.Build.0 = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|x64.Build.0 = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -326,5 +342,6 @@ Global
 		{85E3A286-880E-ADB0-5CF2-3F1BDB3A4229} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 		{C9891FFB-D058-44AB-AD2C-73818FB79097} = {85E3A286-880E-ADB0-5CF2-3F1BDB3A4229}
 		{708B2494-05AE-4042-B827-5FBC365863FC} = {95C4E8AE-3AB9-E9E0-F292-872E14AAE9FD}
+		{1D5A7789-37E6-4A2B-B4D6-F3E057DE88EA} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

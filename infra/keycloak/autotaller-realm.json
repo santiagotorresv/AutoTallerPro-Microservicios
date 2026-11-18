@@ -2,6 +2,7 @@
   "realm": "autotaller",
   "displayName": "AutoTaller Pro",
   "enabled": true,
+  "adminPermissionsEnabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
@@ -35,6 +36,19 @@
       }
     ]
   },
+  "groups": [
+    {
+      "name": "usuarios-administrados"
+    },
+    {
+      "name": "usuarios-rol-administrador",
+      "realmRoles": ["Administrador"]
+    },
+    {
+      "name": "usuarios-rol-recepcionista",
+      "realmRoles": ["Recepcionista"]
+    }
+  ],
   "requiredActions": [
     {
       "alias": "VERIFY_EMAIL",
@@ -112,6 +126,21 @@
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "http://127.0.0.1:5105/signout-callback-oidc"
       }
+    },
+    {
+      "clientId": "autotaller-usuarios-api",
+      "name": "AutoTaller Pro Usuarios (cuenta técnica)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": ["basic", "roles", "kc-admin-api"],
+      "optionalClientScopes": []
     }
   ]
 }
