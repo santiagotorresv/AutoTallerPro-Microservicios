@@ -1,0 +1,78 @@
+{
+  "realm": "autotaller",
+  "displayName": "AutoTaller Pro",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "verifyEmail": true,
+  "resetPasswordAllowed": false,
+  "passwordPolicy": "length(8) and maxLength(128) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and regexPattern((?U)\\A\\S[\\s\\S]*\\S\\z)",
+  "attributes": {
+    "frontendUrl": "http://127.0.0.1:8180"
+  },
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "autotaller@ejemplo.invalid",
+    "fromDisplayName": "AutoTaller Pro",
+    "auth": "false",
+    "ssl": "false",
+    "starttls": "false"
+  },
+  "roles": {
+    "realm": [
+      {
+        "name": "Administrador",
+        "description": "Administración de AutoTaller Pro"
+      },
+      {
+        "name": "Recepcionista",
+        "description": "Operación de recepción de AutoTaller Pro"
+      }
+    ]
+  },
+  "requiredActions": [
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 50,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 60,
+      "config": {}
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "autotaller-frontend",
+      "name": "AutoTaller Pro Razor Pages",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://127.0.0.1:5105/signin-oidc"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://127.0.0.1:5105/signout-callback-oidc"
+      }
+    }
+  ]
+}

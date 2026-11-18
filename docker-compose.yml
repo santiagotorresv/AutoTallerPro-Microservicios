@@ -91,6 +91,8 @@ services:
     image: quay.io/keycloak/keycloak:26.8.2
     command: [start-dev]
     environment:
+      KC_HOSTNAME: "http://127.0.0.1:${KEYCLOAK_PORT:-8180}"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_DB: postgres
       KC_DB_URL_HOST: postgres-keycloak
       KC_DB_URL_DATABASE: ${POSTGRES_KEYCLOAK_DB:?Define POSTGRES_KEYCLOAK_DB}
