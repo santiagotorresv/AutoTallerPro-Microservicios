@@ -204,6 +204,13 @@ services:
       context: .
       dockerfile: microservices/usuarios/AutoTallerPro.Usuarios.Api/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Authentication__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
+      KeycloakAdmin__BaseUrl: ${KEYCLOAK_USUARIOS_ADMIN_URL:-http://keycloak:8080}
+      KeycloakAdmin__Realm: ${KEYCLOAK_USUARIOS_REALM:-autotaller}
+      KeycloakAdmin__ClientId: ${KEYCLOAK_USUARIOS_CLIENT_ID:-autotaller-usuarios-api}
+      KeycloakAdmin__ClientSecret: ${KEYCLOAK_USUARIOS_CLIENT_SECRET:-}
       Database__Host: mysql-usuarios
       Database__Port: "3306"
       Database__Name: ${MYSQL_USUARIOS_DB:?Define MYSQL_USUARIOS_DB}

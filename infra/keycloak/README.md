@@ -149,11 +149,13 @@ scopes nativos y asigna la audiencia exclusivamente al cliente previsto.
 La [guía de Gateway](../../docs/GUIA_DESARROLLO.md#gateway-yarp) detalla las
 políticas y la validación.
 
-Quedan pendientes el login y logout de Razor, su cookie y Data Protection,
-la validación de tokens en cada API y la integración de Usuarios con la
-administración de Keycloak. Usuarios tendrá que crear identidades e
-invitaciones con permisos acotados y vincular sus registros de MySQL al
-identificador de Keycloak. Las contraseñas se mantienen en Keycloak.
+La cuenta técnica de P4 se configura siguiendo la
+[guía de Keycloak Admin para Usuarios](usuarios-admin.md). Su audiencia
+administrativa es independiente de `autotaller-api`.
+
+Quedan pendientes el login y logout de Razor, la validación de tokens en las
+API restantes y los casos de uso que coordinan Keycloak con MySQL. Las
+contraseñas se mantienen en Keycloak.
 
 [Mecanismos de importación de Keycloak](https://www.keycloak.org/server/importExport) ·
 [Hostname y URLs de Keycloak](https://www.keycloak.org/server/hostname) ·
