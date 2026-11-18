@@ -114,6 +114,10 @@ como `Database:Host`, `Database:Port`, `Database:Name`, `Database:User`,
 `Database:Password` y, donde aplica, `Database:AuthSource`. La configuración
 está preparada para los futuros drivers y se inyecta solo al arrancar.
 
+Usuarios ya usa estas variables para su conexión MySQL. El esquema y la
+verificación de la conexión se documentan en la
+[guía de persistencia de Usuarios](mysql/usuarios/README.md).
+
 ## Trabajo por módulo
 
 - Clientes/Vehículos implementará el acceso a PostgreSQL, los endpoints del
