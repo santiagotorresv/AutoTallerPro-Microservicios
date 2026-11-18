@@ -11,7 +11,8 @@
   "resetPasswordAllowed": false,
   "passwordPolicy": "length(8) and maxLength(128) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and regexPattern((?U)\\A\\S[\\s\\S]*\\S\\z)",
   "attributes": {
-    "frontendUrl": "http://127.0.0.1:8180"
+    "frontendUrl": "http://127.0.0.1:8180",
+    "CreateDefaultClientScopes": "true"
   },
   "smtpServer": {
     "host": "mailpit",
@@ -54,6 +55,28 @@
       "config": {}
     }
   ],
+  "clientScopes": [
+    {
+      "name": "autotaller-api",
+      "description": "Audiencia de los access tokens para las APIs de AutoTaller Pro",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "autotaller-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "autotaller-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
   "clients": [
     {
       "clientId": "autotaller-frontend",
@@ -66,6 +89,22 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
+      "defaultClientScopes": [
+        "acr",
+        "basic",
+        "email",
+        "profile",
+        "roles",
+        "web-origins",
+        "autotaller-api"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "microprofile-jwt",
+        "offline_access",
+        "organization",
+        "phone"
+      ],
       "redirectUris": [
         "http://127.0.0.1:5105/signin-oidc"
       ],

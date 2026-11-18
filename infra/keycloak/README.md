@@ -1,4 +1,4 @@
-# Keycloak · Etapas 4A y 4B.1
+# Keycloak en el entorno local
 
 La definición [autotaller-realm.json](autotaller-realm.json) corresponde a
 Keycloak 26.8.2. Usa la instancia y el PostgreSQL de Keycloak que ya levanta
@@ -117,23 +117,43 @@ sin cuentas, credenciales ni enlaces.
 - Retorno de login `http://127.0.0.1:5105/signin-oidc`. Retorno de logout
   `http://127.0.0.1:5105/signout-callback-oidc`. Usa el host literal
   `127.0.0.1` en Razor o acuerda actualizar las URLs exactas del cliente.
-- Para Razor y Gateway en Docker, configura `Authority` con el emisor público
-  y `MetadataAddress` con el discovery interno. Usa las URLs devueltas por el
-  discovery para el canje y las claves. Cuando .NET se ejecute en Windows, usa
-  el discovery público. `RequireHttpsMetadata = false` queda reservado al
+- Para la futura integración de Razor en Docker, usa `Authority` con el emisor
+  público y `MetadataAddress` con el discovery interno. Usa el endpoint de
+  tokens anunciado para el canje. Cuando .NET se ejecute en Windows, usa el
+  discovery público. `RequireHttpsMetadata = false` queda reservado al
   entorno local con HTTP. [Opciones de OpenID Connect de ASP.NET Core](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.openidconnect.openidconnectoptions?view=aspnetcore-10.0)
-- Comprueba que el issuer anunciado coincide con el emisor configurado y
-  que `iss` coincide exactamente con él. Conserva la validación de firma,
-  audiencia y vigencia, y la actualización de claves desde JWKS. Acordad la
-  audiencia de los access tokens de la API al integrar JWT Bearer en Gateway.
-  [Validación JWT Bearer en ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-10.0)
 
-Quedan pendientes el inicio y cierre de sesión desde Razor, su cookie y
-Data Protection, la validación de tokens en el Gateway y las políticas de
-las API. El backend Usuarios tendrá que crear identidades y enviar
-invitaciones con una cuenta técnica de permisos acotados, aplicar las reglas
-de negocio y vincular su registro de MySQL con la identidad de Keycloak.
-MySQL de Usuarios no almacenará contraseñas.
+## Audiencia de las API
+
+El scope OIDC `autotaller-api` se asigna como **Default** a
+`autotaller-frontend`. Su mapper nativo **Audience** añade `autotaller-api`
+al claim `aud` del access token. El ID token conserva su audiencia de cliente.
+El scope nativo `roles` sigue disponible y emite los roles del realm en
+`realm_access.roles`. [Mappers oficiales de Keycloak](https://www.keycloak.org/admin-api/protocol-mappers)
+
+Si el realm ya existe, aplica el cambio desde la consola de Keycloak.
+
+1. En **Client scopes**, crea `autotaller-api` con protocolo **OpenID Connect**
+   y desactiva **Include in token scope**. Si ya existe, comprueba su mapper
+   antes de cambiarlo.
+2. En **Mappers**, añade un mapper **Audience** con el nombre `autotaller-api`.
+   En **Included Custom Audience** escribe `autotaller-api`. Activa **Add to
+   access token** y deja desactivado **Add to ID token**.
+3. En **Clients → autotaller-frontend → Client scopes**, añade el scope como
+   **Default** del cliente y conserva los scopes existentes. Los tokens
+   emitidos antes del cambio deben renovarse.
+
+Para un realm nuevo, importa [el JSON](autotaller-realm.json) siguiendo los
+pasos anteriores de reproducción. El archivo activa la creación de los
+scopes nativos y asigna la audiencia exclusivamente al cliente previsto.
+La [guía de Gateway](../../docs/GUIA_DESARROLLO.md#gateway-yarp) detalla las
+políticas y la validación.
+
+Quedan pendientes el login y logout de Razor, su cookie y Data Protection,
+la validación de tokens en cada API y la integración de Usuarios con la
+administración de Keycloak. Usuarios tendrá que crear identidades e
+invitaciones con permisos acotados y vincular sus registros de MySQL al
+identificador de Keycloak. Las contraseñas se mantienen en Keycloak.
 
 [Mecanismos de importación de Keycloak](https://www.keycloak.org/server/importExport) ·
 [Hostname y URLs de Keycloak](https://www.keycloak.org/server/hostname) ·
