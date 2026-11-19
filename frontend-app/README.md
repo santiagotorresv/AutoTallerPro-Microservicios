@@ -1,4 +1,4 @@
-# Frontend — Base visual y administración de Usuarios
+# Frontend — Razor Pages de AutoTaller Pro
 
 Proyecto `AutoTallerPro.Frontend`, ASP.NET Core Razor Pages en .NET 10.
 
@@ -6,102 +6,57 @@ Desde la raíz del repositorio:
 
 ```powershell
 dotnet build frontend-app/AutoTallerPro.Frontend.csproj
+$env:Autenticacion__ClientSecret = '<secreto de autotaller-frontend>'
 dotnet run --project frontend-app/AutoTallerPro.Frontend.csproj
 ```
 
-El perfil HTTP utiliza `http://localhost:5105`. Incluye Inicio, Privacy, Error y
-las tres páginas de administración de Usuarios. El enlace Usuarios del grupo
-Personal está habilitado y resalta la sección actual. Las demás secciones
-pendientes conservan sus nombres y rutas previstas en `data-pagina-pendiente`,
-sin enlaces activos.
+El perfil HTTP usa `http://127.0.0.1:5105`. Abre siempre esa dirección: Keycloak
+solo acepta el retorno `http://127.0.0.1:5105/signin-oidc`. En Docker, Compose
+entrega el secreto desde `KEYCLOAK_FRONTEND_CLIENT_SECRET` del `.env` local.
 
-Se conservaron los nueve CSS de `wwwroot/css`, la imagen `hero-taller.jpg`, el
-favicon, `site.js` y las cuatro bibliotecas locales con sus licencias del
-frontend anterior. `frontend.css` agrega únicamente los estados de controles
-pendientes y de indicadores sin conexión. Las bibliotecas conservan sus avisos
-de licencia originales.
+## Sesión con Keycloak (P5)
 
-Inicio conserva la portada, las tres tarjetas, las tres métricas y la sección de
-auditoría. Los valores de las métricas son `—`, con estado «Sin conexión». La
-fecha se presenta en la zona horaria de Bolivia. El encabezado indica
-«Autenticación pendiente»; no hay usuario ni estadísticas simulados.
+[SesionKeycloak.cs](Seguridad/SesionKeycloak.cs) configura una cookie de sesión y
+OpenID Connect con el cliente `autotaller-frontend` (Authorization Code + PKCE).
 
-No hay referencias a otros proyectos, paquetes NuGet explícitos, clientes HTTP,
-sesiones ni autenticación. No se copiaron configuraciones de conexiones,
-credenciales, certificados o Docker.
+- **Login.** Todas las páginas exigen sesión, salvo Error, Privacy y el aviso de
+  error de inicio de sesión. Sin sesión, Razor redirige al login de Keycloak.
+- **JWT hacia las API.** La cookie guarda el access token emitido por Keycloak.
+  `GrupoUno/ClienteGateway` y `ApiUsuarios/ClienteUsuarios` lo envían en
+  `Authorization: Bearer` al Gateway, que valida firma, emisor, audiencia y rol.
+- **Roles.** Al iniciar sesión se leen `Administrador` y `Recepcionista` de
+  `realm_access.roles`. El menú muestra Usuarios solo a `Administrador`, y la
+  carpeta `/Administracion/Usuarios` exige la política `SoloAdministrador`.
+- **Renovación.** El access token dura 5 minutos. Antes de que venza, la cookie
+  lo renueva con el refresh token. Si Keycloak lo rechaza (cuenta desactivada,
+  sesión cerrada por un administrador), se cierra la sesión local.
+- **Sesión.** La cookie expira tras 30 minutos sin actividad.
+- **Cerrar sesión.** Cierra la cookie y la sesión de Keycloak.
+- **Cambiar contraseña.** Inicia la acción `UPDATE_PASSWORD` de Keycloak con
+  `max_age=0`: Keycloak pide la contraseña actual y la nueva dos veces, y
+  aplica la política del realm. Al volver, Razor informa el resultado.
+- **Primer acceso.** El usuario recibe la invitación, verifica su correo y
+  elige su contraseña en Keycloak antes de su primer inicio de sesión.
 
 ## Administración de Usuarios
 
-Rutas originales conservadas:
+Las páginas de `Pages/Administracion/Usuarios/` consumen el contrato
+[USUARIOS_API.md](../docs/USUARIOS_API.md) mediante el Gateway.
 
-- `/Administracion/Usuarios/Index` y su ruta equivalente `/Administracion/Usuarios`.
-- `/Administracion/Usuarios/Crear`.
-- `/Administracion/Usuarios/Editar/{id:int}`.
+- **Listado:** búsqueda por usuario o correo, filtros de rol y estado,
+  paginación, contadores del resumen y estado de la invitación. Acciones por
+  fila para desactivar (con confirmación), reactivar y reenviar la invitación.
+- **Crear:** nombre, apellido, correo y rol. El administrador no define la
+  contraseña; Keycloak envía la invitación. No existe registro público.
+- **Editar:** correo, rol y estado. El nombre de usuario es inmutable.
 
-Editar conserva el identificador en la ruta por compatibilidad visual; no carga
-un usuario ni interpreta ese identificador como un registro existente. Los campos
-se muestran vacíos y el estado de la cuenta figura como no disponible.
+[ClienteUsuarios](ApiUsuarios/ClienteUsuarios.cs) es el Adapter del Frontend:
+traduce las llamadas de las páginas a HTTP y los ProblemDetails de la API a
+mensajes de la interfaz. Cada escritura envía `Idempotency-Key`. La clave viaja
+en el formulario y se conserva cuando el resultado es incierto (503, falta de
+respuesta, operación en curso), para que **Reintentar** repita la misma
+operación sin duplicarla. Un 429 muestra los segundos de `Retry-After` y
+bloquea el botón de reenvío hasta que se cumplen.
 
-Se recuperaron las tres vistas, `_ResultadosUsuarios.cshtml` y sus PageModels.
-Los modelos `UsuarioCreateInput`, `UsuarioEditInput` y `UsuarioListViewModel`
-contienen solamente datos de presentación y metadatos de etiquetas/tipos de
-campo. No hay DTO, reglas de cuenta, validadores del backend ni políticas de roles.
-
-`usuarios.css` ya estaba copiado sin cambios. `usuarios-form.css` reúne los
-estilos originales que Crear y Editar repetían en sus bloques inline.
-`password-toggle.js` se conserva del original y `usuarios.js` contiene únicamente
-interacciones locales: limpiar los filtros, indicar que no se consulta ningún
-servicio, cerrar el diálogo y representar el estado desconocido de la cuenta.
-
-La tabla conserva sus columnas y el diseño de sus acciones, pero la colección
-de usuarios está vacía y no se muestran filas ficticias. Los contadores muestran
-`—`, con estado «Sin conexión»; la paginación está desactivada. Se conserva el
-diálogo de confirmación con su acción de negocio desactivada.
-
-Crear, guardar, editar y activar/desactivar permanecen inoperativos. El botón
-Crear Usuario del listado también está desactivado; la página de creación puede
-revisarse directamente por su URL. Los bloques de formulario conservan campos,
-etiquetas y distribución con `role="form"`, sin elementos HTML que puedan enviar
-formularios. Pulsar Enter no genera solicitudes, incluso sin JavaScript.
-Cancelar vuelve al listado y mostrar/ocultar contraseñas funciona localmente.
-
-No se migró `Pages/Auth`. La creación de cuentas, el correo de verificación, la
-política de contraseñas y las conexiones con Usuarios/Keycloak quedan pendientes.
-Cada responsable implementará el CRUD y el frontend de Clientes, Vehículos,
-Servicios y Mecánicos; esos módulos no forman parte de esta migración.
-
-## Verificación de Usuarios
-
-Comprobada el 17 de noviembre de 2026:
-
-- Frontend y solución de 19 proyectos: 0 errores y 0 advertencias.
-- HTTP 200 en las tres páginas; Editar se comprobó con `/Editar/1`, sin cargar
-  un registro, respetando su ruta original con identificador entero obligatorio.
-- Navegación desde el menú, sección activa y retorno al listado correctos.
-- Las tres páginas se comprobaron en escritorio (1440 px) y móvil (390 px), sin
-  desbordamiento horizontal del documento; la tabla conserva su scroll local.
-- Nueve recursos relacionados con Usuarios y el layout comprobados por HTTP,
-  con contenido idéntico a sus archivos locales.
-- Filtros, limpieza, Enter, controles desactivados y contraseñas comprobados sin
-  solicitudes adicionales. Los bloques sin envío también se probaron con
-  JavaScript deshabilitado.
-- POST manuales rechazados; no se implementaron handlers de escritura.
-- Sin solicitudes AJAX, a APIs o destinos externos, cookies ni errores de consola.
-- Solo se inició el Frontend y se detuvieron el proceso y el navegador al terminar.
-- Hashes del frontend anterior y de los otros 18 proyectos, la solución y la
-  configuración compartida sin cambios.
-
-## Verificación de la etapa 2B.1
-
-Comprobada el 17 de noviembre de 2026:
-
-- Frontend y solución completa: compilación correcta, 0 errores y 0 advertencias.
-- HTTP 200 en `/`, `/Index`, `/Privacy` y `/Error`.
-- 45 recursos CSS, JavaScript, imágenes y favicon comprobados por HTTP, con
-  contenido idéntico al archivo local.
-- Navegación probada en Chromium con anchos de 1440, 768 y 390 píxeles, sin
-  desbordamiento horizontal; los cinco grupos del menú abren y cierran.
-- Nueve entradas de módulos desactivadas y controles de autenticación sin acción.
-- Sin solicitudes a APIs, AJAX, destinos externos, cookies ni errores de consola.
-- Solo se inició el Frontend; el proceso y el navegador de comprobación se
-  detuvieron al finalizar.
+La verificación de extremo a extremo está en
+[USUARIOS_FRONTEND.md](../docs/USUARIOS_FRONTEND.md).

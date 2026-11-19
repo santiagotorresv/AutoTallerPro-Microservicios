@@ -141,6 +141,11 @@ services:
     build:
       context: .
       dockerfile: frontend-app/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Autenticacion__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Autenticacion__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
+      Autenticacion__ClientSecret: ${KEYCLOAK_FRONTEND_CLIENT_SECRET:-}
     ports:
       - "127.0.0.1:5105:8080"
 

@@ -1,0 +1,15 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Cuenta.AccesoDenegadoModel
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4 hu3-form">
+    <h1 class="fw-bold">Acceso denegado</h1>
+    <p class="text-muted">Su rol no tiene permiso para abrir esta sección. Si cree que es un error, consulte con un administrador.</p>
+    <a asp-page="/Index" class="btn btn-primary">Volver al inicio</a>
+</div>

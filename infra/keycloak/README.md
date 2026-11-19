@@ -177,18 +177,35 @@ cuenta y selecciona el rol. La contraseña se establece en Keycloak por el
 destinatario. La configuración versionada contiene solo datos del realm,
 sin cuentas, credenciales ni enlaces.
 
-## Cliente reservado para Razor Pages
+## Cliente de Razor Pages
 
 - Cliente confidencial `autotaller-frontend`, con Authorization Code Flow y
   PKCE obligatorio `S256`.
 - Retorno de login `http://127.0.0.1:5105/signin-oidc`. Retorno de logout
-  `http://127.0.0.1:5105/signout-callback-oidc`. Usa el host literal
-  `127.0.0.1` en Razor o acuerda actualizar las URLs exactas del cliente.
-- Para la futura integración de Razor en Docker, usa `Authority` con el emisor
-  público y `MetadataAddress` con el discovery interno. Usa el endpoint de
-  tokens anunciado para el canje. Cuando .NET se ejecute en Windows, usa el
-  discovery público. `RequireHttpsMetadata = false` queda reservado al
-  entorno local con HTTP. [Opciones de OpenID Connect de ASP.NET Core](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.openidconnect.openidconnectoptions?view=aspnetcore-10.0)
+  `http://127.0.0.1:5105/signout-callback-oidc`. Abre el Frontend con el host
+  literal `127.0.0.1`; con `localhost` Keycloak rechaza la redirección.
+- En Docker, Razor usa `Authority` con el emisor público y `MetadataAddress`
+  con el discovery interno. Con el SDK en Windows usa el discovery público.
+  `RequireHttpsMetadata = false` queda reservado a `Development`.
+- El secreto se obtiene en **Clients → autotaller-frontend → Credentials** y
+  se guarda en `KEYCLOAK_FRONTEND_CLIENT_SECRET` del `.env` local. Compose lo
+  entrega como `Autenticacion__ClientSecret`. Con el SDK, define la misma
+  variable de entorno antes de `dotnet run`.
+
+### Idioma y recuperación de contraseña
+
+El JSON activa el español como único idioma de las pantallas de Keycloak y el
+enlace de recuperación de contraseña del login (`resetPasswordAllowed`). En un
+realm ya importado, aplica lo mismo desde la consola:
+
+1. **Realm settings → Localization**: activa **Internationalization**, deja
+   `es` como único idioma admitido y como idioma predeterminado.
+2. **Realm settings → Login**: activa **Forgot password**.
+
+El cambio de contraseña desde Razor usa la acción nativa `UPDATE_PASSWORD`
+iniciada por la aplicación (`kc_action`) con `max_age=0`, de modo que Keycloak
+pide primero la contraseña actual y después la nueva dos veces, con la
+política del realm. [Opciones de OpenID Connect de ASP.NET Core](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.openidconnect.openidconnectoptions?view=aspnetcore-10.0)
 
 ## Audiencia de las API
 
@@ -220,9 +237,8 @@ La cuenta técnica de P4 se configura siguiendo la
 [guía de Keycloak Admin para Usuarios](usuarios-admin.md). Su audiencia
 administrativa es independiente de `autotaller-api`.
 
-Quedan pendientes el login y logout de Razor, la validación de tokens en las
-API restantes y los casos de uso que coordinan Keycloak con MySQL. Las
-contraseñas se mantienen en Keycloak.
+Razor inicia y cierra sesión con este cliente y envía el access token a las
+API a través del Gateway. Las contraseñas se mantienen en Keycloak.
 
 [Mecanismos de importación de Keycloak](https://www.keycloak.org/server/importExport) ·
 [Hostname y URLs de Keycloak](https://www.keycloak.org/server/hostname) ·
