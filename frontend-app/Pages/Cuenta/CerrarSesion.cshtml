@@ -1,0 +1,20 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Cuenta.CerrarSesionModel
+@{
+    ViewData["Title"] = "Cerrar sesión";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4 hu3-form">
+    <div class="mb-4">
+        <h1 class="fw-bold">Cerrar sesión</h1>
+        <p class="text-muted">Se cerrará su sesión en AutoTaller Pro y en el servidor de identidad.</p>
+    </div>
+    <form method="post">
+        <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+        <a asp-page="/Index" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>

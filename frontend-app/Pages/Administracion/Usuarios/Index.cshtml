@@ -14,37 +14,60 @@
             <h1 class="fw-bold">Gestión de Usuarios</h1>
             <p class="text-muted">Listado de usuarios registrados en el sistema.</p>
         </div>
-        <button type="button" class="btn btn-primary" disabled title="Operación temporalmente inhabilitada" data-operacion-usuario>
+        <a asp-page="./Crear" class="btn btn-primary">
             <i class="bi bi-person-plus"></i> Crear Usuario
-        </button>
+        </a>
     </div>
+
+    @if (TempData["UsuariosMensaje"] is string mensaje)
+    {
+        <div class="alert alert-success" role="status">@mensaje</div>
+    }
+    @if (Model.Error is not null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.Error
+            @if (Model.Pendiente is { } pendiente)
+            {
+                <form method="post" asp-page-handler="Accion" class="mt-2"
+                      asp-route-Busqueda="@Model.Busqueda" asp-route-RolFiltro="@Model.RolFiltro"
+                      asp-route-ActivoFiltro="@Model.ActivoFiltro" asp-route-Pagina="@Model.Pagina">
+                    <input type="hidden" name="id" value="@pendiente.Id" />
+                    <input type="hidden" name="accion" value="@pendiente.Accion" />
+                    <input type="hidden" name="clave" value="@pendiente.Clave" />
+                    <input type="hidden" name="usuario" value="@pendiente.Usuario" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Reintentar la misma operación</button>
+                </form>
+            }
+        </div>
+    }
 
     <section class="hu3-estadisticas" aria-label="Estadísticas de usuarios">
         <div class="hu3-estadistica">
             <span>Total de usuarios</span>
-            <strong aria-label="Dato no disponible">—</strong>
-            <small class="metric-status">Sin conexión</small>
+            <strong>@(Model.Resumen?.Total.ToString() ?? "—")</strong>
+            @if (Model.Resumen is null) { <small class="metric-status">Sin conexión</small> }
         </div>
         <div class="hu3-estadistica">
             <span>Usuarios activos</span>
-            <strong aria-label="Dato no disponible">—</strong>
-            <small class="metric-status">Sin conexión</small>
+            <strong>@(Model.Resumen?.Activos.ToString() ?? "—")</strong>
+            @if (Model.Resumen is null) { <small class="metric-status">Sin conexión</small> }
         </div>
         <div class="hu3-estadistica">
             <span>Administradores activos</span>
-            <strong aria-label="Dato no disponible">—</strong>
-            <small class="metric-status">Sin conexión</small>
+            <strong>@(Model.Resumen?.AdministradoresActivos.ToString() ?? "—")</strong>
+            @if (Model.Resumen is null) { <small class="metric-status">Sin conexión</small> }
         </div>
     </section>
 
     <section class="hu3-filtros" aria-label="Filtros de usuarios">
         <h2>Buscar y filtrar usuarios</h2>
-        <div id="hu3AutoFilterForm" role="search" aria-describedby="usuarios-busqueda-estado">
+        <form method="get" role="search">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-lg-6">
                     <label for="hu3Busqueda" class="form-label">Usuario o correo electrónico</label>
                     <input asp-for="Busqueda" id="hu3Busqueda" class="form-control" type="search" autocomplete="off"
-                           aria-controls="usuarios-resultados" maxlength="100" placeholder="Buscar por nombre o correo..." />
+                           maxlength="254" placeholder="Buscar por usuario o correo..." />
                 </div>
                 <div class="col-12 col-md-6 col-lg-3">
                     <label for="hu3RolFiltro" class="form-label">Rol</label>
@@ -64,14 +87,13 @@
                 </div>
             </div>
             <div class="hu3-filtros-pie">
-                <p class="mb-0 text-muted small">Vista previa de los filtros. No se realizan consultas.</p>
-                <button type="button" class="hu3-limpiar bg-transparent" data-limpiar-usuarios>Limpiar filtros</button>
+                <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+                <a asp-page="./Index" class="hu3-limpiar">Limpiar filtros</a>
             </div>
-        </div>
+        </form>
     </section>
 
-    <p id="usuarios-busqueda-estado" class="usuarios-busqueda-estado" role="status" aria-live="polite" aria-atomic="true">Sin conexión al servicio de usuarios. La búsqueda está temporalmente inhabilitada.</p>
-    <div id="usuarios-resultados" aria-busy="false">
+    <div id="usuarios-resultados">
         <partial name="_ResultadosUsuarios" model="Model" />
     </div>
 
@@ -85,12 +107,12 @@
             </div>
         </div>
         <div class="usuarios-confirmacion-contenido">
-            <p id="usuario-estado-nombre" class="usuarios-confirmacion-nombre" data-usuario-confirmacion>No hay un usuario seleccionado.</p>
-            <p id="usuario-estado-descripcion">El cambio de estado está temporalmente inhabilitado.</p>
+            <p id="usuario-estado-nombre" class="usuarios-confirmacion-nombre" data-usuario-confirmacion></p>
+            <p id="usuario-estado-descripcion">La cuenta no podrá iniciar sesión y sus sesiones abiertas se cerrarán.</p>
         </div>
         <div class="usuarios-confirmacion-acciones">
             <button type="button" class="btn usuarios-confirmacion-cancelar" data-cancelar-usuario autofocus>Cancelar</button>
-            <button type="button" class="btn usuarios-confirmacion-aceptar" data-confirmar-usuario disabled data-operacion-usuario>Desactivar usuario</button>
+            <button type="button" class="btn usuarios-confirmacion-aceptar" data-confirmar-usuario>Desactivar usuario</button>
         </div>
     </dialog>
 </div>

@@ -1,5 +1,6 @@
 @page "{id:int}"
 @model AutoTallerPro.Frontend.Pages.Administracion.Usuarios.EditarModel
+@using AutoTallerPro.Frontend.ApiUsuarios
 
 @section Styles {
     <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
@@ -12,29 +13,67 @@
 <div class="container py-4 hu3-form">
     <div class="mb-4">
         <h1 class="fw-bold">Editar Usuario</h1>
-        <p class="text-muted">
-            No se ha cargado ningún usuario. La edición y el cambio de estado están temporalmente inhabilitados.
-        </p>
+        <p class="text-muted">Modifique el correo, el rol o el estado de la cuenta. El nombre de usuario no se puede cambiar.</p>
     </div>
 
+    @if (Model.Error is not null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @Model.Error
+            @if (Model.PuedeReintentar)
+            {
+                <div class="mt-1">Puede reintentar con los mismos datos; la operación no se duplicará.</div>
+            }
+        </div>
+    }
+
+    @if (Model.Usuario is { } usuario)
+    {
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+            <span>Estado de la invitación:</span>
+            <span class="badge @EstadosInvitacion.Clase(usuario.EstadoInvitacion)">@EstadosInvitacion.Texto(usuario.EstadoInvitacion)</span>
+            @if (usuario.PuedeReenviarInvitacion)
+            {
+                <form method="post" asp-page="./Index" asp-page-handler="Accion">
+                    <input type="hidden" name="id" value="@usuario.Id" />
+                    <input type="hidden" name="accion" value="reenviar" />
+                    <input type="hidden" name="clave" value="@Guid.NewGuid()" />
+                    <input type="hidden" name="usuario" value="@usuario.Username" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Reenviar invitación</button>
+                </form>
+            }
+        </div>
+    }
+
+    @if (Model.Usuario is not null || !string.IsNullOrEmpty(Model.Input.Username))
+    {
         <div class="card">
             <div class="card-body">
-                <div role="form" aria-label="Editar usuario">
+                <form method="post" aria-label="Editar usuario">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                    <input type="hidden" asp-for="Clave" />
 
                     <div class="row mb-3">
                         <label asp-for="Input.Username" class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
                             <input asp-for="Input.Username" class="form-control" readonly />
-                            <div class="form-text">El nombre de usuario no se puede modificar.</div>
+                            <div class="form-text">El nombre de usuario se genera al crear la cuenta y no se puede modificar.</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label asp-for="Input.NombreCompleto" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="Input.NombreCompleto" class="form-control" readonly />
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label asp-for="Input.Email" class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
-                            <input asp-for="Input.Email" class="form-control" autocomplete="email" />
+                            <input asp-for="Input.Email" class="form-control" autocomplete="email" maxlength="254" />
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            <div class="form-text">Si cambia el correo, el usuario deberá verificarlo nuevamente.</div>
                         </div>
                     </div>
 
@@ -42,7 +81,6 @@
                         <label asp-for="Input.Rol" class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
                             <select asp-for="Input.Rol" class="form-select">
-                                <option value="">Sin datos del usuario</option>
                                 <option value="Administrador">Administrador</option>
                                 <option value="Recepcionista">Recepcionista</option>
                             </select>
@@ -54,30 +92,29 @@
                         <label asp-for="Input.Activo" class="col-sm-2 col-form-label"></label>
                         <div class="col-sm-10">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="Input_Activo" name="Input.Activo"
-                                       disabled data-estado-usuario-pendiente aria-describedby="usuario-estado-pendiente" />
+                                <input asp-for="Input.Activo" class="form-check-input" type="checkbox" />
                                 <label class="form-check-label" asp-for="Input.Activo">
                                     Usuario activo (puede iniciar sesión)
                                 </label>
                             </div>
-                            <span id="usuario-estado-pendiente" class="form-text">Estado no disponible.</span>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-sm-2"></div>
                         <div class="col-sm-10">
-                            <button type="button" disabled title="Operación temporalmente inhabilitada" data-operacion-usuario class="btn btn-primary">
-                                <i class="bi bi-save"></i> Guardar Cambios
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> @(Model.PuedeReintentar ? "Reintentar" : "Guardar Cambios")
                             </button>
                             <a asp-page="./Index" class="btn btn-secondary ms-2">Cancelar</a>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
+    }
+    else
+    {
+        <a asp-page="./Index" class="btn btn-secondary">Volver al listado</a>
+    }
 </div>
-
-@section Scripts {
-    <script src="~/js/usuarios.js" asp-append-version="true"></script>
-}

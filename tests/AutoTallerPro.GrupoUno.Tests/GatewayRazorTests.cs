@@ -6,6 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Clientes = AutoTallerPro.ClientesVehiculos;
 using Catalogo = AutoTallerPro.Servicios;
 using Personal = AutoTallerPro.Mecanicos;
@@ -93,12 +95,18 @@ public sealed class GatewayRazorTests
         Assert.Equal(HttpStatusCode.OK, (await proxy.DeleteAsync("/api/servicios/categorias/" + categoria.GetProperty("id").GetString())).StatusCode);
     }
     [Theory] [InlineData("Clientes")] [InlineData("Vehiculos")] [InlineData("Categorias")] [InlineData("Servicios")] [InlineData("Mecanicos")]
-    public async Task PaginasSinSesionMuestranDependenciaSinSimularDatos(string modulo)
+    public async Task PaginasSinSesionRedirigenAlInicioDeSesion(string modulo)
     {
-        using var fabrica = new WebApplicationFactory<FrontendAssembly>(); using var navegador = fabrica.CreateClient();
-        var html = await navegador.GetStringAsync($"/{modulo}/Index");
-        Assert.Contains("Usuarios", html); Assert.Contains("no se pudo obtener", WebUtility.HtmlDecode(html).ToLowerInvariant());
-        Assert.Equal(HttpStatusCode.OK, (await navegador.GetAsync($"/{modulo}/Crear")).StatusCode);
+        const string autorizacion = "http://127.0.0.1:8180/realms/autotaller/protocol/openid-connect/auth";
+        using var fabrica = new WebApplicationFactory<FrontendAssembly>().WithWebHostBuilder(builder => builder.ConfigureServices(sp =>
+            sp.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, o => o.Configuration = new OpenIdConnectConfiguration { AuthorizationEndpoint = autorizacion })));
+        using var navegador = fabrica.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        foreach (var pagina in new[] { "Index", "Crear" })
+        {
+            var respuesta = await navegador.GetAsync($"/{modulo}/{pagina}");
+            Assert.Equal(HttpStatusCode.Redirect, respuesta.StatusCode);
+            Assert.StartsWith(autorizacion, respuesta.Headers.Location!.ToString());
+        }
     }
     [Theory] [InlineData("es-BO")] [InlineData("es-ES")] [InlineData("en-US")]
     public void LimitesDePrecioNoDependenDeLaCultura(string cultura)

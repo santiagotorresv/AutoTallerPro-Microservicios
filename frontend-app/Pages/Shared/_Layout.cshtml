@@ -1,3 +1,8 @@
+@{
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var esAdministrador = User.IsInRole("Administrador");
+    string Activo(string seccion) => Context.Request.Path.StartsWithSegments(seccion) ? "active" : "";
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,12 +39,15 @@
                         <span class="menu-chevron" aria-hidden="true">›</span>
                     </button>
                     <div class="submenu" id="personal-menu">
-                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Mecanicos/Index">
+                        <a class="submenu-item @(Activo("/Mecanicos"))" asp-page="/Mecanicos/Index">
                             <span>Mecánicos</span>
-                        </button>
-                        <a class="submenu-item @(Context.Request.Path.StartsWithSegments("/Administracion/Usuarios") ? "active" : "")" asp-page="/Administracion/Usuarios/Index">
-                            <span>Usuarios</span>
                         </a>
+                        @if (esAdministrador)
+                        {
+                            <a class="submenu-item @(Activo("/Administracion/Usuarios"))" asp-page="/Administracion/Usuarios/Index">
+                                <span>Usuarios</span>
+                            </a>
+                        }
                     </div>
                 </div>
 
@@ -50,12 +58,12 @@
                         <span class="menu-chevron" aria-hidden="true">›</span>
                     </button>
                     <div class="submenu" id="clientes-menu">
-                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Clientes/Index">
+                        <a class="submenu-item @(Activo("/Clientes"))" asp-page="/Clientes/Index">
                             <span>Clientes</span>
-                        </button>
-                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Vehiculos/Index">
+                        </a>
+                        <a class="submenu-item @(Activo("/Vehiculos"))" asp-page="/Vehiculos/Index">
                             <span>Vehículos</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -66,9 +74,9 @@
                         <span class="menu-chevron" aria-hidden="true">›</span>
                     </button>
                     <div class="submenu" id="taller-menu">
-                        <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Servicios/Index">
+                        <a class="submenu-item @(Activo("/Servicios") + Activo("/Categorias"))" asp-page="/Servicios/Index">
                             <span>Servicios</span>
-                        </button>
+                        </a>
                         <button class="submenu-item" type="button" disabled title="Sección pendiente de migración" data-pagina-pendiente="/Ordenes/Index">
                             <span>Órdenes de trabajo</span>
                         </button>
@@ -106,14 +114,26 @@
             </nav>
 
             <div class="sidebar-bottom">
-                <button class="menu-item" type="button" disabled aria-label="Cambiar contraseña" title="Autenticación pendiente" data-pagina-pendiente="/Auth/CambiarContrasena">
-                    <span class="menu-icon" aria-hidden="true">🔑</span>
-                    <span>Cambiar contraseña</span>
-                </button>
-                <button class="menu-item logout-button" type="button" disabled aria-label="Cerrar sesión" title="Autenticación pendiente" data-pagina-pendiente="/Auth/Logout">
-                    <span class="menu-icon" aria-hidden="true">↪</span>
-                    <span>Cerrar sesión</span>
-                </button>
+                @if (autenticado)
+                {
+                    <a class="menu-item @(Activo("/Cuenta/CambiarContrasena"))" asp-page="/Cuenta/CambiarContrasena">
+                        <span class="menu-icon" aria-hidden="true">🔑</span>
+                        <span>Cambiar contraseña</span>
+                    </a>
+                    <form method="post" asp-page="/Cuenta/CerrarSesion">
+                        <button class="menu-item logout-button" type="submit">
+                            <span class="menu-icon" aria-hidden="true">↪</span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a class="menu-item" href="/">
+                        <span class="menu-icon" aria-hidden="true">🔑</span>
+                        <span>Iniciar sesión</span>
+                    </a>
+                }
                 <div class="sidebar-footer">
                     <span>Sistema de Gestión</span>
                     <small>© 2026 AutoTaller Pro</small>
@@ -128,7 +148,14 @@
                 </div>
                 <div class="topbar-user">
                     <span class="user-icon" aria-hidden="true">👤</span>
-                    <span>Autenticación pendiente</span>
+                    @if (autenticado)
+                    {
+                        <span>@User.Identity!.Name · @(esAdministrador ? "Administrador" : User.IsInRole("Recepcionista") ? "Recepcionista" : "Sin rol asignado")</span>
+                    }
+                    else
+                    {
+                        <span>Sesión no iniciada</span>
+                    }
                 </div>
             </header>
             <section class="page-content">

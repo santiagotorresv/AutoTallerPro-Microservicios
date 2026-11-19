@@ -1,34 +1,49 @@
 (() => {
     "use strict";
 
-    const filtros = document.getElementById("hu3AutoFilterForm");
-    const estado = document.getElementById("usuarios-busqueda-estado");
-
-    if (filtros && estado) {
-        const informar = () => {
-            estado.textContent = "Sin conexión al servicio de usuarios. Los filtros no se envían ni se consultan.";
-        };
-
-        filtros.querySelectorAll("input, select").forEach(campo => {
-            campo.addEventListener("input", informar);
-            campo.addEventListener("change", informar);
-        });
-
-        filtros.querySelector("[data-limpiar-usuarios]")?.addEventListener("click", () => {
-            filtros.querySelectorAll("input, select").forEach(campo => {
-                campo.value = "";
-            });
-            informar();
-            document.getElementById("hu3Busqueda")?.focus();
-        });
-    }
-
     const dialogo = document.getElementById("usuario-estado-dialog");
+    let formularioPendiente = null;
+
+    document.querySelectorAll("form[data-confirmar-desactivar]").forEach(formulario => {
+        formulario.addEventListener("submit", evento => {
+            if (!(dialogo instanceof HTMLDialogElement) || !formulario.dataset.confirmarDesactivar ||
+                formulario.dataset.confirmado === "true") {
+                return;
+            }
+
+            evento.preventDefault();
+            formularioPendiente = formulario;
+            dialogo.querySelector("[data-usuario-confirmacion]").textContent =
+                "Usuario: " + formulario.dataset.confirmarDesactivar;
+            dialogo.showModal();
+        });
+    });
+
     if (dialogo instanceof HTMLDialogElement) {
         dialogo.querySelector("[data-cancelar-usuario]")?.addEventListener("click", () => dialogo.close());
+        dialogo.querySelector("[data-confirmar-usuario]")?.addEventListener("click", () => {
+            if (formularioPendiente) {
+                formularioPendiente.dataset.confirmado = "true";
+                formularioPendiente.requestSubmit();
+            }
+            dialogo.close();
+        });
     }
 
-    document.querySelectorAll("[data-estado-usuario-pendiente]").forEach(campo => {
-        campo.indeterminate = true;
+    document.querySelectorAll("button[data-espera]").forEach(boton => {
+        let segundos = Number(boton.dataset.espera);
+        const texto = boton.textContent.trim();
+        const actualizar = () => {
+            if (segundos <= 0) {
+                boton.disabled = false;
+                boton.textContent = texto;
+                clearInterval(temporizador);
+                return;
+            }
+            boton.textContent = texto + " (" + segundos + " s)";
+            segundos--;
+        };
+        const temporizador = setInterval(actualizar, 1000);
+        actualizar();
     });
 })();

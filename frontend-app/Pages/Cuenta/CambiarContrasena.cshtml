@@ -1,0 +1,46 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Cuenta.CambiarContrasenaModel
+@{
+    ViewData["Title"] = "Cambiar contraseña";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4 hu3-form">
+    <div class="mb-4">
+        <h1 class="fw-bold">Cambiar contraseña</h1>
+        <p class="text-muted">La contraseña se cambia en el servidor de identidad. La nueva contraseña se usará en el próximo inicio de sesión.</p>
+    </div>
+
+    @if (Model.Estado == "success")
+    {
+        <div class="alert alert-success" role="status">Su contraseña se actualizó correctamente. Úsela en su próximo inicio de sesión.</div>
+    }
+    else if (Model.Estado == "cancelled")
+    {
+        <div class="alert alert-warning" role="status">Canceló el cambio de contraseña. Su contraseña actual sigue vigente.</div>
+    }
+    else if (Model.Estado is not null)
+    {
+        <div class="alert alert-danger" role="alert">No se pudo cambiar la contraseña. Inténtelo nuevamente.</div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <ol class="mb-3">
+                <li>Confirme su identidad con la contraseña actual.</li>
+                <li>Escriba la nueva contraseña dos veces.</li>
+            </ol>
+            <p class="form-text">
+                La nueva contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula,
+                un número y un carácter especial, sin espacios al inicio ni al final.
+            </p>
+            <form method="post">
+                <button type="submit" class="btn btn-primary">Continuar</button>
+                <a asp-page="/Index" class="btn btn-secondary ms-2">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>

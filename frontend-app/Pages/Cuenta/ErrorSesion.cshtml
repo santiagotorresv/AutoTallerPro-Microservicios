@@ -1,0 +1,15 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Cuenta.ErrorSesionModel
+@{
+    ViewData["Title"] = "No se pudo iniciar sesión";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
+}
+
+<div class="container py-4 hu3-form">
+    <h1 class="fw-bold">No se pudo iniciar sesión</h1>
+    <p class="text-muted">El servidor de identidad no completó el inicio de sesión. Vuelva a intentarlo en unos segundos.</p>
+    <a href="/" class="btn btn-primary">Intentar de nuevo</a>
+</div>
