@@ -327,7 +327,7 @@ Para depuración con el SDK, detén el contenedor de la aplicación cuyo puerto 
 
 En `frontend-app/Pages/`, un `.cshtml` define el HTML y la presentación de una página Razor. Su `.cshtml.cs` contiene el PageModel cuando hace falta lógica de página. `Pages/Shared/_Layout.cshtml` define menú y encabezado. `_ViewStart.cshtml` selecciona el layout y `_ViewImports.cshtml` comparte namespaces y tag helpers. `wwwroot/css/`, `wwwroot/js/`, `wwwroot/images/` y `wwwroot/lib/` alojan los recursos estáticos.
 
-Ya están Inicio, Privacy, Error y el listado, creación y edición visual de Usuarios en `Pages/Administracion/Usuarios/`. Editar conserva `/Administracion/Usuarios/Editar/{id:int}`. Esas pantallas de Usuarios no tienen registros reales ni operaciones conectadas. El menú habilita Usuarios bajo Personal. P1, P2 y P3 desarrollarán sus propias páginas.
+Razor inicia sesión con Keycloak (cliente `autotaller-frontend`) y envía el access token al Gateway. Las pantallas de `Pages/Administracion/Usuarios/` están conectadas a la API de Usuarios y solo las ve `Administrador`. Cambiar contraseña y Cerrar sesión están en `Pages/Cuenta/`. Véase [USUARIOS_FRONTEND.md](USUARIOS_FRONTEND.md).
 
 Al incorporar páginas de un módulo, reutiliza el layout, los recursos y la tipografía existentes. Mantén los estilos específicos en el módulo correspondiente y coordina cambios al menú o a `site.css`. En una integración futura, un cliente HTTP del Frontend ejecutado en Docker podrá usar `http://gateway:8080/api/<módulo>/`. Desde un proceso de Frontend en Windows usará la dirección publicada del Gateway. Un navegador de Windows tampoco resuelve DNS internos de Compose. Define flujos de autenticación con P4 y P5 antes de habilitar operaciones de Usuarios. Véase el [README del Frontend](../frontend-app/README.md).
 
@@ -397,7 +397,7 @@ Acuerda de antemano con P6 cambios en `docker-compose.yml` y Gateway. En Fronten
 | Estado | Alcance |
 | --- | --- |
 | Implementado y probado | Solución con 19 proyectos de aplicación y un proyecto de pruebas, seis imágenes .NET, Inicio y vistas Razor existentes, cuatro respuestas `/salud` directas y por Gateway, red y volúmenes Docker, realm y cliente OIDC de Keycloak, invitaciones por Mailpit y validación JWT con políticas en Gateway. En P4, API administrativa, alta inicial, MySQL, integración con Keycloak, auditoría, idempotencia y recuperación. |
-| Preparado, pendiente de implementación | CRUD y persistencia de Clientes/Vehículos, Servicios y Mecánicos, Frontends de P1/P2/P3, conexión del Frontend de Usuarios (P5), login y logout de Razor y documentación final. |
+| Preparado, pendiente de implementación | Configuración de autenticación de las API del Grupo 1 en Compose, Gmail SMTP con una cuenta real y documentación final. |
 | Fuera del alcance funcional actual | Órdenes, Productos y Reportes. El uso de Aiven y de la infraestructura anterior queda fuera del entorno EC3. |
 
 ## Observaciones
