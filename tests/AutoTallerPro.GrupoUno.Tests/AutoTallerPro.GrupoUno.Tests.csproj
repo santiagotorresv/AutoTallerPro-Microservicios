@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><IsPackable>false</IsPackable><IsTestProject>true</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.10" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" PrivateAssets="all" />
+    <Using Include="Xunit" />
+    <ProjectReference Include="../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Api/AutoTallerPro.ClientesVehiculos.Api.csproj" />
+    <None Include="../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/*.sql" Link="Sql/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="../../microservices/servicios/AutoTallerPro.Servicios.Api/AutoTallerPro.Servicios.Api.csproj" />
+    <None Include="../../microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/*.sql" Link="Sql/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="../../microservices/mecanicos/AutoTallerPro.Mecanicos.Api/AutoTallerPro.Mecanicos.Api.csproj" />
+    <ProjectReference Include="../../frontend-app/AutoTallerPro.Frontend.csproj" />
+    <ProjectReference Include="../AutoTallerPro.GrupoUno.GatewayVerificacion/AutoTallerPro.GrupoUno.GatewayVerificacion.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+@page "{id}"
+@model AutoTallerPro.Frontend.Pages.Servicios.EliminarModel
+@{ ViewData["Title"] = "Eliminar servicio"; }
+@section Styles { <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" /> }
+<div class="grupo-uno"><nav aria-label="Módulos del taller"><a asp-page="/Clientes/Index">Clientes</a><a asp-page="/Vehiculos/Index">Vehículos</a><a asp-page="/Categorias/Index">Categorías</a><a asp-page="/Servicios/Index">Servicios</a><a asp-page="/Mecanicos/Index">Mecánicos</a></nav><h1>Eliminar servicio</h1>
+@if (Model.Error is not null) { <div class="alert alert-danger" role="alert">@Model.Error</div> }
+@if (Model.Registro is not null) { <div class="card"><p>¿Confirma que desea eliminar este registro? Esta operación no se puede deshacer.</p><p><strong>@Model.Registro.Nombre</strong></p><form method="post"><button type="submit" class="btn btn-danger">Confirmar eliminación</button> <a asp-page="./Index" class="btn btn-secondary">Cancelar</a></form></div> }
+else { <a asp-page="./Index" class="btn btn-secondary">Volver al listado</a> }
+</div>
