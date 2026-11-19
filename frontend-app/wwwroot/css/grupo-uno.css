@@ -1,0 +1,34 @@
+.grupo-uno { max-width: 1200px; margin: auto; padding: 24px; }
+.grupo-uno .acciones, .grupo-uno .filtros, .grupo-uno nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px; }
+.grupo-uno nav a { color: var(--primary); }
+.grupo-uno .filtros label { display: flex; flex-direction: column; gap: 6px; }
+.grupo-uno .filtros .form-control { min-width: 190px; }
+.grupo-uno .card { padding: 24px; border: 1px solid var(--border-light); }
+.grupo-uno .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 24px; }
+.grupo-uno .campo label { display: block; margin-bottom: 6px; }
+.grupo-uno td, .grupo-uno th { padding: 14px; vertical-align: middle; }
+.grupo-uno .estado-vacio { padding: 32px; text-align: center; }
+@media(max-width: 700px) { .grupo-uno { padding: 12px; } .grupo-uno .campos { grid-template-columns: 1fr; } }
+.grupo-uno h1 { margin-bottom: 12px; font-size: 1.9rem; font-weight: 700; }
+.grupo-uno nav { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.grupo-uno nav a { padding: 8px 12px; border-radius: var(--radius-sm); background: var(--primary-soft); color: var(--text-primary); text-decoration: none; }
+.grupo-uno nav a:hover { background: var(--primary); }
+.grupo-uno .card { color: var(--text-primary); background: var(--surface); border-radius: var(--radius-lg); }
+.grupo-uno .campo label, .grupo-uno .filtros label { color: var(--text-secondary); font-weight: 600; }
+.grupo-uno .form-control, .grupo-uno .form-select { padding: 11px 14px; background-color: var(--surface-light); border-color: var(--border-light); color: var(--text-primary); border-radius: var(--radius-sm); }
+.grupo-uno .form-control:focus, .grupo-uno .form-select:focus { border-color: var(--primary-hover); box-shadow: 0 0 0 3px var(--primary-soft); }
+.grupo-uno .form-control::placeholder { color: var(--text-muted); }
+.grupo-uno .form-check-input { background-color: var(--surface-light); border-color: var(--border-light); }
+.grupo-uno .form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
+.grupo-uno .btn { border-radius: var(--radius-sm); padding: 10px 16px; font-weight: 600; }
+.grupo-uno .btn-primary { background: var(--primary); border-color: var(--primary); }
+.grupo-uno .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.grupo-uno .btn-secondary, .grupo-uno .btn-outline-secondary { background: var(--surface-light); border-color: var(--border-light); color: var(--text-secondary); }
+.grupo-uno .btn-outline-primary { color: var(--text-primary); border-color: var(--primary); }
+.grupo-uno .btn-outline-primary:hover { background: var(--primary); }
+.grupo-uno .btn-outline-danger { color: var(--danger); border-color: var(--danger); }
+.grupo-uno .text-muted, .grupo-uno caption { color: var(--text-muted) !important; }
+.grupo-uno .text-danger { color: var(--danger) !important; }
+.grupo-uno .table { --bs-table-bg: var(--surface); --bs-table-color: var(--text-primary); --bs-table-border-color: var(--border); }
+.grupo-uno .alert-danger { background: rgba(248,113,113,.1); color: var(--danger); border-color: rgba(248,113,113,.3); }
+.grupo-uno .alert-success { background: rgba(74,222,128,.1); color: var(--success); border-color: rgba(74,222,128,.3); }

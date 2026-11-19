@@ -1,0 +1,388 @@
+{
+  "fecha_revision": "2026-11-19",
+  "rama": "microservicios-grupo-1",
+  "sdk": "10.0.302",
+  "comando": "python3 scripts/grupo-1/verificar_persistencia.py",
+  "contadores": {
+    "total": "69",
+    "executed": "69",
+    "passed": "69",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "persistencia_real": {
+    "PostgreSQL": "17",
+    "MySQL": "8.4",
+    "MongoDB": "8.0"
+  },
+  "recorrido": "Razor → código original de Gateway YARP → APIs → bases efímeras reales",
+  "sesion": "Autenticación de usuario y claves JWT exclusivas del host de pruebas; login real pendiente de P4/P5",
+  "compilacion": {
+    "errores": 0,
+    "advertencias": 0
+  },
+  "interfaz": {
+    "paginas_verificadas": 20,
+    "errores_javascript": 0,
+    "viewport_movil": 390,
+    "ancho_documento_movil": 390
+  },
+  "casos": [
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.ActualizacionInvalidaNoModifica",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0003585"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.ActualizarConservaFechaRegistro",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0004025"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.AusenteDevuelveNoEncontrado",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0001745"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.CrearInvalidoNoEscribe(doc: \"\", nombre: \"Ana\", telefono: null, correo: null)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002328"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.CrearInvalidoNoEscribe(doc: \"1234\", nombre: \"\", telefono: null, correo: null)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000033"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.CrearInvalidoNoEscribe(doc: \"1234\", nombre: \"Ana\", telefono: \"12\", correo: null)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000035"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.CrearInvalidoNoEscribe(doc: \"1234\", nombre: \"Ana\", telefono: null, correo: \"correo incorrecto\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000861"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.CrearValidoNormalizaYPersiste",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0007603"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.DocumentoDuplicadoEsConflicto",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002353"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.EliminarValidoRetiraRegistro",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0483101"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.ListadoFiltraYOrdena",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0122630"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.ResultadoFallidoNoExponeValor",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002271"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.VehiculoConPropietarioInactivoSeRechaza",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0003860"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.VehiculoInvalidoSeRechaza(placa: \"!\", anio: 2020)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000056"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.VehiculoInvalidoSeRechaza(placa: \"1234ABC\", anio: 1800)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0006300"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.VehiculoInvalidoSeRechaza(placa: \"1234ABC\", anio: 9999)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000860"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ClientesVehiculosTests.VehiculoSinPropietarioNoSeGuarda",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0021587"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.LimitesDePrecioNoDependenDeLaCultura(cultura: \"en-US\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002183"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.LimitesDePrecioNoDependenDeLaCultura(cultura: \"es-BO\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000103"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.LimitesDePrecioNoDependenDeLaCultura(cultura: \"es-ES\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1413661"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.PaginasSinSesionMuestranDependenciaSinSimularDatos(modulo: \"Categorias\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1311865"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.PaginasSinSesionMuestranDependenciaSinSimularDatos(modulo: \"Clientes\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1024936"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.PaginasSinSesionMuestranDependenciaSinSimularDatos(modulo: \"Mecanicos\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0989823"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.PaginasSinSesionMuestranDependenciaSinSimularDatos(modulo: \"Servicios\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1119901"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.PaginasSinSesionMuestranDependenciaSinSimularDatos(modulo: \"Vehiculos\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1091303"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.GatewayRazorTests.RazorGatewayYApisCompletanCrudConSesionDePrueba",
+      "resultado": "Passed",
+      "duracion": "00:00:03.6510080"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.ActualizarInvalidoNoModifica",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0003778"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.ActualizarValidoConservaRegistro",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0007199"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.AusenteDevuelveNoEncontrado",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0001833"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"\", apellidos: \"Pérez\", documento: \"1234\", telefono: null, correo: null, especialidad: \"Mecánica general\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000031"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"Ana\", apellidos: \"\", documento: \"1234\", telefono: null, correo: null, especialidad: \"Mecánica general\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002490"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"Ana\", apellidos: \"Pérez\", documento: \"!\", telefono: null, correo: null, especialidad: \"Mecánica general\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000821"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"Ana\", apellidos: \"Pérez\", documento: \"1234\", telefono: \"1\", correo: null, especialidad: \"Mecánica general\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000034"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"Ana\", apellidos: \"Pérez\", documento: \"1234\", telefono: null, correo: \"invalido\", especialidad: \"Mecánica general\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000058"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearInvalidoNoEscribe(nombres: \"Ana\", apellidos: \"Pérez\", documento: \"1234\", telefono: null, correo: null, especialidad: \"Otra\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000035"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.CrearValidoPersisteConIdMongo",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0027945"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.DuplicadoEsConflicto",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002226"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.EliminarValidoRetiraRegistro",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0009672"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.IdInvalidoEsErrorControlado(id: \"\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000035"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.IdInvalidoEsErrorControlado(id: \"00000000-0000-0000-0000-000000000000\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0014855"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.IdInvalidoEsErrorControlado(id: \"invalido\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000635"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.MecanicosTests.ListadoOrdenaYBusca",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0641453"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.PersistenciaTests.MongoCrudIndiceUnicoYRefrescoReales",
+      "resultado": "Passed",
+      "duracion": "00:00:00.8137463"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.PersistenciaTests.MySqlCrudRestriccionesYRefrescoReales",
+      "resultado": "Passed",
+      "duracion": "00:00:00.3783968"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.PersistenciaTests.PostgreSqlCrudRestriccionesYRefrescoReales",
+      "resultado": "Passed",
+      "duracion": "00:00:01.4419115"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.ClientesMapea201400404409YEliminacion",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0555748"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.MongoIdInvalidoDevuelve400",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0455466"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.RechazaTokensInvalidosYRolesFalsificados(modulo: \"clientes\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0761653"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.RechazaTokensInvalidosYRolesFalsificados(modulo: \"mecanicos\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.1999315"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.RechazaTokensInvalidosYRolesFalsificados(modulo: \"servicios\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.4487056"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.SaludAnonimaYNegocioRequiereToken(modulo: \"clientes\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0678972"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.SaludAnonimaYNegocioRequiereToken(modulo: \"mecanicos\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.7444999"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.SeguridadHttpTests.SaludAnonimaYNegocioRequiereToken(modulo: \"servicios\")",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0666289"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ActualizarInvalidoNoModifica",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0003191"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ActualizarValidoPersiste",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0015698"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.AusenteDevuelveNoEncontrado",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0001593"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.CategoriaAusenteNoEscribe",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002591"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.CategoriaDuplicadaEsConflicto",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0003124"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.CategoriaInvalidaNoEscribe",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0001830"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.CategoriaValidaPersiste",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002055"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.CrearServicioValidoPersiste",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0002476"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.EliminarValidoRetiraRegistro",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0009715"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ListadoFiltraYOrdena",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0262059"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.PrecioNoSeRedondeaSilenciosamente",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000553"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ServicioDuplicadoNoEscribe",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0015736"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ServicioInvalidoNoEscribe(precio: -1, duracion: 30)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000032"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ServicioInvalidoNoEscribe(precio: 100, duracion: -1)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0000058"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ServicioInvalidoNoEscribe(precio: 100, duracion: 0)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0368038"
+    },
+    {
+      "nombre": "AutoTallerPro.GrupoUno.Tests.ServiciosTests.ServicioInvalidoNoEscribe(precio: 100, duracion: 10081)",
+      "resultado": "Passed",
+      "duracion": "00:00:00.0001427"
+    }
+  ]
+}

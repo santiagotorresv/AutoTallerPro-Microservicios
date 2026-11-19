@@ -1,0 +1,21 @@
+@page
+@model AutoTallerPro.Frontend.Pages.Mecanicos.IndexModel
+@{ ViewData["Title"] = "Mecánicos"; }
+@section Styles { <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" /> }
+<div class="grupo-uno">
+<nav aria-label="Módulos del taller"><a asp-page="/Clientes/Index">Clientes</a><a asp-page="/Vehiculos/Index">Vehículos</a><a asp-page="/Categorias/Index">Categorías</a><a asp-page="/Servicios/Index">Servicios</a><a asp-page="/Mecanicos/Index">Mecánicos</a></nav>
+<h1>Mecánicos</h1>
+<p class="text-muted">Consulte y administre los registros del taller.</p>
+@if (TempData["GrupoUnoMensaje"] is string mensaje) { <div class="alert alert-success" role="status">@mensaje</div> }
+<div class="acciones"><a class="btn btn-primary" asp-page="./Crear">Crear mecánico</a><a class="btn btn-outline-secondary" asp-page="./Index" asp-route-buscar="@Model.Buscar" asp-route-ordenar="@Model.Ordenar" asp-route-descendente="@Model.Descendente">Actualizar listado</a></div>
+<form method="get" class="filtros"><label asp-for="Buscar">Buscar<input asp-for="Buscar" class="form-control" maxlength="150" /></label><label asp-for="Ordenar">Ordenar por<select asp-for="Ordenar" class="form-select"><option value="apellidos">Apellidos</option><option value="nombres">Nombres</option><option value="documento">Documento</option><option value="especialidad">Especialidad</option><option value="fecha">Fecha de registro</option></select></label><label>Dirección<select asp-for="Descendente" class="form-select"><option value="false">Ascendente</option><option value="true">Descendente</option></select></label><button type="submit" class="btn btn-secondary">Aplicar</button></form>
+@if (Model.Error is not null) { <div class="alert alert-danger" role="alert">@Model.Error</div> }
+else if (Model.Registros.Count == 0) { <div class="card estado-vacio">No hay registros para los filtros seleccionados.</div> }
+else {
+<div class="table-responsive"><table class="table"><caption>Listado de mecánicos</caption><thead><tr><th scope="col">Apellidos</th><th scope="col">Nombres</th><th scope="col">Documento</th><th scope="col">Especialidad</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
+@foreach (var registro in Model.Registros) {
+<tr><td>@registro.Apellidos</td><td>@registro.Nombres</td><td>@registro.Documento</td><td>@registro.Especialidad</td><td>@(registro.Activo ? "Activo" : "Inactivo")</td><td><a asp-page="./Editar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-primary">Editar</a> <a asp-page="./Eliminar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-danger">Eliminar</a></td></tr>
+}
+</tbody></table></div>
+}
+</div>
