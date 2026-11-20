@@ -169,6 +169,9 @@ services:
       context: .
       dockerfile: microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Api/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Authentication__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
       Database__Host: postgres-clientes
       Database__Port: "5432"
       Database__Name: ${POSTGRES_CLIENTES_DB:?Define POSTGRES_CLIENTES_DB}
@@ -182,6 +185,9 @@ services:
       context: .
       dockerfile: microservices/servicios/AutoTallerPro.Servicios.Api/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Authentication__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
       Database__Host: mysql-servicios
       Database__Port: "3306"
       Database__Name: ${MYSQL_SERVICIOS_DB:?Define MYSQL_SERVICIOS_DB}
@@ -195,6 +201,9 @@ services:
       context: .
       dockerfile: microservices/mecanicos/AutoTallerPro.Mecanicos.Api/Dockerfile
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Authentication__Authority: http://127.0.0.1:${KEYCLOAK_PORT:-8180}/realms/autotaller
+      Authentication__MetadataAddress: http://keycloak:8080/realms/autotaller/.well-known/openid-configuration
       Database__Host: mongo-mecanicos
       Database__Port: "27017"
       Database__Name: ${MONGO_MECANICOS_DB:?Define MONGO_MECANICOS_DB}
