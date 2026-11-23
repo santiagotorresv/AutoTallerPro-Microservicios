@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using AutoTallerPro.Mecanicos.Api.Persistencia;
 using AutoTallerPro.Mecanicos.Api.Adaptadores;
 using AutoTallerPro.Mecanicos.Api.Seguridad;
 using AutoTallerPro.Mecanicos.Application.CasosDeUso;
@@ -14,12 +15,7 @@ builder.Services.AddProblemDetails(opciones => opciones.CustomizeProblemDetails 
         contexto.ProblemDetails.Detail = null;
     }
 });
-builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(new MongoClientSettings
-{
-    Server = new MongoServerAddress(Requerido("Host"), int.Parse(builder.Configuration["Database:Port"] ?? "27017")),
-    Credential = MongoCredential.CreateCredential(builder.Configuration["Database:AuthSource"] ?? Requerido("Name"), Requerido("User"), Requerido("Password")),
-    ServerSelectionTimeout = TimeSpan.FromSeconds(10)
-}));
+builder.Services.AddSingleton<IMongoClient>(_ => new MongoClient(ConfiguracionPersistencia.Opciones(builder.Configuration)));
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(Requerido("Name")));
 builder.Services.AddScoped<IMecanicoRepositorio, MecanicoRepositorio>();
 builder.Services.AddScoped<MecanicoServicio>();

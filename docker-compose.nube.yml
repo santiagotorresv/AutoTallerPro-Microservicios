@@ -1,0 +1,15 @@
+# Usar junto a docker-compose.yml. Las bases locales se conservan para volver atrás.
+services:
+  postgres-clientes:
+    profiles: [bases-locales]
+
+  mongo-mecanicos:
+    profiles: [bases-locales]
+
+  ms-clientes:
+    environment:
+      Database__ConnectionString: ${POSTGRES_CLIENTES_CONNECTION_STRING:?Configura la conexion Npgsql de Neon en .env}
+
+  ms-mecanicos:
+    environment:
+      Database__ConnectionString: ${MONGO_MECANICOS_CONNECTION_STRING:?Configura la conexion SRV de Atlas en .env}
