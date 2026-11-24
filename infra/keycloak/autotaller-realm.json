@@ -1,6 +1,7 @@
 {
   "realm": "autotaller",
   "displayName": "AutoTaller Pro",
+  "loginTheme": "autotaller",
   "enabled": true,
   "adminPermissionsEnabled": true,
   "sslRequired": "external",
