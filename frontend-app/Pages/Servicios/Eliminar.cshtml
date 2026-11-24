@@ -1,9 +1,25 @@
 @page "{id}"
 @model AutoTallerPro.Frontend.Pages.Servicios.EliminarModel
 @{ ViewData["Title"] = "Eliminar servicio"; }
-@section Styles { <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" /> }
-<div class="grupo-uno"><nav aria-label="Módulos del taller"><a asp-page="/Clientes/Index">Clientes</a><a asp-page="/Vehiculos/Index">Vehículos</a><a asp-page="/Categorias/Index">Categorías</a><a asp-page="/Servicios/Index">Servicios</a><a asp-page="/Mecanicos/Index">Mecánicos</a></nav><h1>Eliminar servicio</h1>
-@if (Model.Error is not null) { <div class="alert alert-danger" role="alert">@Model.Error</div> }
-@if (Model.Registro is not null) { <div class="card"><p>¿Confirma que desea eliminar este registro? Esta operación no se puede deshacer.</p><p><strong>@Model.Registro.Nombre</strong></p><form method="post"><button type="submit" class="btn btn-danger">Confirmar eliminación</button> <a asp-page="./Index" class="btn btn-secondary">Cancelar</a></form></div> }
-else { <a asp-page="./Index" class="btn btn-secondary">Volver al listado</a> }
+@section Styles {
+    <link rel="stylesheet" href="~/css/servicios.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" />
+}
+
+<div class="dashboard grupo-uno-page">
+    <div class="dashboard-header"><div><h1>Eliminar servicio</h1><p>Confirma el registro antes de eliminarlo.</p></div><a asp-page="./Index" class="services-btn services-btn-secondary">Volver</a></div>
+    <section class="service-form-card" data-crud-content>
+        <div class="service-form-header"><div><h2>Eliminar servicio</h2><p>Revisa los datos del registro seleccionado.</p></div></div>
+        <form method="post" asp-page="./Eliminar" asp-route-id="@ViewContext.RouteData.Values["id"]" class="service-form" data-crud-form>
+            @if (Model.Error is not null) { <div class="grupo-alert grupo-alert-error" role="alert">@Model.Error</div> }
+            @if (Model.Registro is not null)
+            {
+                <div class="service-delete-warning"><strong>¿Confirmas que deseas eliminar este servicio?</strong><span>Esta operación no se puede deshacer.</span></div>
+                <div class="service-delete-details"><div class="service-delete-item"><span>Registro seleccionado</span><strong>@(Model.Registro.Nombre)</strong></div><div class="service-delete-item"><span>Estado</span><strong>@(Model.Registro.Activo ? "Activo" : "Inactivo")</strong></div></div>
+                <div class="service-form-actions"><a asp-page="./Index" class="services-btn services-btn-secondary" data-crud-cancel>Cancelar</a><button type="submit" class="services-btn services-btn-danger">Confirmar eliminación</button></div>
+            }
+            else { <a asp-page="./Index" class="services-btn services-btn-secondary" data-crud-cancel>Volver al listado</a> }
+        </form>
+    </section>
 </div>
+@section Scripts { <partial name="_ScriptsGrupoUno" /> }

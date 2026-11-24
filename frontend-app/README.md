@@ -14,6 +14,32 @@ El perfil HTTP usa `http://127.0.0.1:5105`. Abre siempre esa dirección: Keycloa
 solo acepta el retorno `http://127.0.0.1:5105/signin-oidc`. En Docker, Compose
 entrega el secreto desde `KEYCLOAK_FRONTEND_CLIENT_SECRET` del `.env` local.
 
+## Interfaz del Grupo 1 · 24/11/2026
+
+Se recuperó la presentación de [ArielFlowers/TallerMecanico](https://github.com/ArielFlowers/TallerMecanico/tree/2ac55604ad6795a1293a7d964c45443b170e8719/frontend-app),
+referencia `2ac5560`: cabeceras, tablas, búsqueda, botones, tarjetas de formularios y confirmaciones.
+Los CSS originales `site.css`, `vehiculos.css`, `servicios.css` y `mecanicos.css` ya estaban presentes
+y se reutilizan sin cambios. `grupo-uno.css` aporta únicamente ajustes de integración y adaptación móvil.
+
+- Clientes, Vehículos y Mecánicos abren creación, edición y eliminación en ventanas modales.
+  Sus rutas Crear/Editar/Eliminar siguen disponibles para acceso directo y uso sin JavaScript.
+- Servicios conserva formularios en páginas separadas. Categorías mantiene su CRUD y adopta la misma presentación.
+- Búsqueda, refresco, ordenación, antiforgery y mensajes del backend conservan sus contratos.
+  Los listados muestran el propietario del vehículo y la categoría del servicio mediante sus APIs actuales.
+- Las vistas usan `GrupoUno/ClienteGateway` y la sesión existente. No se importaron configuraciones,
+  conexiones ni lógica de persistencia del sistema anterior.
+
+La migración conserva los campos del dominio EC3. El sistema anterior tenía nombres y apellidos del cliente
+separados, kilometraje, observaciones, género y cobro por unidad,
+entre otros datos que no existen en estos contratos. No se muestran campos sin persistencia ni valores
+simulados para aparentar que esas funciones están implementadas. Servicios continúa expresando duración en minutos.
+
+Verificación: 75 pruebas aprobadas, 3 de bases aisladas omitidas; Chrome completó 36 comprobaciones de
+listados, formularios, modales, validaciones, relaciones y móvil de 390 px, sin errores JavaScript.
+También se comprobó creación, validación de servidor y eliminación con JavaScript desactivado.
+La verificación visual usa sesión y datos de prueba en memoria; no modifica Atlas ni Neon.
+Las capturas y el registro están en [evidencia del diseño restaurado](../docs/grupo-1/evidencia/README.md).
+
 ## Sesión con Keycloak (P5)
 
 [SesionKeycloak.cs](Seguridad/SesionKeycloak.cs) configura una cookie de sesión y
@@ -60,3 +86,5 @@ bloquea el botón de reenvío hasta que se cumplen.
 
 La verificación de extremo a extremo está en
 [USUARIOS_FRONTEND.md](../docs/USUARIOS_FRONTEND.md).
+
+Al integrar main se conservaron las validaciones nuevas de CI y celular y el modo de placa extranjera, adaptado también a los formularios modales.

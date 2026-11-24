@@ -1,5 +1,126 @@
 # Contrato HTTP y puesta en marcha
 
+## Bases online · Atlas y Neon · 22/11/2026
+
+La rama `correcciones-grupo-1` prepara dos conexiones remotas. Aún faltan crear los proyectos
+y configurar sus credenciales; no se ha comprobado una conexión cloud real ni se han trasladado datos locales.
+
+| Microservicio | Motor y destino | Consulta desde el navegador |
+| --- | --- | --- |
+| Clientes/Vehículos | PostgreSQL en Neon | Tables y SQL Editor |
+| Mecánicos | MongoDB Atlas | Data Explorer, colección `mecanicos` |
+| Categorías/Servicios | MySQL local, por ahora | Pendiente de elegir un alojamiento MySQL si también se quiere trasladar |
+
+Con esta configuración no hace falta instalar Compass ni pgAdmin. Los motores PostgreSQL de Clientes
+y MongoDB de Mecánicos podrán detenerse después de verificar la nube. MySQL de Servicios, MySQL de Usuarios,
+PostgreSQL de Keycloak, las aplicaciones y Keycloak siguen consumiendo RAM local.
+El Frontend mantiene su acceso mediante Gateway y las reglas/arquitecturas no cambian por alojar las bases fuera.
+
+### 1. Crear MongoDB Atlas desde cero
+
+1. Crear una cuenta en [MongoDB Atlas](https://cloud.mongodb.com/) y un proyecto para el taller.
+2. Crear un cluster eligiendo la opción Free para esta demostración, si está disponible en la región elegida.
+3. En Database Access crear el usuario de base de datos `mecanicos_app`, con contraseña propia y acceso
+   `readWrite` únicamente sobre la base `mecanicos`. La cuenta del panel y el usuario de base son distintos.
+4. En Network Access autorizar las IP públicas desde las que se ejecutarán las aplicaciones del equipo.
+   Actualizar esas IP cuando cambie la red de la laptop.
+5. En Data Explorer crear la base `mecanicos` y la colección `mecanicos`, inicialmente vacía.
+6. En Validation pegar el objeto de `$jsonSchema` contenido en el campo `validator` del
+   [esquema existente](../../microservices/mecanicos/AutoTallerPro.Mecanicos.Infrastructure/Esquema/001_mecanicos.js).
+   Pegar el objeto `{ $jsonSchema: ... }`, sin `db.createCollection` ni los índices del script.
+   Usar acción Error y nivel Strict.
+7. En Indexes crear `ux_mecanicos_documento`, clave `{ "documento": 1 }`, con Unique habilitado,
+   y `ix_mecanicos_nombre`, claves `{ "apellidos": 1, "nombres": 1 }`.
+   El índice único es necesario para proteger los duplicados simultáneos, además de Result.
+8. En Connect → Drivers seleccionar C# y copiar la URI `mongodb+srv://...`.
+   Reemplazar la contraseña y aplicar codificación porcentual si tiene caracteres reservados en URI.
+   Conservar las opciones de Atlas; no desactivar TLS ni la validación de certificados.
+
+La selección de la base en la API usa `MONGO_MECANICOS_DB=mecanicos`, aunque la URI de Atlas no incluya una base.
+Documentación: [conexión de drivers](https://www.mongodb.com/docs/atlas/driver-connection/),
+[Data Explorer](https://www.mongodb.com/docs/atlas/atlas-ui/collections/) y
+[validación desde el panel](https://www.mongodb.com/docs/atlas/atlas-ui/validation/).
+
+### 2. Crear PostgreSQL en Neon desde cero
+
+1. Crear una cuenta en [Neon](https://console.neon.tech/) y un proyecto para Clientes/Vehículos.
+   Elegir el plan Free para la demostración y PostgreSQL 17 si el formulario ofrece esa versión.
+2. Crear o seleccionar la base `clientes_vehiculos` y el rol que usará exclusivamente este microservicio.
+3. En SQL Editor seleccionar esa base y ejecutar el contenido del
+   [script PostgreSQL](../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql).
+   Hacerlo sobre la base nueva del proyecto; el script crea tablas, índices y relación, sin insertar datos ficticios.
+4. En Connect obtener Host, Database, Username y Password. La API espera el formato Npgsql de .NET,
+   separado por punto y coma. Una URI `postgresql://...` o el comando `psql` no se pega directamente.
+5. Configurar `SSL Mode=VerifyFull`: se verifican el certificado y el nombre del servidor.
+   Si Connect muestra `SSL Mode=Require`, cambiar solo ese modo a `VerifyFull`.
+6. En Tables comprobar `clientes` y `vehiculos`; el SQL Editor permite consultar las filas sin instalar un cliente.
+
+Documentación: [conexión desde aplicaciones](https://neon.com/docs/connect/connect-from-any-app),
+[SQL Editor](https://neon.com/docs/get-started/query-with-neon-sql-editor) y
+[TLS de Npgsql](https://www.npgsql.org/doc/security.html).
+
+### 3. Guardar las conexiones localmente
+
+Agregar estas dos variables al `.env` local, que está excluido de Git. Sustituir los marcadores
+por los datos de los proyectos recién creados. No pegar las credenciales en documentación, capturas o chats.
+
+```dotenv
+POSTGRES_CLIENTES_CONNECTION_STRING='Host=HOST_DE_NEON;Port=5432;Database=clientes_vehiculos;Username=USUARIO;Password=CLAVE;SSL Mode=VerifyFull'
+MONGO_MECANICOS_CONNECTION_STRING='mongodb+srv://mecanicos_app:CLAVE_CODIFICADA@HOST_DE_ATLAS/?retryWrites=true&w=majority'
+```
+
+Estas líneas muestran el formato; no son conexiones operativas. Conservar las variables locales anteriores:
+Compose todavía las evalúa y permiten volver al modo local sin perder los volúmenes existentes.
+Las comillas simples exteriores de `.env` evitan que Compose interprete un `$` de una contraseña.
+En Npgsql, si una contraseña contiene `;` u otros delimitadores, usar el escape propio de Npgsql
+dentro del valor. La plantilla `.env.example` conserva los campos nuevos vacíos.
+
+Las APIs dan prioridad a `Database:ConnectionString` cuando está configurada. Si falta, mantienen
+Host/Port/Name/User/Password para el modo local. El override cloud exige ambas cadenas para evitar
+que un campo vacío conecte por accidente a las bases locales.
+
+### 4. Activar y comprobar el modo nube
+
+Desde la raíz, después de crear los esquemas y completar el `.env`:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.nube.yml config --quiet
+docker compose -f docker-compose.yml -f docker-compose.nube.yml up -d --build --no-deps ms-clientes ms-mecanicos
+```
+
+Entrar por `http://127.0.0.1:5105/` con una cuenta de negocio habilitada. Crear un cliente y su vehículo,
+y un mecánico; comprobar las filas/documento en los paneles web, editar, refrescar y comprobar el cambio.
+Verificar que un documento duplicado devuelve conflicto. Retirar únicamente esos registros de prueba
+desde la aplicación, borrando el vehículo antes del cliente.
+`/salud` indica que la API responde; no prueba por sí sola el acceso a una base.
+
+Solo después de confirmar el CRUD remoto, detener los dos motores locales para liberar su RAM:
+
+```sh
+docker compose stop postgres-clientes mongo-mecanicos
+```
+
+Los volúmenes se conservan. A partir de entonces arrancar el conjunto con ambos archivos:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.nube.yml up -d
+```
+
+El override asigna esas dos bases al perfil `bases-locales`, inactivo de forma predeterminada.
+Un `docker compose up -d` sin el archivo cloud vuelve al modo local y puede arrancarlas de nuevo.
+Si esos contenedores ya estaban ejecutándose, el perfil no los detiene automáticamente.
+
+Para volver al modo local, usar solo `docker-compose.yml` y recrear las dos APIs:
+
+```sh
+docker compose up -d postgres-clientes mongo-mecanicos
+docker compose up -d --build --no-deps ms-clientes ms-mecanicos
+```
+
+El modo nube parte de bases nuevas vacías: no copia los datos que existan en los volúmenes locales.
+La conexión requiere internet; no se garantiza una demostración offline con Atlas/Neon.
+El respaldo anterior de correcciones permanece en Git stash y no fue aplicado sobre el login del equipo.
+
 ## Rutas
 
 Gateway conserva los prefijos existentes y elimina el prefijo al reenviar.

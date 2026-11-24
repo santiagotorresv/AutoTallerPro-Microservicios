@@ -1,21 +1,80 @@
 @page
 @model AutoTallerPro.Frontend.Pages.Vehiculos.IndexModel
-@{ ViewData["Title"] = "Vehículos"; }
-@section Styles { <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" /> }
-<div class="grupo-uno">
-<nav aria-label="Módulos del taller"><a asp-page="/Clientes/Index">Clientes</a><a asp-page="/Vehiculos/Index">Vehículos</a><a asp-page="/Categorias/Index">Categorías</a><a asp-page="/Servicios/Index">Servicios</a><a asp-page="/Mecanicos/Index">Mecánicos</a></nav>
-<h1>Vehículos</h1>
-<p class="text-muted">Consulte y administre los registros del taller.</p>
-@if (TempData["GrupoUnoMensaje"] is string mensaje) { <div class="alert alert-success" role="status">@mensaje</div> }
-<div class="acciones"><a class="btn btn-primary" asp-page="./Crear">Crear vehículo</a><a class="btn btn-outline-secondary" asp-page="./Index" asp-route-buscar="@Model.Buscar" asp-route-ordenar="@Model.Ordenar" asp-route-descendente="@Model.Descendente">Actualizar listado</a></div>
-<form method="get" class="filtros"><label asp-for="Buscar">Buscar<input asp-for="Buscar" class="form-control" maxlength="150" /></label><label asp-for="Ordenar">Ordenar por<select asp-for="Ordenar" class="form-select"><option value="placa">Placa</option><option value="marca">Marca</option><option value="modelo">Modelo</option><option value="anio">Año</option><option value="fecha">Fecha de registro</option></select></label><label>Dirección<select asp-for="Descendente" class="form-select"><option value="false">Ascendente</option><option value="true">Descendente</option></select></label><button type="submit" class="btn btn-secondary">Aplicar</button></form>
-@if (Model.Error is not null) { <div class="alert alert-danger" role="alert">@Model.Error</div> }
-else if (Model.Registros.Count == 0) { <div class="card estado-vacio">No hay registros para los filtros seleccionados.</div> }
-else {
-<div class="table-responsive"><table class="table"><caption>Listado de vehículos</caption><thead><tr><th scope="col">Placa</th><th scope="col">Marca</th><th scope="col">Modelo</th><th scope="col">Año</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
-@foreach (var registro in Model.Registros) {
-<tr><td>@registro.Placa @if (registro.EsPlacaExtranjera) { <small class="etiqueta-extranjera">Extranjera</small> }</td><td>@registro.Marca</td><td>@registro.Modelo</td><td>@registro.Anio</td><td>@(registro.Activo ? "Activo" : "Inactivo")</td><td><a asp-page="./Editar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-primary">Editar</a> <a asp-page="./Eliminar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-danger">Eliminar</a></td></tr>
+@{ ViewData["Title"] = "Gestión de Vehículos"; }
+@section Styles {
+    <link rel="stylesheet" href="~/css/vehiculos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/grupo-uno.css" asp-append-version="true" />
 }
-</tbody></table></div>
-}
+
+<div class="dashboard grupo-uno-page">
+    <div class="dashboard-header">
+        <div><h1>Gestión de Vehículos</h1><p>Administra y registra los vehículos del taller.</p></div>
+        <div class="services-actions">
+
+            <a asp-page="./Crear" class="services-btn services-btn-primary" data-crud-modal>＋ Nuevo vehículo</a>
+        </div>
+    </div>
+    @if (TempData["GrupoUnoMensaje"] is string mensaje)
+    { <div class="grupo-alert grupo-alert-success" role="status">@mensaje</div> }
+    <div class="services-actions grupo-toolbar">
+        <form method="get" class="services-actions grupo-buscador" role="search">
+            <label class="visually-hidden" asp-for="Buscar">Buscar vehículos</label>
+            <input asp-for="Buscar" class="service-input" type="search" placeholder="Buscar por placa…" maxlength="150" />
+            <button type="submit" class="services-btn services-btn-secondary">Buscar</button>
+            @if (!string.IsNullOrWhiteSpace(Model.Buscar)) { <a asp-page="./Index" class="services-btn services-btn-secondary">Limpiar</a> }
+            <input type="hidden" asp-for="Ordenar" />
+            <input type="hidden" asp-for="Descendente" />
+        </form>
+        <a asp-page="./Index" asp-route-buscar="@Model.Buscar" asp-route-ordenar="@Model.Ordenar" asp-route-descendente="@Model.Descendente" class="services-btn services-btn-secondary">Refrescar</a>
+    </div>
+    <form method="get" class="grupo-ordenacion">
+        <input type="hidden" asp-for="Buscar" id="buscar-ordenacion" />
+        <label for="ordenar">Ordenar por</label>
+        <select asp-for="Ordenar" id="ordenar" class="service-input">
+            <option value="placa">Placa</option><option value="marca">Marca</option><option value="modelo">Modelo</option><option value="anio">Año</option><option value="fecha">Fecha de registro</option>
+        </select>
+        <label class="visually-hidden" for="descendente">Dirección</label>
+        <select asp-for="Descendente" id="descendente" class="service-input"><option value="false">Ascendente</option><option value="true">Descendente</option></select>
+        <button type="submit" class="services-btn services-btn-secondary">Aplicar</button>
+    </form>
+    @if (Model.Error is not null) { <div class="grupo-alert grupo-alert-error" role="alert">@Model.Error</div> }
+    @if (Model.ErrorRelacion is not null) { <div class="grupo-alert grupo-alert-warning" role="status">@Model.ErrorRelacion</div> }
+    <section class="recent-orders" aria-labelledby="listado-titulo">
+        <div class="section-header"><div><h2 id="listado-titulo">Vehículos registrados</h2><p>@Model.Registros.Count registro(s) encontrado(s)</p></div></div>
+        @if (Model.Error is not null)
+        { <div class="services-empty"><strong>No se pudo cargar el listado</strong><span>Vuelve a intentar con el botón Refrescar.</span></div> }
+        else if (Model.Registros.Count == 0)
+        {
+            <div class="services-empty"><div class="grupo-empty-icon" aria-hidden="true">🚗</div><strong>@(string.IsNullOrWhiteSpace(Model.Buscar) ? "Todavía no hay registros" : "No se encontraron coincidencias")</strong><span>Registra un nuevo vehículo o prueba con otros términos de búsqueda.</span></div>
+        }
+        else
+        {
+            <div class="table-container">
+                <table class="orders-table services-table">
+                    <caption class="visually-hidden">Listado de vehículos</caption>
+                    <thead><tr><th scope="col">Placa</th><th scope="col">Marca</th><th scope="col">Modelo</th><th scope="col">Cliente</th><th scope="col">Año</th><th scope="col">Color</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                    <tbody>
+                    @foreach (var registro in Model.Registros)
+                    {
+                        <tr>
+                    <td class="service-name">@registro.Placa @if (registro.EsPlacaExtranjera) { <small class="etiqueta-extranjera">Extranjera</small> }</td>
+                    <td>@registro.Marca</td>
+                    <td>@registro.Modelo</td>
+                    <td>@Model.NombreCliente(registro.ClienteId)</td>
+                    <td>@registro.Anio</td>
+                    <td>@(string.IsNullOrWhiteSpace(registro.Color) ? "—" : registro.Color)</td>
+                            <td><span class="grupo-estado @(registro.Activo ? "grupo-estado-activo" : "grupo-estado-inactivo")">@(registro.Activo ? "Activo" : "Inactivo")</span></td>
+                            <td><div class="services-row-actions">
+                                <a asp-page="./Editar" asp-route-id="@registro.Id" class="service-action service-action-edit" data-crud-modal aria-label="Editar vehículo">✎</a>
+                                <a asp-page="./Eliminar" asp-route-id="@registro.Id" class="service-action service-action-delete" data-crud-modal aria-label="Eliminar vehículo">🗑</a>
+                            </div></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
 </div>
+<partial name="_DialogoGrupoUno" />
+@section Scripts { <partial name="_ScriptsGrupoUno" /> }

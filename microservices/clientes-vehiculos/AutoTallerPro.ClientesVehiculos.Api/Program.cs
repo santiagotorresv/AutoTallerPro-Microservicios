@@ -1,4 +1,4 @@
-using Npgsql;
+using AutoTallerPro.ClientesVehiculos.Api.Persistencia;
 using AutoTallerPro.ClientesVehiculos.Api.Adaptadores;
 using AutoTallerPro.ClientesVehiculos.Api.Seguridad;
 using AutoTallerPro.ClientesVehiculos.Application.CasosDeUso;
@@ -15,7 +15,7 @@ builder.Services.AddProblemDetails(opciones => opciones.CustomizeProblemDetails 
         contexto.ProblemDetails.Detail = null;
     }
 });
-builder.Services.AddSingleton(_ => new Conexion(new NpgsqlConnectionStringBuilder { Host = Requerido("Host"), Port = int.Parse(builder.Configuration["Database:Port"] ?? "5432"), Username = Requerido("User"), Password = Requerido("Password"), Database = Requerido("Name") }.ConnectionString));
+builder.Services.AddSingleton(_ => new Conexion(ConfiguracionPersistencia.Cadena(builder.Configuration)));
 builder.Services.AddScoped<IClienteRepositorio, ClienteRepositorio>();
 builder.Services.AddScoped<ClienteServicio>();
 builder.Services.AddScoped<IVehiculoRepositorio, VehiculoRepositorio>();
@@ -28,5 +28,4 @@ app.MapGet("/salud", () => Results.Ok(new { estado = "OK" })).AllowAnonymous();
 app.MapearCliente();
 app.MapearVehiculo();
 app.Run();
-string Requerido(string clave) => builder.Configuration[$"Database:{clave}"] ?? throw new InvalidOperationException($"Falta Database:{clave}.");
 public partial class Program;
