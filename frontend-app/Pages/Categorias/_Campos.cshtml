@@ -1,0 +1,15 @@
+@model AutoTallerPro.Frontend.GrupoUno.CategoriaServicioInput
+@using AutoTallerPro.Frontend.GrupoUno
+<div class="grupo-campos">
+    <div class="service-form-group">
+        <label asp-for="Nombre">Nombre <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Nombre" type="text" class="service-input" />
+        <span asp-validation-for="Nombre" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio">
+        <label asp-for="Descripcion">Descripción</label>
+        <textarea asp-for="Descripcion" class="service-input service-textarea" rows="3"></textarea>
+        <span asp-validation-for="Descripcion" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio"><label class="grupo-checkbox"><input asp-for="Activo" /> Registro activo</label><span asp-validation-for="Activo" class="service-validation"></span></div>
+</div>

@@ -1,0 +1,35 @@
+@model AutoTallerPro.Frontend.GrupoUno.ServicioInput
+@using AutoTallerPro.Frontend.GrupoUno
+@{ var opciones = ViewData["Opciones"] as IReadOnlyList<CategoriaServicioInput> ?? []; }
+<div class="grupo-campos">
+    <div class="service-form-group">
+        <label asp-for="CategoriaServicioId">Categoría <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <select asp-for="CategoriaServicioId" class="service-input">
+            <option value="">Selecciona una categoría</option>
+            @foreach (var opcion in opciones.Where(x => x.Activo || x.Id == Model.CategoriaServicioId))
+            { <option value="@opcion.Id">@opcion.Nombre</option> }
+        </select>
+        <span asp-validation-for="CategoriaServicioId" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Nombre">Nombre <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Nombre" type="text" class="service-input" />
+        <span asp-validation-for="Nombre" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio">
+        <label asp-for="Descripcion">Descripción</label>
+        <textarea asp-for="Descripcion" class="service-input service-textarea" rows="3"></textarea>
+        <span asp-validation-for="Descripcion" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="PrecioBase">Precio base (Bs) <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="PrecioBase" type="number" class="service-input" min="0" step="0.01" />
+        <span asp-validation-for="PrecioBase" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="DuracionEstimada">Duración estimada (minutos)</label>
+        <input asp-for="DuracionEstimada" type="number" class="service-input" min="1" max="10080" />
+        <span asp-validation-for="DuracionEstimada" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio"><label class="grupo-checkbox"><input asp-for="Activo" /> Registro activo</label><span asp-validation-for="Activo" class="service-validation"></span></div>
+</div>

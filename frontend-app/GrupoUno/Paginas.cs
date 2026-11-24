@@ -4,16 +4,22 @@ namespace AutoTallerPro.Frontend.GrupoUno;
 
 public abstract class ListaModel<T>(IConfiguration configuracion, string ruta) : PageModel
 {
+    protected IConfiguration Configuracion => configuracion;
     public IReadOnlyList<T> Registros { get; private set; } = [];
     [BindProperty(SupportsGet = true)] public string? Buscar { get; set; }
     [BindProperty(SupportsGet = true)] public string? Ordenar { get; set; }
     [BindProperty(SupportsGet = true)] public bool Descendente { get; set; }
     public string? Error { get; private set; }
+    protected virtual Task CargarRelacionesAsync() => Task.CompletedTask;
     public async Task OnGetAsync()
     {
         var url = ruta + "?buscar=" + Uri.EscapeDataString(Buscar ?? "") + "&ordenar=" + Uri.EscapeDataString(Ordenar ?? "") + "&descendente=" + Descendente.ToString().ToLowerInvariant();
         var resultado = await new ClienteGateway(configuracion, HttpContext).EnviarAsync<List<T>>(HttpMethod.Get, url);
-        if (resultado.Exito) Registros = resultado.Valor ?? [];
+        if (resultado.Exito)
+        {
+            Registros = resultado.Valor ?? [];
+            if (Registros.Count > 0) await CargarRelacionesAsync();
+        }
         else Error = resultado.Error;
     }
 }
@@ -59,6 +65,9 @@ public abstract class EliminarModel<T>(IConfiguration configuracion, string ruta
     {
         var resultado = await new ClienteGateway(configuracion, HttpContext).EnviarAsync<bool>(HttpMethod.Delete, ruta + "/" + Uri.EscapeDataString(id));
         if (resultado.Exito) { TempData["GrupoUnoMensaje"] = "El registro se eliminó correctamente."; return RedirectToPage("./Index"); }
-        Error = resultado.Error; return Page();
+        var consulta = await new ClienteGateway(configuracion, HttpContext).EnviarAsync<T>(HttpMethod.Get, ruta + "/" + Uri.EscapeDataString(id));
+        Registro = consulta.Valor;
+        Error = resultado.Error;
+        return Page();
     }
 }

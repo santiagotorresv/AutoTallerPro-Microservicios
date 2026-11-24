@@ -1,0 +1,35 @@
+@model AutoTallerPro.Frontend.GrupoUno.MecanicoInput
+@using AutoTallerPro.Frontend.GrupoUno
+<div class="grupo-campos">
+    <div class="service-form-group">
+        <label asp-for="Documento">Documento de identidad <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Documento" type="text" class="service-input" />
+        <span asp-validation-for="Documento" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Nombres">Nombres <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Nombres" type="text" class="service-input" />
+        <span asp-validation-for="Nombres" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Apellidos">Apellidos <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Apellidos" type="text" class="service-input" />
+        <span asp-validation-for="Apellidos" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Especialidad">Especialidad <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <select asp-for="Especialidad" class="service-input"><option value="">Selecciona una especialidad</option><option>Mecánica general</option><option>Electricidad</option><option>Diagnóstico</option><option>Carrocería</option></select>
+        <span asp-validation-for="Especialidad" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Telefono">Teléfono</label>
+        <input asp-for="Telefono" type="tel" class="service-input" />
+        <span asp-validation-for="Telefono" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Correo">Correo electrónico</label>
+        <input asp-for="Correo" type="email" class="service-input" />
+        <span asp-validation-for="Correo" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio"><label class="grupo-checkbox"><input asp-for="Activo" /> Registro activo</label><span asp-validation-for="Activo" class="service-validation"></span></div>
+</div>

@@ -1,0 +1,40 @@
+@model AutoTallerPro.Frontend.GrupoUno.VehiculoInput
+@using AutoTallerPro.Frontend.GrupoUno
+@{ var opciones = ViewData["Opciones"] as IReadOnlyList<ClienteInput> ?? []; }
+<div class="grupo-campos">
+    <div class="service-form-group">
+        <label asp-for="ClienteId">Propietario <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <select asp-for="ClienteId" class="service-input">
+            <option value="">Selecciona un propietario</option>
+            @foreach (var opcion in opciones.Where(x => x.Activo || x.Id == Model.ClienteId))
+            { <option value="@opcion.Id">@opcion.Nombre</option> }
+        </select>
+        <span asp-validation-for="ClienteId" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Placa">Placa <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Placa" type="text" class="service-input" />
+        <span asp-validation-for="Placa" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Marca">Marca <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Marca" type="text" class="service-input" />
+        <span asp-validation-for="Marca" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Modelo">Modelo <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Modelo" type="text" class="service-input" />
+        <span asp-validation-for="Modelo" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Anio">Año <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Anio" type="number" class="service-input" min="1900" max="@(DateTime.UtcNow.Year + 1)" />
+        <span asp-validation-for="Anio" class="service-validation"></span>
+    </div>
+    <div class="service-form-group">
+        <label asp-for="Color">Color</label>
+        <input asp-for="Color" type="text" class="service-input" />
+        <span asp-validation-for="Color" class="service-validation"></span>
+    </div>
+    <div class="service-form-group grupo-campo-amplio"><label class="grupo-checkbox"><input asp-for="Activo" /> Registro activo</label><span asp-validation-for="Activo" class="service-validation"></span></div>
+</div>

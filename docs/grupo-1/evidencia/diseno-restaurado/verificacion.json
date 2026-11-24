@@ -1,0 +1,151 @@
+{
+  "resultado": "Correcto",
+  "entorno": "Chrome; sesión de prueba y respuestas HTTP en memoria; sin uso de Atlas o Neon",
+  "verificaciones": [
+    {
+      "caso": "Clientes: listado con diseño original y datos de prueba",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: listado con diseño original y datos de prueba",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: listado con diseño original y datos de prueba",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: listado con diseño original y datos de prueba",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: listado con diseño original y datos de prueba",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Clientes: validación visible sin perder el formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Clientes: crear desde ventana modal",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Clientes: editar y reflejar cambios",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Clientes: eliminación confirmada",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: validación visible sin perder el formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: crear desde ventana modal",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: editar y reflejar cambios",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: eliminación confirmada",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: validación visible sin perder el formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: crear desde formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: editar y reflejar cambios",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: eliminación confirmada",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: validación visible sin perder el formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: crear desde formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: editar y reflejar cambios",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: eliminación confirmada",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: validación visible sin perder el formulario",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: crear desde ventana modal",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: editar y reflejar cambios",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: eliminación confirmada",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Duplicado: error de negocio dentro del modal y formulario conservado",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Modal: cierre con Escape y retorno al listado",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Relación: eliminación rechazada conserva confirmación y mensaje",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Búsqueda: filtros reales de la vista y estado vacío",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Clientes: móvil 390px sin desbordamiento",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Vehiculos: móvil 390px sin desbordamiento",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Categorias: móvil 390px sin desbordamiento",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Servicios: móvil 390px sin desbordamiento",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Mecanicos: móvil 390px sin desbordamiento",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Formulario modal móvil: campos accesibles y diseño adaptable",
+      "resultado": "Correcto"
+    },
+    {
+      "caso": "Cero errores de JavaScript",
+      "resultado": "Correcto"
+    }
+  ],
+  "errores_javascript": 0
+}
