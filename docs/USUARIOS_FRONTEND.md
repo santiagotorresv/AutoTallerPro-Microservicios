@@ -56,6 +56,7 @@ alias `+pruebaN` de esa cuenta.
 | Gmail: invitación de un alta nueva | Pasa | El correo llegó a Gmail; Mailpit no recibió nada |
 | Gmail: reenvío de invitación | Pasa | Primero `429` («Debe esperar 83 segundos»); pasado el intervalo, el correo llegó |
 | Gmail: recuperación de contraseña por username | Pasa | El correo llegó |
+| Invitación completa y primer inicio de sesión | Pasa | Con Mailpit, que usa el mismo flujo de Keycloak: enlace, verificación, primera contraseña y entrada como Recepcionista; la invitación pasa a «Completada» |
 | Login con el tema AutoTaller Pro | Pasa | Administrador y Recepcionista |
 | Recepcionista: menú sin Usuarios y URL directa | Pasa | «Acceso denegado» |
 | Búsqueda con filtro por rol y estado | Pasa | `adrian` + Recepcionista + activos: 3 resultados |
@@ -71,6 +72,8 @@ alias `+pruebaN` de esa cuenta.
 Pruebas automáticas sobre `main`: `AutoTallerPro.sln` con 19 pruebas del
 Frontend y 101 de Usuarios (36 omitidas), y `AutoTallerPro.GrupoUno.Tests` con
 66 (3 omitidas), todas en verde.
+
+Las capturas están en [usuarios/evidencia](usuarios/evidencia/README.md).
 
 ## Hallazgos para P4
 
@@ -100,6 +103,12 @@ Frontend y 101 de Usuarios (36 omitidas), y `AutoTallerPro.GrupoUno.Tests` con
    invalidPasswordMinDigitsMessage=Contraseña no válida: debe contener al menos {0} número.
    invalidPasswordMinSpecialCharsMessage=Contraseña no válida: debe contener al menos {0} carácter especial.
    ```
+
+   Otros textos vistos el 24/11: la versión de texto plano del correo dice
+   «expirará en 12 horas minutos» (la HTML dice «caducará en 12 horas»); el
+   enlace de la invitación abre «Haz click aquí para proceder» («clic» y trato
+   de tú); y el aviso «Vuelva a autenticarse para continuar» casi no se lee
+   sobre el fondo oscuro del tema.
 4. **Auditoría de altas rechazadas**: un alta con `correo_duplicado` no deja
    registro en `AuditoriaAdministrativa`. Las demás operaciones sí registran
    sus rechazos.
