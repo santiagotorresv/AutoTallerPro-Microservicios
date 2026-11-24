@@ -32,7 +32,7 @@ public static class EstadosInvitacion
     {
         "pendiente" => "Pendiente",
         "envioIncierto" => "Envío sin confirmar",
-        "correoSolicitado" => "Invitación enviada",
+        "correoSolicitado" => "Correo solicitado",
         "completada" => "Completada",
         "sinRegistro" => "Sin registro",
         _ => estado

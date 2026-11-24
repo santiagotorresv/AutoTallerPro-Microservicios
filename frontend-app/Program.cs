@@ -17,6 +17,7 @@ var gateway = builder.Configuration["GrupoUno:GatewayUrl"] ??
         ? "http://gateway:8080/"
         : "http://127.0.0.1:5100/");
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ReintentosUsuarios>();
 builder.Services.AddHttpClient<ClienteUsuarios>(cliente =>
 {
     cliente.BaseAddress = new Uri(gateway.TrimEnd('/') + "/");

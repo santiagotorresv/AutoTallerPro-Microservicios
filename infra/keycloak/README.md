@@ -30,9 +30,9 @@ extremos.
    `POST /admin/realms` con la representación JSON y un token
    administrativo local. Una colisión debe detener la operación.
 4. Comprueba los roles, las acciones requeridas, la política y el cliente.
-   Keycloak genera el secreto del cliente en la instancia. En la futura
-   integración se tomará de **Clients → autotaller-frontend → Credentials**
-   y se guardará en la configuración local de Razor, fuera del repositorio.
+   Keycloak genera el secreto del cliente en la instancia. Usa **Clients →
+   autotaller-frontend → Credentials** para configurar Razor localmente,
+   fuera del repositorio.
 
 En una instancia nueva también se puede montar el archivo de solo lectura
 en `/opt/keycloak/data/import/autotaller-realm.json` e iniciar Keycloak con
@@ -47,6 +47,45 @@ realm tiene prioridad, ajusta también **Realm settings → General → Frontend
 URL** o, para un realm nuevo, modifica una copia local del JSON antes de
 importarlo. Un realm nuevo usa Mailpit por defecto. Su bandeja web se abre
 desde Windows en `http://127.0.0.1:8025/`.
+
+## Tema de inicio de sesión
+
+El tema [`autotaller`](themes/autotaller/login/) usa los formularios nativos de
+`keycloak.v2`. La hoja de estilos y los mensajes en español se aplican al acceso,
+los errores, la verificación de correo, la primera contraseña y la recuperación.
+[Temas oficiales de Keycloak](https://www.keycloak.org/ui-customization/themes)
+
+Compose monta el tema en modo de solo lectura. El JSON versionado ya lo
+selecciona para instalaciones nuevas. Para un realm existente, ejecuta desde
+la raíz con Node.js 22 o posterior.
+
+```powershell
+docker compose up -d --no-deps --no-build --wait keycloak
+node infra/keycloak/configurar-usuarios-admin.cjs --tema
+```
+
+El configurador comprueba que Keycloak descubrió el tema y actualiza solo
+el tema de login y el idioma del realm. Conserva los usuarios, los clientes,
+los flujos existentes y la opción de recuperación que tenga el realm. Se
+puede volver a ejecutar sobre el mismo realm.
+
+Para comprobar la integración de P5, abre Inicio en
+`http://127.0.0.1:5105/` sin sesión. El enlace **Iniciar sesión** apunta a
+Inicio, cuya política de autenticación emite el desafío OIDC. El cliente
+confidencial `autotaller-frontend` recibe el retorno en `/signin-oidc` con
+Authorization Code y PKCE. Usa la imagen de Frontend de la rama actual y
+configura `KEYCLOAK_FRONTEND_CLIENT_SECRET` en el `.env` local a partir de
+**Clients → autotaller-frontend → Credentials**. Después de actualizar el
+secreto en tu entorno local puedes reconstruir solo Frontend.
+
+```powershell
+docker compose up -d --no-deps --build frontend
+```
+
+Si el realm existente tiene desactivada la recuperación de contraseña,
+Keycloak omite el enlace de recuperación. El JSON de una instalación nueva
+ya conserva el ajuste de recuperación de P5. La verificación de correo y las
+invitaciones de desarrollo pueden probarse con Mailpit.
 
 ## Elegir SMTP para las invitaciones
 

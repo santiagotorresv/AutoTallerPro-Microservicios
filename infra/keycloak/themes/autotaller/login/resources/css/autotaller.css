@@ -1,0 +1,248 @@
+body#keycloak-bg {
+    --at-background: #0d0a12;
+    --at-panel: #171120;
+    --at-line: #342643;
+    --at-text: #f5f3ff;
+    --at-muted: #b7a8c8;
+    --at-field: #21192c;
+    --at-control-line: #7b688f;
+    --at-primary: #7c3aed;
+    --at-focus: #c4b5fd;
+    --at-error: #fca5a5;
+    --pf-v5-global--Color--100: var(--at-text);
+    --pf-v5-global--Color--200: var(--at-muted);
+    color-scheme: dark;
+    margin: 0;
+    background: var(--at-background);
+    color: var(--at-text);
+    font: 15px/1.6 "Segoe UI", sans-serif;
+}
+
+#keycloak-bg .pf-v5-c-login {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--at-background);
+}
+
+#keycloak-bg .pf-v5-c-login__container {
+    display: grid;
+    grid-template: "header main" 1fr / minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0;
+    width: min(100%, 1050px);
+    min-height: 570px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--at-line);
+    border-radius: 20px;
+    background: var(--at-panel);
+    box-shadow: 0 24px 70px #0006;
+}
+
+#kc-header {
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 45px;
+    border-inline-end: 1px solid var(--at-line);
+    background: linear-gradient(145deg, #29163f, #150e20);
+    text-align: center;
+}
+
+#kc-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    color: var(--at-text);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: normal;
+    line-height: 1.25;
+    text-transform: none;
+}
+
+#kc-header-wrapper::before {
+    content: "🔧" / "";
+    display: grid;
+    place-items: center;
+    width: 90px;
+    height: 90px;
+    margin-bottom: 9px;
+    border-radius: 24px;
+    background: var(--at-primary);
+    font-size: 42px;
+}
+
+#kc-header-wrapper p {
+    max-width: 310px;
+    margin: 0;
+    color: var(--at-muted);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+#keycloak-bg .pf-v5-c-login__main {
+    display: flex;
+    min-width: 0;
+    align-self: stretch;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 45px;
+    background: var(--at-panel);
+    box-shadow: none;
+    color: var(--at-text);
+    overflow-wrap: anywhere;
+}
+
+#keycloak-bg :is(.pf-v5-c-login__main-header, .pf-v5-c-login__main-body, .pf-v5-c-login__main-footer) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+#kc-page-title {
+    margin: 0;
+    color: var(--at-text);
+    font: 700 24px/1.25 "Segoe UI", sans-serif;
+}
+
+#keycloak-bg .pf-v5-c-form {
+    --pf-v5-c-form--GridGap: 19px;
+}
+
+#keycloak-bg .pf-v5-c-form__label {
+    color: var(--at-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#keycloak-bg .pf-v5-c-form-control {
+    min-height: 46px;
+    border: 1px solid var(--at-control-line);
+    border-radius: 9px;
+    background: var(--at-field);
+    color: var(--at-text);
+}
+
+#keycloak-bg .pf-v5-c-form-control::before,
+#keycloak-bg .pf-v5-c-form-control::after {
+    border: 0;
+}
+
+#keycloak-bg .pf-v5-c-form-control :is(input, select, textarea) {
+    min-height: 44px;
+    color: var(--at-text);
+    font: inherit;
+}
+
+#keycloak-bg .pf-v5-c-form-control:focus-within {
+    border-color: var(--at-focus);
+    box-shadow: 0 0 0 3px #8b5cf64d;
+}
+
+#keycloak-bg .pf-v5-c-form-control.pf-m-error {
+    border-color: var(--at-error);
+}
+
+#keycloak-bg .pf-v5-c-input-group {
+    gap: 6px;
+}
+
+#keycloak-bg .pf-v5-c-button {
+    min-height: 46px;
+    border-radius: 9px;
+    font: 600 15px/1.3 "Segoe UI", sans-serif;
+}
+
+#keycloak-bg .pf-v5-c-button.pf-m-primary {
+    border-color: transparent;
+    background: var(--at-primary);
+    color: white;
+}
+
+#keycloak-bg .pf-v5-c-button.pf-m-primary:is(:hover, :focus-visible) {
+    background: #6d28d9;
+}
+
+#keycloak-bg .pf-v5-c-button.pf-m-control {
+    border: 1px solid var(--at-control-line);
+    background: var(--at-field);
+    color: var(--at-muted);
+}
+
+#keycloak-bg .pf-v5-c-button.pf-m-control::after {
+    border: 0;
+}
+
+#keycloak-bg :is(a, button, input, select):focus-visible {
+    outline: 2px solid var(--at-focus);
+    outline-offset: 2px;
+}
+
+#keycloak-bg .pf-v5-c-form-control :is(input, select):focus-visible {
+    outline: none;
+}
+
+#keycloak-bg a {
+    color: var(--at-focus);
+    text-decoration: underline;
+}
+
+#keycloak-bg .kc-feedback-text {
+    overflow-wrap: anywhere;
+}
+
+#keycloak-bg :is(.pf-m-error, .pf-m-danger) .kc-feedback-text,
+#keycloak-bg .kc-feedback-text.pf-m-error {
+    color: var(--at-error);
+}
+
+#keycloak-bg .pf-v5-c-alert {
+    --pf-v5-c-alert--BackgroundColor: var(--at-field);
+    color: var(--at-text);
+    background: var(--at-field);
+}
+
+@media (max-width: 760px) {
+    #keycloak-bg .pf-v5-c-login {
+        padding: 16px;
+    }
+
+    #keycloak-bg .pf-v5-c-login__container {
+        grid-template: "header" auto "main" 1fr / minmax(0, 1fr);
+        min-height: 0;
+    }
+
+    #kc-header {
+        padding: 28px 22px;
+        border-inline-end: 0;
+        border-bottom: 1px solid var(--at-line);
+    }
+
+    #kc-header-wrapper {
+        gap: 10px;
+        font-size: 25px;
+    }
+
+    #kc-header-wrapper::before {
+        width: 65px;
+        height: 65px;
+        margin-bottom: 4px;
+        border-radius: 16px;
+        font-size: 30px;
+    }
+
+    #kc-header-wrapper p {
+        font-size: 13px;
+    }
+
+    #keycloak-bg .pf-v5-c-login__main {
+        padding: 30px 24px;
+    }
+}
