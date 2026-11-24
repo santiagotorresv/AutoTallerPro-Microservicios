@@ -46,9 +46,12 @@ Documentación: [conexión de drivers](https://www.mongodb.com/docs/atlas/driver
 1. Crear una cuenta en [Neon](https://console.neon.tech/) y un proyecto para Clientes/Vehículos.
    Elegir el plan Free para la demostración y PostgreSQL 17 si el formulario ofrece esa versión.
 2. Crear o seleccionar la base `clientes_vehiculos` y el rol que usará exclusivamente este microservicio.
-3. En SQL Editor seleccionar esa base y ejecutar el contenido del
-   [script PostgreSQL](../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql).
-   Hacerlo sobre la base nueva del proyecto; el script crea tablas, índices y relación, sin insertar datos ficticios.
+3. En SQL Editor seleccionar esa base y ejecutar, en este orden, el contenido de
+   [001_clientes_vehiculos.sql](../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql),
+   [002_placa_extranjera.sql](../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/002_placa_extranjera.sql) y
+   [003_auditoria_clientes_vehiculos.sql](../../microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/003_auditoria_clientes_vehiculos.sql).
+   Hacerlo sobre la base nueva del proyecto; los scripts crean tablas, índices, relación, placa extranjera y bitácora,
+   sin insertar datos ficticios. Sin `002` y `003`, la API no puede leer ni guardar vehículos y clientes.
 4. En Connect obtener Host, Database, Username y Password. La API espera el formato Npgsql de .NET,
    separado por punto y coma. Una URI `postgresql://...` o el comando `psql` no se pega directamente.
 5. Configurar `SSL Mode=VerifyFull`: se verifican el certificado y el nombre del servidor.

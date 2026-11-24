@@ -58,14 +58,15 @@ def principal():
                     time.sleep(2)
             puerto_host = ejecutar(['docker', 'port', nombre, str(puerto)]).rsplit(':', 1)[1]
             puertos[modulo] = puerto_host
+            # Aplica todos los scripts de esquema en orden (001, 002, 003...), igual que infra/levantar-entorno.cjs.
             if modulo == 'postgres':
-                esquema = (RAIZ / 'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql').read_text()
-                ejecutar(['docker', 'exec', '-i', nombre, 'psql', '-U', 'prueba', '-d', base, '-v', 'ON_ERROR_STOP=1'], input=esquema)
+                for archivo in sorted((RAIZ / 'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema').glob('*.sql')):
+                    ejecutar(['docker', 'exec', '-i', nombre, 'psql', '-U', 'prueba', '-d', base, '-v', 'ON_ERROR_STOP=1'], input=archivo.read_text(encoding='utf-8'))
             elif modulo == 'mysql':
-                esquema = (RAIZ / 'microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/001_catalogo_servicios.sql').read_text()
-                ejecutar(['docker', 'exec', '-i', nombre, 'sh', '-c', 'MYSQL_PWD="$MYSQL_PASSWORD" mysql --protocol=TCP -h127.0.0.1 -uprueba "$MYSQL_DATABASE"'], input=esquema)
+                for archivo in sorted((RAIZ / 'microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema').glob('*.sql')):
+                    ejecutar(['docker', 'exec', '-i', nombre, 'sh', '-c', 'MYSQL_PWD="$MYSQL_PASSWORD" mysql --default-character-set=utf8mb4 --protocol=TCP -h127.0.0.1 -uprueba "$MYSQL_DATABASE"'], input=archivo.read_text(encoding='utf-8'))
             if modulo == 'mongo':
-                esquema = (RAIZ / 'microservices/mecanicos/AutoTallerPro.Mecanicos.Infrastructure/Esquema/001_mecanicos.js').read_text()
+                esquema = (RAIZ / 'microservices/mecanicos/AutoTallerPro.Mecanicos.Infrastructure/Esquema/001_mecanicos.js').read_text(encoding='utf-8')
                 prefijo = f"db.getSiblingDB('admin').auth(process.env.MONGO_INITDB_ROOT_USERNAME, process.env.MONGO_INITDB_ROOT_PASSWORD); db = db.getSiblingDB('{base}');\n"
                 for _ in range(2):
                     ejecutar(['docker', 'exec', nombre, 'mongosh', '--quiet', '--eval', prefijo + esquema])
