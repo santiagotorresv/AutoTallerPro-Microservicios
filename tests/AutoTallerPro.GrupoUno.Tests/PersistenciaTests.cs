@@ -71,7 +71,8 @@ public sealed class PersistenciaTests
     [PersistenciaFact] public async Task MySqlCrudRestriccionesYRefrescoReales()
     {
         var cadena = Variable("GRUPO1_MYSQL"); VerificarBase(new MySqlConnectionStringBuilder(cadena).Database);
-        await using (var conexion = new MySqlConnection(cadena))
+        // Los scripts de esquema usan variables de sesión (@sql); el conector las admite solo con AllowUserVariables.
+        await using (var conexion = new MySqlConnection(new MySqlConnectionStringBuilder(cadena) { AllowUserVariables = true }.ConnectionString))
         {
             await conexion.OpenAsync();
             foreach (var archivo in new[] { "001_catalogo_servicios.sql", "002_auditoria_catalogo_servicios.sql" })
