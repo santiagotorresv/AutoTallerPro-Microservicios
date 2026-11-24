@@ -6,6 +6,13 @@ nombre de servicio en la red `autotaller-ec3_default`.
 
 ## Preparar y ejecutar
 
+`node infra/levantar-entorno.cjs` hace en un solo paso lo que describen esta
+guía, la de [Keycloak](keycloak/usuarios-admin.md) y la de
+[MySQL de Usuarios](mysql/usuarios/README.md), y además aplica los esquemas de
+Clientes/Vehículos, Servicios y Mecánicos. Consulta el
+[README principal](../README.md#en-un-solo-paso). Los pasos manuales siguen
+siendo válidos.
+
 Con Docker Desktop en modo de contenedores Linux, ejecuta estos comandos desde
 la raíz del repositorio.
 

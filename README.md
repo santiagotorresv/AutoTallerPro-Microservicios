@@ -71,6 +71,31 @@ dotnet sln AutoTallerPro.sln list
 
 ## Arranque con Docker
 
+### En un solo paso
+
+Con Docker Desktop abierto y Node.js 22 o posterior, ejecuta desde la raíz:
+
+```powershell
+node infra/levantar-entorno.cjs
+```
+
+El script se puede repetir y conserva lo que ya existe. Hace estos pasos:
+1. Crea `.env` si falta y genera las contraseñas locales vacías.
+2. Compila y levanta los contenedores.
+3. Importa el realm de Keycloak si no existe.
+4. Configura la cuenta técnica de Usuarios, el tema y los secretos de los clientes.
+5. Crea las tablas y colecciones de los cuatro microservicios, sin datos de ejemplo.
+6. La primera vez, crea el administrador inicial.
+
+La invitación del administrador llega a Mailpit, en `http://127.0.0.1:8025`.
+Ábrela, verifica el correo, elige la contraseña y entra en
+`http://127.0.0.1:5105` con el usuario que muestra el script. Para usar un
+correo real, ejecuta `node infra/levantar-entorno.cjs --admin tu@correo.com`
+antes de crear cualquier cuenta. Si ya existe un volumen del proyecto sin
+`.env`, el script se detiene, porque las contraseñas nuevas no coincidirían.
+
+### Paso a paso
+
 Con Docker Desktop en modo de contenedores Linux, clona el repositorio y abre la
 raíz. Crea `.env` desde la plantilla y asigna una contraseña aleatoria distinta
 a cada variable que termina en `_PASSWORD` antes del primer arranque. Conserva
