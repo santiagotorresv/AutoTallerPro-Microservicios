@@ -30,7 +30,7 @@ y se reutilizan sin cambios. `grupo-uno.css` aporta únicamente ajustes de integ
   conexiones ni lógica de persistencia del sistema anterior.
 
 La migración conserva los campos del dominio EC3. El sistema anterior tenía nombres y apellidos del cliente
-separados, complemento de CI, kilometraje, observaciones, placa extranjera, género y cobro por unidad,
+separados, kilometraje, observaciones, género y cobro por unidad,
 entre otros datos que no existen en estos contratos. No se muestran campos sin persistencia ni valores
 simulados para aparentar que esas funciones están implementadas. Servicios continúa expresando duración en minutos.
 
@@ -86,3 +86,5 @@ bloquea el botón de reenvío hasta que se cumplen.
 
 La verificación de extremo a extremo está en
 [USUARIOS_FRONTEND.md](../docs/USUARIOS_FRONTEND.md).
+
+Al integrar main se conservaron las validaciones nuevas de CI y celular y el modo de placa extranjera, adaptado también a los formularios modales.

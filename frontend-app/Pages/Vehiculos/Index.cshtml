@@ -57,7 +57,7 @@
                     @foreach (var registro in Model.Registros)
                     {
                         <tr>
-                    <td class="service-name">@registro.Placa</td>
+                    <td class="service-name">@registro.Placa @if (registro.EsPlacaExtranjera) { <small class="etiqueta-extranjera">Extranjera</small> }</td>
                     <td>@registro.Marca</td>
                     <td>@registro.Modelo</td>
                     <td>@Model.NombreCliente(registro.ClienteId)</td>

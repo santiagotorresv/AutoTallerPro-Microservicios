@@ -31,6 +31,8 @@ erDiagram
 
 Script preparado: `microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql`.
 Incluye transacción, `CREATE TABLE IF NOT EXISTS`, índices únicos por `upper(documento)` y `upper(placa)` e índice del propietario.
+`002_placa_extranjera.sql`, en la misma carpeta, amplía `placa` a 15 caracteres y agrega `esplacaextranjera`:
+la placa nacional tiene 3 o 4 números y 3 letras, y la extranjera entre 2 y 15 letras o números.
 No se elimina un cliente con vehículos. Para eliminarlo, primero se eliminan o reasignan sus vehículos.
 La baja física es explícita y se confirma en Razor; el campo activo permite conservar registros sin borrarlos.
 

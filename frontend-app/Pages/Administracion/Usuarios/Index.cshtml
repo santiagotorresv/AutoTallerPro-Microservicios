@@ -74,7 +74,7 @@
 
     <section class="hu3-filtros" aria-label="Filtros de usuarios">
         <h2>Buscar y filtrar usuarios</h2>
-        <form method="get" role="search">
+        <form method="get" role="search" novalidate>
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-lg-6">
                     <label for="hu3Busqueda" class="form-label">Usuario o correo electrónico</label>
@@ -99,7 +99,7 @@
                 </div>
             </div>
             <div class="hu3-filtros-pie">
-                <button type="submit" class="btn btn-secondary btn-sm">Buscar</button>
+                <button type="submit" class="btn btn-primary hu3-buscar">Buscar</button>
                 <a asp-page="./Index" class="hu3-limpiar">Limpiar filtros</a>
             </div>
         </form>

@@ -20,6 +20,7 @@
         if (formulario) {
             formulario.action = new URL(formulario.getAttribute("action") || url, location.origin).href;
             window.jQuery?.validator?.unobtrusive?.parse(formulario);
+            document.dispatchEvent(new CustomEvent("grupo-uno:formulario", { detail: formulario }));
         }
         const titulo = cuerpo.querySelector("h2");
         if (titulo) {

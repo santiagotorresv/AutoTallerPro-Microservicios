@@ -13,7 +13,9 @@
     </div>
     <div class="service-form-group">
         <label asp-for="Placa">Placa <span class="campo-obligatorio" aria-hidden="true">*</span></label>
-        <input asp-for="Placa" type="text" class="service-input" />
+        <label class="grupo-checkbox vehicle-plate-toggle"><input asp-for="EsPlacaExtranjera" role="switch" data-placa-extranjera /> Placa extranjera</label>
+        <input asp-for="Placa" type="text" class="service-input placa-input" maxlength="8" placeholder="Ej. 1234ABC" data-placa-input />
+        <small class="ayuda-campo" data-placa-ayuda>3 o 4 números y 3 letras.</small>
         <span asp-validation-for="Placa" class="service-validation"></span>
     </div>
     <div class="service-form-group">

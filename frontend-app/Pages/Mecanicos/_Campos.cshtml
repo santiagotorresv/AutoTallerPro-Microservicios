@@ -3,7 +3,7 @@
 <div class="grupo-campos">
     <div class="service-form-group">
         <label asp-for="Documento">Documento de identidad <span class="campo-obligatorio" aria-hidden="true">*</span></label>
-        <input asp-for="Documento" type="text" class="service-input" />
+        <input asp-for="Documento" type="text" placeholder="Ej. 1234567 o 1234567-1A" class="service-input" />
         <span asp-validation-for="Documento" class="service-validation"></span>
     </div>
     <div class="service-form-group">
@@ -22,8 +22,8 @@
         <span asp-validation-for="Especialidad" class="service-validation"></span>
     </div>
     <div class="service-form-group">
-        <label asp-for="Telefono">Teléfono</label>
-        <input asp-for="Telefono" type="tel" class="service-input" />
+        <label asp-for="Telefono">Celular <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+        <input asp-for="Telefono" type="tel" inputmode="numeric" maxlength="8" placeholder="Ej. 71234567" class="service-input" />
         <span asp-validation-for="Telefono" class="service-validation"></span>
     </div>
     <div class="service-form-group">
