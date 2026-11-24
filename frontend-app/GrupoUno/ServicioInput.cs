@@ -10,12 +10,14 @@ public sealed class ServicioInput
     [Display(Name = "Nombre")]
     [Required(ErrorMessage = "Nombre: este campo es obligatorio.")]
     [StringLength(120, ErrorMessage = "Nombre: admite hasta 120 caracteres.")]
+    [RegularExpression(@"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9 ()./-]+$", ErrorMessage = "El nombre solo admite letras, números, espacios y los signos ( ) . / -.")]
     public string Nombre { get; set; } = string.Empty;
     [Display(Name = "Descripción")]
     [StringLength(500, ErrorMessage = "La descripción admite hasta 500 caracteres.")]
     public string? Descripcion { get; set; }
     [Display(Name = "Precio base (Bs)")]
-    [Range(typeof(decimal), "0", "9999999999.99", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true, ErrorMessage = "El precio debe ser mayor o igual que cero y no superar 9999999999,99.")]
+    [Required(ErrorMessage = "Precio base: este campo es obligatorio.")]
+    [Range(typeof(decimal), "0.01", "9999999999.99", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true, ErrorMessage = "El precio debe ser mayor a cero y no superar 9999999999,99.")]
     [Microsoft.AspNetCore.Mvc.ModelBinder(BinderType = typeof(DecimalMonedaBinder))]
     public decimal PrecioBase { get; set; }
     [Display(Name = "Duración estimada (minutos)")]

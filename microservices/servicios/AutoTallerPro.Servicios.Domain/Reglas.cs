@@ -11,4 +11,6 @@ public static class Reglas
     public static bool Telefono(string? valor) => string.IsNullOrWhiteSpace(valor)
         || Regex.IsMatch(valor.Trim(), @"^\+?[0-9]{7,15}$");
     public static bool Documento(string? valor) => valor is not null && Regex.IsMatch(valor.Trim(), @"^[A-Za-z0-9][A-Za-z0-9\-]{3,19}$");
+    public static string UnEspacio(string? valor) => Regex.Replace(valor?.Trim() ?? "", @"\s+", " ");
+    public static bool NombreServicio(string valor) => Regex.IsMatch(valor, @"^[\p{L}0-9 ()./-]+$");
 }

@@ -14,7 +14,7 @@ else if (Model.Registros.Count == 0) { <div class="card estado-vacio">No hay reg
 else {
 <div class="table-responsive"><table class="table"><caption>Listado de vehículos</caption><thead><tr><th scope="col">Placa</th><th scope="col">Marca</th><th scope="col">Modelo</th><th scope="col">Año</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
 @foreach (var registro in Model.Registros) {
-<tr><td>@registro.Placa</td><td>@registro.Marca</td><td>@registro.Modelo</td><td>@registro.Anio</td><td>@(registro.Activo ? "Activo" : "Inactivo")</td><td><a asp-page="./Editar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-primary">Editar</a> <a asp-page="./Eliminar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-danger">Eliminar</a></td></tr>
+<tr><td>@registro.Placa @if (registro.EsPlacaExtranjera) { <small class="etiqueta-extranjera">Extranjera</small> }</td><td>@registro.Marca</td><td>@registro.Modelo</td><td>@registro.Anio</td><td>@(registro.Activo ? "Activo" : "Inactivo")</td><td><a asp-page="./Editar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-primary">Editar</a> <a asp-page="./Eliminar" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-danger">Eliminar</a></td></tr>
 }
 </tbody></table></div>
 }

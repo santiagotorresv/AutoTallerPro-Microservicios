@@ -88,9 +88,9 @@ El script se puede repetir y conserva lo que ya existe. Hace estos pasos:
 6. La primera vez, crea el administrador inicial.
 
 Para una demostración, `node infra/levantar-entorno.cjs --datos-demo` agrega
-datos de ejemplo de `infra/demo/`: 3 clientes con sus vehículos, 2 categorías,
-4 servicios y 3 mecánicos. Sus documentos y placas empiezan por `DEMO`. Se
-pueden agregar varias veces sin duplicarse. Para ver las bases desde DBeaver o
+datos de ejemplo de `infra/demo/`: 3 clientes, 4 vehículos (uno con placa
+extranjera), 2 categorías, 4 servicios y 3 mecánicos. Cumplen las mismas reglas
+que la aplicación y se pueden agregar varias veces sin duplicarse. Para ver las bases desde DBeaver o
 MongoDB Compass, consulta la [guía de Docker](infra/README.md#ver-las-bases-con-dbeaver-y-compass).
 
 La invitación del administrador llega a Mailpit, en `http://127.0.0.1:8025`.

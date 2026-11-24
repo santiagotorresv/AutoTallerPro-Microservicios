@@ -5,7 +5,7 @@ using AutoTallerPro.ClientesVehiculos.Application.Puertos;
 namespace AutoTallerPro.ClientesVehiculos.Infrastructure.Persistencia;
 public sealed class ClienteRepositorio(Conexion conexiones) : IClienteRepositorio
 {
-    private static Cliente Leer(System.Data.Common.DbDataReader lector) => Cliente.Crear((Guid)lector["id"], (string)lector["documento"], (string)lector["nombre"], Sql.Texto(lector, "telefono"), Sql.Texto(lector, "correo"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion")).Valor;
+    private static Cliente Leer(System.Data.Common.DbDataReader lector) => Cliente.Restaurar((Guid)lector["id"], (string)lector["documento"], (string)lector["nombre"], Sql.Texto(lector, "telefono"), Sql.Texto(lector, "correo"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"));
     public async Task<IReadOnlyList<Cliente>> ListarAsync(CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);

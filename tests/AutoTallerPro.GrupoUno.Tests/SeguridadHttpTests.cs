@@ -81,7 +81,7 @@ public sealed class SeguridadHttpTests
     {
         using var fabrica = CrearFabrica("clientes"); using var cliente = fabrica.Cliente;
         cliente.DefaultRequestHeaders.Authorization = new("Bearer", TokensPrueba.Crear());
-        var datos = new { documento = "HTTP1234", nombre = "Cliente HTTP", telefono = (string?)null, correo = (string?)null, activo = true };
+        var datos = new { documento = "7654321", nombre = "Cliente HTTP", telefono = "76543210", correo = (string?)null, activo = true };
         var creado = await cliente.PostAsJsonAsync("/clientes", datos);
         Assert.Equal(HttpStatusCode.Created, creado.StatusCode);
         var entidad = await creado.Content.ReadFromJsonAsync<JsonElement>(); var id = entidad.GetProperty("id").GetString();

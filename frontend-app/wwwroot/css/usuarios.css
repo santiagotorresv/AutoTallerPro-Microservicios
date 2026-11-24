@@ -120,8 +120,6 @@
 }
 
 .hu3-usuarios .alert {
-    background: var(--surface-light);
-    color: var(--text-primary);
     border-radius: var(--radius-md);
 }
 
@@ -251,6 +249,12 @@
     border-radius: var(--radius-sm);
     padding: 10px 18px;
     text-decoration: none;
+}
+
+.hu3-usuarios .hu3-buscar {
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
 }
 
 .hu3-usuarios .hu3-limpiar:hover {

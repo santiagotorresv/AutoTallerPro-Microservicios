@@ -32,3 +32,8 @@
 .grupo-uno .table { --bs-table-bg: var(--surface); --bs-table-color: var(--text-primary); --bs-table-border-color: var(--border); }
 .grupo-uno .alert-danger { background: rgba(248,113,113,.1); color: var(--danger); border-color: rgba(248,113,113,.3); }
 .grupo-uno .alert-success { background: rgba(74,222,128,.1); color: var(--success); border-color: rgba(74,222,128,.3); }
+.grupo-uno .campo .vehicle-plate-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-weight: 500; cursor: pointer; }
+.grupo-uno .placa-input { text-transform: uppercase; }
+.grupo-uno .ayuda-campo { display: block; margin-top: 6px; color: var(--text-muted); font-size: .85rem; }
+.grupo-uno .etiqueta-extranjera { margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--text-secondary); font-size: .75rem; }
+.grupo-uno .form-select { padding-right: 2.5rem; }

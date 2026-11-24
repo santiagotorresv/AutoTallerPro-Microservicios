@@ -80,17 +80,17 @@ public sealed class GatewayRazorTests
             Assert.Equal(HttpStatusCode.OK, (await proxy.GetAsync($"/api/{modulo}/salud")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await proxy.GetAsync("/api/clientes-vehiculos/clientes")).StatusCode);
         proxy.DefaultRequestHeaders.Authorization = new("Bearer", TokensPrueba.Crear());
-        var propietario = await (await proxy.PostAsJsonAsync("/api/clientes-vehiculos/clientes", new Clientes.Application.DatosCliente("PADRE123", "Propietario", null, null))).Content.ReadFromJsonAsync<JsonElement>();
+        var propietario = await (await proxy.PostAsJsonAsync("/api/clientes-vehiculos/clientes", new Clientes.Application.DatosCliente("7000001", "Propietario", "71111111", null))).Content.ReadFromJsonAsync<JsonElement>();
         var categoria = await (await proxy.PostAsJsonAsync("/api/servicios/categorias", new Catalogo.Application.DatosCategoriaServicio("Categoría padre", null))).Content.ReadFromJsonAsync<JsonElement>();
         using var frontend = new WebApplicationFactory<FrontendAssembly>().WithWebHostBuilder(builder => builder
             .ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?> { ["GrupoUno:GatewayUrl"] = proxy.BaseAddress!.ToString() }))
             .ConfigureServices(sp => sp.AddAuthentication("SesionPrueba").AddScheme<AuthenticationSchemeOptions, SesionPrueba>("SesionPrueba", _ => { })));
         using var navegador = frontend.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
-        await Formulario(navegador, proxy, "Clientes", "api/clientes-vehiculos/clientes", new() { ["Documento"] = "RAZOR123", ["Nombre"] = "Cliente Razor", ["Activo"] = "true" }, "Nombre", "Cliente actualizado");
+        await Formulario(navegador, proxy, "Clientes", "api/clientes-vehiculos/clientes", new() { ["Documento"] = "7000002", ["Nombre"] = "Cliente Razor", ["Telefono"] = "72222222", ["Activo"] = "true" }, "Nombre", "Cliente actualizado");
         await Formulario(navegador, proxy, "Vehiculos", "api/clientes-vehiculos/vehiculos", new() { ["ClienteId"] = propietario.GetProperty("id").GetString()!, ["Placa"] = "5678XYZ", ["Marca"] = "Toyota", ["Modelo"] = "Corolla", ["Anio"] = "2020", ["Activo"] = "true" }, "Modelo", "Yaris");
         await Formulario(navegador, proxy, "Categorias", "api/servicios/categorias", new() { ["Nombre"] = "Categoría Razor", ["Activo"] = "true" }, "Nombre", "Categoría actualizada");
         await Formulario(navegador, proxy, "Servicios", "api/servicios/servicios", new() { ["CategoriaServicioId"] = categoria.GetProperty("id").GetString()!, ["Nombre"] = "Servicio Razor", ["PrecioBase"] = "123.45", ["DuracionEstimada"] = "30", ["Activo"] = "true" }, "PrecioBase", "222.25");
-        await Formulario(navegador, proxy, "Mecanicos", "api/mecanicos/mecanicos", new() { ["Nombres"] = "Ana", ["Apellidos"] = "Pérez", ["Documento"] = "RAZOR456", ["Especialidad"] = "Electricidad", ["Activo"] = "true" }, "Apellidos", "López");
+        await Formulario(navegador, proxy, "Mecanicos", "api/mecanicos/mecanicos", new() { ["Nombres"] = "Ana", ["Apellidos"] = "Pérez", ["Documento"] = "5000003", ["Telefono"] = "73333333", ["Especialidad"] = "Electricidad", ["Activo"] = "true" }, "Apellidos", "López");
         Assert.Equal(HttpStatusCode.OK, (await proxy.DeleteAsync("/api/clientes-vehiculos/clientes/" + propietario.GetProperty("id").GetString())).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await proxy.DeleteAsync("/api/servicios/categorias/" + categoria.GetProperty("id").GetString())).StatusCode);
     }

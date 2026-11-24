@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     const menuToggles = document.querySelectorAll(".menu-toggle");
 
@@ -215,3 +215,27 @@
 
 });
 document.addEventListener("click",(e)=>{const a=e.target.closest('a.submenu-item[href="#"]');if(a){e.preventDefault();}});
+
+// Mensajes en español para jQuery Validate en las páginas que lo cargan.
+document.addEventListener("DOMContentLoaded", () => {
+    const validador = window.jQuery?.validator;
+    if (!validador) {
+        return;
+    }
+
+    window.jQuery.extend(validador.messages, {
+        required: "Este campo es obligatorio.",
+        email: "Ingrese un correo electrónico válido.",
+        url: "Ingrese una dirección web válida.",
+        number: "Ingrese un número válido.",
+        digits: "Ingrese solo dígitos.",
+        equalTo: "Los valores no coinciden.",
+        maxlength: validador.format("Ingrese como máximo {0} caracteres."),
+        minlength: validador.format("Ingrese al menos {0} caracteres."),
+        rangelength: validador.format("Ingrese entre {0} y {1} caracteres."),
+        range: validador.format("Ingrese un valor entre {0} y {1}."),
+        max: validador.format("Ingrese un valor menor o igual a {0}."),
+        min: validador.format("Ingrese un valor mayor o igual a {0}."),
+        step: validador.format("Ingrese un múltiplo de {0}.")
+    });
+});

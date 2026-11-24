@@ -1,7 +1,7 @@
 // Prepara y levanta el entorno local completo en un solo paso. Se puede repetir:
 // conserva .env, volúmenes y datos, y solo completa lo que falta.
 // Crea la estructura de cada base y, si no existe, el primer administrador de
-// Usuarios por invitación. Con --datos-demo agrega datos de ejemplo (DEMO-*).
+// Usuarios por invitación. Con --datos-demo agrega los datos de ejemplo de infra/demo.
 const { existsSync, readFileSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -31,7 +31,8 @@ const esquemas = [
             'infra/mysql/usuarios/002_altas_usuarios.sql',
             'infra/mysql/usuarios/003_administracion_usuarios.sql'] },
     { modulo: 'Clientes/Vehículos', servicio: 'postgres-clientes', cliente: clientePostgres,
-        archivos: ['microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql'] },
+        archivos: ['microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql',
+            'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/002_placa_extranjera.sql'] },
     { modulo: 'Servicios', servicio: 'mysql-servicios', cliente: clienteMysql,
         archivos: ['microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/001_catalogo_servicios.sql'] },
     { modulo: 'Mecánicos', servicio: 'mongo-mecanicos', cliente: clienteMongo,

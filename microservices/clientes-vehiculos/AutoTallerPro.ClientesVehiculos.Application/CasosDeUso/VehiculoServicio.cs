@@ -36,7 +36,7 @@ public sealed class VehiculoServicio(IVehiculoRepositorio repositorio, IClienteR
             if (!consulta.EsExitoso) return consulta;
             anterior = consulta.Valor;
         }
-        var resultado = Vehiculo.Crear(id ?? Guid.NewGuid(), datos.ClienteId, datos.Placa, datos.Marca, datos.Modelo, datos.Anio, datos.Color, datos.Activo, anterior?.FechaRegistro);
+        var resultado = Vehiculo.Crear(id ?? Guid.NewGuid(), datos.ClienteId, datos.Placa, datos.Marca, datos.Modelo, datos.Anio, datos.Color, datos.Activo, anterior?.FechaRegistro, esPlacaExtranjera: datos.EsPlacaExtranjera);
         if (!resultado.EsExitoso) return resultado;
         var relacionado = await relacionados.ObtenerAsync(datos.ClienteId, ct);
         if (relacionado is null) return Resultado<Vehiculo>.Fallo("vehiculo.relacion", "No se encontró el registro relacionado.", TipoError.NoEncontrado);

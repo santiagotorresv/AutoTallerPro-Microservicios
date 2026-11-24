@@ -16,8 +16,8 @@ internal sealed class MecanicoDocumento
     [BsonElement("fechaRegistro")] public DateTime FechaRegistro { get; set; }
     [BsonElement("fechaActualizacion")] public DateTime FechaActualizacion { get; set; }
     [BsonElement("versionEsquema")] public int VersionEsquema { get; set; } = 1;
-    internal Mecanico Entidad() => Mecanico.Crear(Id, Nombres, Apellidos, Documento, Telefono, Correo, Especialidad, Activo,
-        new DateTimeOffset(DateTime.SpecifyKind(FechaRegistro, DateTimeKind.Utc)), new DateTimeOffset(DateTime.SpecifyKind(FechaActualizacion, DateTimeKind.Utc))).Valor;
+    internal Mecanico Entidad() => Mecanico.Restaurar(Id, Nombres, Apellidos, Documento, Telefono, Correo, Especialidad, Activo,
+        new DateTimeOffset(DateTime.SpecifyKind(FechaRegistro, DateTimeKind.Utc)), new DateTimeOffset(DateTime.SpecifyKind(FechaActualizacion, DateTimeKind.Utc)));
     internal static MecanicoDocumento Desde(Mecanico entidad) => new()
     {
         Id = entidad.Id, Nombres = entidad.Nombres, Apellidos = entidad.Apellidos, Documento = entidad.Documento,
