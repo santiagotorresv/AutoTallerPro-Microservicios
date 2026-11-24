@@ -6,6 +6,13 @@ nombre de servicio en la red `autotaller-ec3_default`.
 
 ## Preparar y ejecutar
 
+`node infra/levantar-entorno.cjs` hace en un solo paso lo que describen esta
+guía, la de [Keycloak](keycloak/usuarios-admin.md) y la de
+[MySQL de Usuarios](mysql/usuarios/README.md), y además aplica los esquemas de
+Clientes/Vehículos, Servicios y Mecánicos. Consulta el
+[README principal](../README.md#en-un-solo-paso). Los pasos manuales siguen
+siendo válidos.
+
 Con Docker Desktop en modo de contenedores Linux, ejecuta estos comandos desde
 la raíz del repositorio.
 
@@ -105,6 +112,37 @@ Codifica los caracteres reservados de la URI si eliges contraseñas que los
 contengan. Las cuentas root de MySQL y MongoDB están reservadas para tareas
 administrativas. El script `mongo/crear-usuario.js` inicializa la cuenta de
 aplicación de MongoDB con permiso `readWrite` solo en su propia base.
+
+### Ver las bases con DBeaver y Compass
+
+Cada base se abre desde Windows en `127.0.0.1` con su puerto publicado. El
+usuario y la contraseña son los de tu `.env`, porque cada computadora tiene los
+suyos.
+
+| Módulo | Aplicación y tipo | Puerto | Base | Usuario | Contraseña en `.env` |
+| --- | --- | --- | --- | --- | --- |
+| Clientes/Vehículos | DBeaver · PostgreSQL | 5433 | `clientes_vehiculos` | `clientes_app` | `POSTGRES_CLIENTES_PASSWORD` |
+| Servicios | DBeaver · MySQL | 3307 | `servicios` | `servicios_app` | `MYSQL_SERVICIOS_PASSWORD` |
+| Usuarios | DBeaver · MySQL | 3308 | `usuarios` | `usuarios_app` | `MYSQL_USUARIOS_PASSWORD` |
+| Mecánicos | MongoDB Compass | 27018 | `mecanicos` | `mecanicos_app` | `MONGO_MECANICOS_PASSWORD` |
+
+- **DBeaver.** Crea una conexión con **Nueva conexión**, elige el tipo y
+  completa host, puerto, base, usuario y contraseña.
+  - Si MySQL responde «Public Key Retrieval is not allowed», en
+    **Propiedades del driver** pon `allowPublicKeyRetrieval=true`.
+  - En PostgreSQL, las tablas están en `clientes_vehiculos` → `Schemas` →
+    `public` → `Tables`.
+- **MongoDB.** DBeaver Community no abre MongoDB. Usa
+  [MongoDB Compass](https://www.mongodb.com/products/tools/compass), que es
+  gratuito, con la URI
+  `mongodb://mecanicos_app:<contraseña>@127.0.0.1:27018/mecanicos?authSource=mecanicos`.
+  Si la contraseña tiene caracteres reservados de URI, codifícalos.
+- **Usuarios.** `FichasAdministrativas` guarda la ficha y quién la creó o
+  modificó, y `AuditoriaAdministrativa` es la bitácora. Ninguna tabla guarda
+  contraseñas. La columna `Clave` de `AltasUsuarios` y `OperacionesUsuarios`
+  es la `Idempotency-Key` de cada operación.
+- **Keycloak.** Las cuentas y sus credenciales están en la base de Keycloak,
+  que no se publica; se consultan en su consola, en **Users**.
 
 Compose toma las variables `_DB`, `_USER` y `_PASSWORD` de la fila de cada
 módulo e inyecta `Database__Name`, `Database__User` y `Database__Password`

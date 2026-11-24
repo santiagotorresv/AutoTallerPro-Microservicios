@@ -5,7 +5,7 @@ using AutoTallerPro.Servicios.Application.Puertos;
 namespace AutoTallerPro.Servicios.Infrastructure.Persistencia;
 public sealed class ServicioRepositorio(Conexion conexiones) : IServicioRepositorio
 {
-    private static Servicio Leer(System.Data.Common.DbDataReader lector) => Servicio.Crear(Guid.Parse(Convert.ToString(lector["id"])!), Guid.Parse(Convert.ToString(lector["categoriaservicioid"])!), (string)lector["nombre"], Sql.Texto(lector, "descripcion"), (decimal)lector["preciobase"], lector["duracionestimada"] is DBNull ? null : Convert.ToInt32(lector["duracionestimada"]), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion")).Valor;
+    private static Servicio Leer(System.Data.Common.DbDataReader lector) => Servicio.Restaurar(Guid.Parse(Convert.ToString(lector["id"])!), Guid.Parse(Convert.ToString(lector["categoriaservicioid"])!), (string)lector["nombre"], Sql.Texto(lector, "descripcion"), (decimal)lector["preciobase"], lector["duracionestimada"] is DBNull ? null : Convert.ToInt32(lector["duracionestimada"]), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"));
     public async Task<IReadOnlyList<Servicio>> ListarAsync(CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);

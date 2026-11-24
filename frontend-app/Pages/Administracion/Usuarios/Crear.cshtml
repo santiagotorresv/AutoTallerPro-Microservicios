@@ -46,7 +46,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" aria-label="Crear usuario" data-usuarios-escritura>
+            <form method="post" aria-label="Crear usuario" novalidate data-usuarios-escritura>
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                 <input type="hidden" asp-for="Clave" />
                 <input type="hidden" asp-for="Reintento" />

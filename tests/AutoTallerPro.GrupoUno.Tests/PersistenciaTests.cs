@@ -32,14 +32,14 @@ public sealed class PersistenciaTests
         var vehiculos = new Clientes.Infrastructure.Persistencia.VehiculoRepositorio(new(cadena));
         var s = new Clientes.Application.CasosDeUso.ClienteServicio(clientes);
         var v = new Clientes.Application.CasosDeUso.VehiculoServicio(vehiculos, clientes);
-        var documento = Guid.NewGuid().ToString("N")[..12];
-        var cliente = (await s.GuardarAsync(null, new(documento, "Cliente persistido", null, null), default)).Valor;
+        var documento = Random.Shared.Next(1000000, 9999999).ToString(); var documentoHttp = Random.Shared.Next(10000000, 99999999).ToString();
+        var cliente = (await s.GuardarAsync(null, new(documento, "Cliente persistido", "71234567", null), default)).Valor;
         var vehiculo = (await v.GuardarAsync(null, new(cliente.Id, "1234-ABC", "Toyota", "Corolla", 2020, null), default)).Valor;
         Assert.Equal("1234ABC", vehiculo.Placa);
         Assert.Equal(Clientes.Domain.Resultados.TipoError.Conflicto, (await s.EliminarAsync(cliente.Id, default)).Error!.Tipo);
         Assert.True((await v.GuardarAsync(vehiculo.Id, new(cliente.Id, "1234-ABC", "Toyota", "Yaris", 2021, "Azul"), default)).EsExitoso);
         Assert.Equal("Yaris", (await new Clientes.Infrastructure.Persistencia.VehiculoRepositorio(new(cadena)).ObtenerAsync(vehiculo.Id, default))!.Modelo);
-        var duplicado = Clientes.Domain.Cliente.Crear(Guid.NewGuid(), documento.ToLowerInvariant(), "Duplicado", null, null, true).Valor;
+        var duplicado = Clientes.Domain.Cliente.Crear(Guid.NewGuid(), documento.ToLowerInvariant(), "Duplicado", "71234567", null, true).Valor;
         Assert.Equal(Clientes.Domain.Resultados.TipoError.Conflicto, (await clientes.GuardarAsync(duplicado, true, default)).Error!.Tipo);
         var placaDuplicada = Clientes.Domain.Vehiculo.Crear(Guid.NewGuid(), cliente.Id, "1234ABC", "Toyota", "Corolla", 2020, null, true).Valor;
         Assert.Equal(Clientes.Domain.Resultados.TipoError.Conflicto, (await vehiculos.GuardarAsync(placaDuplicada, true, default)).Error!.Tipo);
@@ -48,7 +48,7 @@ public sealed class PersistenciaTests
         var antes = (await vehiculos.ListarAsync(default)).Count;
         Assert.False((await v.GuardarAsync(null, new(cliente.Id, "!", "Toyota", "Corolla", 1800, null), default)).EsExitoso);
         Assert.Equal(antes, (await vehiculos.ListarAsync(default)).Count);
-        Assert.True((await s.GuardarAsync(cliente.Id, new(documento, "Cliente actualizado", null, null), default)).EsExitoso);
+        Assert.True((await s.GuardarAsync(cliente.Id, new(documento, "Cliente actualizado", "71234567", null), default)).EsExitoso);
         Assert.Equal("Cliente actualizado", (await s.ListarAsync(documento, "nombre", false, default)).Valor.Single().Nombre);
         void Configurar(Microsoft.Extensions.DependencyInjection.IServiceCollection registros)
         {
@@ -56,7 +56,7 @@ public sealed class PersistenciaTests
             registros.RemoveAll<Clientes.Application.Puertos.IVehiculoRepositorio>(); registros.AddSingleton<Clientes.Application.Puertos.IVehiculoRepositorio>(vehiculos);
         }
         await FlujoHttpPersistencia.Verificar<Clientes.Api.ApiAssembly>("/clientes", Configurar,
-            new Clientes.Application.DatosCliente("HTTP" + documento, "Cliente HTTP", null, null), new Clientes.Application.DatosCliente("HTTP" + documento, "Cliente HTTP actualizado", null, null),
+            new Clientes.Application.DatosCliente(documentoHttp, "Cliente HTTP", "71234567", null), new Clientes.Application.DatosCliente(documentoHttp, "Cliente HTTP actualizado", "71234567", null),
             new Clientes.Application.DatosCliente("", "", null, null), "nombre", "Cliente HTTP actualizado");
         await FlujoHttpPersistencia.Verificar<Clientes.Api.ApiAssembly>("/vehiculos", Configurar,
             new Clientes.Application.DatosVehiculo(cliente.Id, "7777XYZ", "Nissan", "March", 2021, null), new Clientes.Application.DatosVehiculo(cliente.Id, "7777XYZ", "Nissan", "Versa", 2022, null),
@@ -115,11 +115,11 @@ public sealed class PersistenciaTests
         var db = new MongoClient(url).GetDatabase(url.DatabaseName);
         var repositorio = new Personal.Infrastructure.Persistencia.MecanicoRepositorio(db);
         var servicio = new Personal.Application.CasosDeUso.MecanicoServicio(repositorio);
-        var documento = Guid.NewGuid().ToString("N")[..12];
-        var creado = (await servicio.GuardarAsync(null, new("Ana", "Pérez", documento, null, null, "Electricidad"), default)).Valor;
-        Assert.True((await servicio.GuardarAsync(creado.Id, new("Ana", "López", documento, null, null, "Diagnóstico"), default)).EsExitoso);
+        var documento = Random.Shared.Next(1000000, 9999999).ToString(); var documentoHttp = Random.Shared.Next(10000000, 99999999).ToString();
+        var creado = (await servicio.GuardarAsync(null, new("Ana", "Pérez", documento, "71234567", null, "Electricidad"), default)).Valor;
+        Assert.True((await servicio.GuardarAsync(creado.Id, new("Ana", "López", documento, "71234567", null, "Diagnóstico"), default)).EsExitoso);
         Assert.Equal("López", (await new Personal.Infrastructure.Persistencia.MecanicoRepositorio(db).ObtenerAsync(creado.Id, default))!.Apellidos);
-        var duplicado = Personal.Domain.Mecanico.Crear(MongoDB.Bson.ObjectId.GenerateNewId().ToString(), "Ana", "Pérez", documento, null, null, "Electricidad", true).Valor;
+        var duplicado = Personal.Domain.Mecanico.Crear(MongoDB.Bson.ObjectId.GenerateNewId().ToString(), "Ana", "Pérez", documento, "71234567", null, "Electricidad", true).Valor;
         Assert.Equal(Personal.Domain.Resultados.TipoError.Conflicto, (await repositorio.GuardarAsync(duplicado, true, default)).Error!.Tipo);
         var antes = (await repositorio.ListarAsync(default)).Count;
         Assert.False((await servicio.GuardarAsync(null, new("", "Pérez", "99999", null, null, "Electricidad"), default)).EsExitoso);
@@ -130,8 +130,8 @@ public sealed class PersistenciaTests
             registros.RemoveAll<Personal.Application.Puertos.IMecanicoRepositorio>(); registros.AddSingleton<Personal.Application.Puertos.IMecanicoRepositorio>(repositorio);
         }
         await FlujoHttpPersistencia.Verificar<Personal.Api.ApiAssembly>("/mecanicos", Configurar,
-            new Personal.Application.DatosMecanico("Ana", "HTTP", "HTTP" + documento, null, null, "Electricidad"),
-            new Personal.Application.DatosMecanico("Ana", "HTTP actualizada", "HTTP" + documento, null, null, "Diagnóstico"),
+            new Personal.Application.DatosMecanico("Ana", "HTTP", documentoHttp, "71234567", null, "Electricidad"),
+            new Personal.Application.DatosMecanico("Ana", "HTTP actualizada", documentoHttp, "71234567", null, "Diagnóstico"),
             new Personal.Application.DatosMecanico("", "HTTP", "INVALIDO", null, null, "Otra"), "apellidos", "HTTP actualizada");
         Assert.True((await servicio.EliminarAsync(creado.Id, default)).EsExitoso);
         Assert.Null(await repositorio.ObtenerAsync(creado.Id, default));

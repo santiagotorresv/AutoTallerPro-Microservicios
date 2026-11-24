@@ -10,6 +10,18 @@ builder.Services.AddRazorPages(opciones =>
     opciones.Conventions.AllowAnonymousToPage("/Error");
     opciones.Conventions.AllowAnonymousToPage("/Privacy");
     opciones.Conventions.AllowAnonymousToPage("/Cuenta/ErrorSesion");
+}).AddMvcOptions(opciones =>
+{
+    var mensajes = opciones.ModelBindingMessageProvider;
+    mensajes.SetValueMustBeANumberAccessor(campo => $"{campo}: ingrese un número válido.");
+    mensajes.SetAttemptedValueIsInvalidAccessor((valor, campo) => $"{campo}: el valor «{valor}» no es válido.");
+    mensajes.SetValueIsInvalidAccessor(valor => $"El valor «{valor}» no es válido.");
+    mensajes.SetValueMustNotBeNullAccessor(_ => "Este campo es obligatorio.");
+    mensajes.SetMissingBindRequiredValueAccessor(campo => $"{campo}: este campo es obligatorio.");
+    mensajes.SetUnknownValueIsInvalidAccessor(campo => $"{campo}: el valor no es válido.");
+    mensajes.SetNonPropertyAttemptedValueIsInvalidAccessor(valor => $"El valor «{valor}» no es válido.");
+    mensajes.SetNonPropertyUnknownValueIsInvalidAccessor(() => "El valor no es válido.");
+    mensajes.SetNonPropertyValueMustBeANumberAccessor(() => "Ingrese un número válido.");
 });
 
 var gateway = builder.Configuration["GrupoUno:GatewayUrl"] ??
