@@ -23,20 +23,32 @@
     {
         <div class="alert alert-success" role="status">@mensaje</div>
     }
+    @if (TempData["UsuariosAviso"] is string aviso)
+    {
+        <div class="alert alert-warning" role="status">
+            @aviso
+            @if (TempData["UsuariosAvisoId"] is int idAviso)
+            {
+                <a asp-page="./Editar" asp-route-id="@idAviso" class="alert-link">Consultar la cuenta</a>
+            }
+        </div>
+    }
     @if (Model.Error is not null)
     {
         <div class="alert alert-danger" role="alert">
             @Model.Error
-            @if (Model.Pendiente is { } pendiente)
+            @if (Model.Reintento is { } reintento && Model.Pendiente is { } pendiente)
             {
-                <form method="post" asp-page-handler="Accion" class="mt-2"
+                var segundos = Model.EsperaReenvio?.Segundos ?? 0;
+                <a asp-page="./Editar" asp-route-id="@pendiente.Id" class="alert-link">Consultar la cuenta</a>
+                <form method="post" asp-page-handler="Accion" class="mt-2" data-usuarios-escritura
                       asp-route-Busqueda="@Model.Busqueda" asp-route-RolFiltro="@Model.RolFiltro"
                       asp-route-ActivoFiltro="@Model.ActivoFiltro" asp-route-Pagina="@Model.Pagina">
-                    <input type="hidden" name="id" value="@pendiente.Id" />
-                    <input type="hidden" name="accion" value="@pendiente.Accion" />
-                    <input type="hidden" name="clave" value="@pendiente.Clave" />
-                    <input type="hidden" name="usuario" value="@pendiente.Usuario" />
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Reintentar la misma operación</button>
+                    <input type="hidden" name="reintento" value="@reintento" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                            data-espera="@(segundos > 0 ? segundos : null)" disabled="@(segundos > 0)">
+                        Reintentar la misma operación
+                    </button>
                 </form>
             }
         </div>

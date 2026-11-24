@@ -4,23 +4,38 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AutoTallerPro.Frontend.Pages.Administracion.Usuarios;
 
-public sealed class CrearModel(ClienteUsuarios cliente) : PageModel
+public sealed class CrearModel(ClienteUsuarios cliente, ReintentosUsuarios reintentos) : PageModel
 {
     [BindProperty]
     public UsuarioCreateInput Input { get; set; } = new();
 
-    // Idempotency-Key del alta: se conserva mientras el resultado sea incierto.
     [BindProperty]
     public Guid Clave { get; set; }
 
+    [BindProperty]
+    public string? Reintento { get; set; }
+
     public string? Error { get; private set; }
 
-    public bool PuedeReintentar { get; private set; }
+    public bool PuedeReintentar => Reintento is not null;
 
     public void OnGet() => Clave = Guid.NewGuid();
 
     public async Task<IActionResult> OnPostAsync()
     {
+        if (Reintento is not null)
+        {
+            var intento = reintentos.Recuperar<UsuarioCreateInput>(User, "alta", Reintento);
+            if (intento is null)
+            {
+                return BadRequest("El reintento ya no es válido. Consulte la cuenta antes de iniciar otra operación.");
+            }
+
+            Clave = intento.Clave;
+            Input = intento.Datos;
+            ModelState.Clear();
+        }
+
         if (Clave == Guid.Empty)
         {
             NuevaClave();
@@ -34,17 +49,25 @@ public sealed class CrearModel(ClienteUsuarios cliente) : PageModel
         var respuesta = await cliente.CrearAsync(Input.Email.Trim(), Input.Rol, Input.Nombre.Trim(), Input.Apellido.Trim(), Clave);
         if (respuesta.Exito && respuesta.Valor is { } creado)
         {
-            TempData["UsuariosMensaje"] = creado.EstadoInvitacion switch
+            var correoSolicitado = creado.EstadoInvitacion == "correoSolicitado";
+            TempData[correoSolicitado ? "UsuariosMensaje" : "UsuariosAviso"] = creado.EstadoInvitacion switch
             {
-                "correoSolicitado" => $"Se creó el usuario {creado.Username}. Se envió una invitación a {Input.Email.Trim()} para verificar el correo y elegir la contraseña.",
-                "envioIncierto" => $"Se creó el usuario {creado.Username}. El correo de invitación pudo haberse enviado; revise la bandeja antes de reenviarlo.",
+                "correoSolicitado" => $"Se creó el usuario {creado.Username}. Keycloak aceptó la solicitud de invitación. El destinatario deberá abrir el correo, verificar su dirección y elegir su contraseña.",
+                "envioIncierto" => $"Se creó el usuario {creado.Username}. El envío quedó sin confirmar. Revise el estado de la cuenta antes de reenviar la invitación.",
                 _ => $"Se creó el usuario {creado.Username}, pero la invitación quedó pendiente. Reenvíela desde el listado."
             };
+            if (!correoSolicitado)
+            {
+                TempData["UsuariosAvisoId"] = creado.Id;
+            }
+
             return RedirectToPage("./Index");
         }
 
         Error = respuesta.Mensaje;
-        PuedeReintentar = respuesta.ConservarClave;
+        Reintento = respuesta.ConservarClave ? reintentos.Guardar(User, "alta", Clave, Input)
+            : respuesta.Estado is 401 or 403 ? Reintento : null;
+        ModelState.Remove(nameof(Reintento));
         if (!PuedeReintentar)
         {
             NuevaClave();

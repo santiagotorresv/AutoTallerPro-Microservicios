@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
 }
 
+
+@section Scripts {
+    <script src="~/js/usuarios.js" asp-append-version="true"></script>
+}
+
 @{
     ViewData["Title"] = "Crear usuario";
 }
@@ -22,8 +27,8 @@
                 Invitación por correo
             </div>
             <div class="form-text">
-                El administrador no define la contraseña. Al crear la cuenta se envía una invitación al correo
-                indicado para que el usuario verifique su dirección y elija su propia contraseña.
+                El administrador no define la contraseña. El sistema solicita una invitación al correo indicado. El destinatario
+                debe abrir el mensaje, verificar su dirección y elegir su contraseña en Keycloak.
             </div>
         </div>
     </div>
@@ -34,58 +39,61 @@
             @Model.Error
             @if (Model.PuedeReintentar)
             {
-                <div class="mt-1">Puede reintentar con los mismos datos; la operación no se duplicará.</div>
+                <div class="mt-1">Puede reintentar con la clave y los datos originales.</div>
             }
         </div>
     }
 
     <div class="card">
         <div class="card-body">
-            <form method="post" aria-label="Crear usuario">
+            <form method="post" aria-label="Crear usuario" data-usuarios-escritura>
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                 <input type="hidden" asp-for="Clave" />
+                <input type="hidden" asp-for="Reintento" />
+                <fieldset disabled="@Model.PuedeReintentar">
 
-                <div class="row mb-3">
-                    <label asp-for="Input.Nombre" class="col-sm-2 col-form-label"></label>
-                    <div class="col-sm-10">
-                        <input asp-for="Input.Nombre" class="form-control" autocomplete="given-name" maxlength="100" />
-                        <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                    <div class="row mb-3">
+                        <label asp-for="Input.Nombre" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="Input.Nombre" class="form-control" autocomplete="given-name" maxlength="100" />
+                            <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <label asp-for="Input.Apellido" class="col-sm-2 col-form-label"></label>
-                    <div class="col-sm-10">
-                        <input asp-for="Input.Apellido" class="form-control" autocomplete="family-name" maxlength="100" />
-                        <span asp-validation-for="Input.Apellido" class="text-danger"></span>
+                    <div class="row mb-3">
+                        <label asp-for="Input.Apellido" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="Input.Apellido" class="form-control" autocomplete="family-name" maxlength="100" />
+                            <span asp-validation-for="Input.Apellido" class="text-danger"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <label asp-for="Input.Email" class="col-sm-2 col-form-label"></label>
-                    <div class="col-sm-10">
-                        <input asp-for="Input.Email" class="form-control" autocomplete="email" maxlength="254" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    <div class="row mb-3">
+                        <label asp-for="Input.Email" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="Input.Email" class="form-control" autocomplete="email" maxlength="254" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <label asp-for="Input.Rol" class="col-sm-2 col-form-label"></label>
-                    <div class="col-sm-10">
-                        <select asp-for="Input.Rol" class="form-select">
-                            <option value="">Seleccione un rol</option>
-                            <option value="Administrador">Administrador</option>
-                            <option value="Recepcionista">Recepcionista</option>
-                        </select>
-                        <span asp-validation-for="Input.Rol" class="text-danger"></span>
+                    <div class="row mb-3">
+                        <label asp-for="Input.Rol" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <select asp-for="Input.Rol" class="form-select">
+                                <option value="">Seleccione un rol</option>
+                                <option value="Administrador">Administrador</option>
+                                <option value="Recepcionista">Recepcionista</option>
+                            </select>
+                            <span asp-validation-for="Input.Rol" class="text-danger"></span>
+                        </div>
                     </div>
-                </div>
+                </fieldset>
 
                 <div class="row mb-3">
                     <div class="col-sm-2"></div>
                     <div class="col-sm-10">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i> @(Model.PuedeReintentar ? "Reintentar" : "Crear usuario y enviar invitación")
+                            <i class="bi bi-person-plus"></i> @(Model.PuedeReintentar ? "Reintentar" : "Crear usuario y solicitar invitación")
                         </button>
                         <a asp-page="./Index" class="btn btn-secondary ms-2">Cancelar</a>
                     </div>
