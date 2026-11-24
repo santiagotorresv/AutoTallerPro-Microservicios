@@ -16,12 +16,15 @@ internal sealed class MecanicoDocumento
     [BsonElement("fechaRegistro")] public DateTime FechaRegistro { get; set; }
     [BsonElement("fechaActualizacion")] public DateTime FechaActualizacion { get; set; }
     [BsonElement("versionEsquema")] public int VersionEsquema { get; set; } = 1;
+    [BsonElement("usuarioRegistro")] public string? UsuarioRegistro { get; set; }
+    [BsonElement("usuarioActualizacion")] public string? UsuarioActualizacion { get; set; }
     internal Mecanico Entidad() => Mecanico.Restaurar(Id, Nombres, Apellidos, Documento, Telefono, Correo, Especialidad, Activo,
-        new DateTimeOffset(DateTime.SpecifyKind(FechaRegistro, DateTimeKind.Utc)), new DateTimeOffset(DateTime.SpecifyKind(FechaActualizacion, DateTimeKind.Utc)));
+        new DateTimeOffset(DateTime.SpecifyKind(FechaRegistro, DateTimeKind.Utc)), new DateTimeOffset(DateTime.SpecifyKind(FechaActualizacion, DateTimeKind.Utc)), UsuarioRegistro, UsuarioActualizacion);
     internal static MecanicoDocumento Desde(Mecanico entidad) => new()
     {
         Id = entidad.Id, Nombres = entidad.Nombres, Apellidos = entidad.Apellidos, Documento = entidad.Documento,
         Telefono = entidad.Telefono, Correo = entidad.Correo, Especialidad = entidad.Especialidad, Activo = entidad.Activo,
-        FechaRegistro = entidad.FechaRegistro.UtcDateTime, FechaActualizacion = entidad.FechaActualizacion.UtcDateTime
+        FechaRegistro = entidad.FechaRegistro.UtcDateTime, FechaActualizacion = entidad.FechaActualizacion.UtcDateTime,
+        UsuarioRegistro = entidad.UsuarioRegistro, UsuarioActualizacion = entidad.UsuarioActualizacion
     };
 }

@@ -33,6 +33,8 @@ Script preparado: `microservices/clientes-vehiculos/AutoTallerPro.ClientesVehicu
 Incluye transacción, `CREATE TABLE IF NOT EXISTS`, índices únicos por `upper(documento)` y `upper(placa)` e índice del propietario.
 `002_placa_extranjera.sql`, en la misma carpeta, amplía `placa` a 15 caracteres y agrega `esplacaextranjera`:
 la placa nacional tiene 3 o 4 números y 3 letras, y la extranjera entre 2 y 15 letras o números.
+`003_auditoria_clientes_vehiculos.sql` agrega la bitácora: `usuarioregistro` y `usuarioactualizacion`, con el usuario del token.
+Servicios la agrega con `002_auditoria_catalogo_servicios.sql`, y Mecánicos guarda `usuarioRegistro` y `usuarioActualizacion` en cada documento.
 No se elimina un cliente con vehículos. Para eliminarlo, primero se eliminan o reasignan sus vehículos.
 La baja física es explícita y se confirma en Razor; el campo activo permite conservar registros sin borrarlos.
 

@@ -4,7 +4,7 @@ Implementación en la rama `microservicios-grupo-1`, con fecha de revisión 19/1
 La rama `correcciones-grupo-1` añade el [modo Atlas/Neon](integracion.md#bases-online--atlas-y-neon--22112026)
 para Clientes/Vehículos y Mecánicos. Preparado el 22/11/2026; pendiente de crear los proyectos y probar conexiones reales.
 Los tres contextos incluyen persistencia real, CRUD, Result, controles JWT y páginas Razor.
-El inicio de sesión real y la activación de enlaces del menú principal dependen de P4/P5/P6.
+El inicio de sesión con Keycloak (P4/P5) y los enlaces del menú principal ya están integrados. Cada escritura guarda en la bitácora el usuario del token que la realizó.
 
 - [Arquitectura, C4 y patrones](arquitectura.md).
 - [Modelo de datos y reglas](bases-de-datos.md).

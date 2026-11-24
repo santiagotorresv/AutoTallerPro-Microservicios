@@ -1,7 +1,7 @@
 @model AutoTallerPro.Frontend.GrupoUno.FormularioModel<AutoTallerPro.Frontend.GrupoUno.CategoriaServicioInput>
 @{ var esEdicion = ViewData["EsEdicion"] is true; }
 <section class="service-form-card" data-crud-content>
-    <div class="service-form-header"><div><h2>@(esEdicion ? "Editar categoría" : "Nueva categoría")</h2><p>Completa los datos del registro. Los campos con * son obligatorios.</p></div></div>
+    <div class="service-form-header"><div><h2>@(esEdicion ? "Editar categoría" : "Nueva categoría")</h2><p>Completa los datos del registro. Los campos con * son obligatorios.</p>@if (esEdicion && Model.Input.UsuarioRegistro is not null) { <p class="grupo-bitacora">Registrado por <strong>@Model.Input.UsuarioRegistro</strong> · Última modificación por <strong>@Model.Input.UsuarioActualizacion</strong></p> }</div></div>
     <form method="post" asp-page="@(esEdicion ? "./Editar" : "./Crear")" asp-route-id="@ViewContext.RouteData.Values["id"]" class="service-form" data-crud-form>
         @if (Model.Error is not null) { <div class="grupo-alert grupo-alert-error" role="alert">@Model.Error</div> }
         <div asp-validation-summary="ModelOnly" class="service-validation-summary" role="alert"></div>

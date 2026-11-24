@@ -25,8 +25,11 @@ public sealed class PersistenciaTests
         await using (var conexion = new NpgsqlConnection(cadena))
         {
             await conexion.OpenAsync();
-            var sql = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql/001_clientes_vehiculos.sql"));
-            for (var i = 0; i < 2; i++) { await using var cmd = new NpgsqlCommand(sql, conexion); await cmd.ExecuteNonQueryAsync(); }
+            foreach (var archivo in new[] { "001_clientes_vehiculos.sql", "002_placa_extranjera.sql", "003_auditoria_clientes_vehiculos.sql" })
+            {
+                var sql = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", archivo));
+                for (var i = 0; i < 2; i++) { await using var cmd = new NpgsqlCommand(sql, conexion); await cmd.ExecuteNonQueryAsync(); }
+            }
         }
         var clientes = new Clientes.Infrastructure.Persistencia.ClienteRepositorio(new(cadena));
         var vehiculos = new Clientes.Infrastructure.Persistencia.VehiculoRepositorio(new(cadena));
@@ -70,8 +73,12 @@ public sealed class PersistenciaTests
         var cadena = Variable("GRUPO1_MYSQL"); VerificarBase(new MySqlConnectionStringBuilder(cadena).Database);
         await using (var conexion = new MySqlConnection(cadena))
         {
-            await conexion.OpenAsync(); var sql = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql/001_catalogo_servicios.sql"));
-            for (var i = 0; i < 2; i++) { await using var cmd = new MySqlCommand(sql, conexion); await cmd.ExecuteNonQueryAsync(); }
+            await conexion.OpenAsync();
+            foreach (var archivo in new[] { "001_catalogo_servicios.sql", "002_auditoria_catalogo_servicios.sql" })
+            {
+                var sql = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Sql", archivo));
+                for (var i = 0; i < 2; i++) { await using var cmd = new MySqlCommand(sql, conexion); await cmd.ExecuteNonQueryAsync(); }
+            }
         }
         var categorias = new Catalogo.Infrastructure.Persistencia.CategoriaServicioRepositorio(new(cadena));
         var servicios = new Catalogo.Infrastructure.Persistencia.ServicioRepositorio(new(cadena));

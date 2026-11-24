@@ -5,6 +5,9 @@ public sealed class MecanicoInput
     private const string SoloLetras = @"^\s*[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(\s+[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*\s*$";
 
     public string Id { get; set; } = string.Empty;
+    // Bitácora: solo se muestra; la API la toma del token, no del formulario.
+    public string? UsuarioRegistro { get; set; }
+    public string? UsuarioActualizacion { get; set; }
     [Display(Name = "Nombres")]
     [Required(ErrorMessage = "Nombres: este campo es obligatorio.")]
     [StringLength(80, ErrorMessage = "Nombres: admite hasta 80 caracteres.")]

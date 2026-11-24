@@ -5,8 +5,8 @@ using AutoTallerPro.ClientesVehiculos.Application.Puertos;
 namespace AutoTallerPro.ClientesVehiculos.Infrastructure.Persistencia;
 public sealed class VehiculoRepositorio(Conexion conexiones) : IVehiculoRepositorio
 {
-    private const string Columnas = "id, clienteid, placa, esplacaextranjera, marca, modelo, anio, color, activo, fecharegistro, fechaactualizacion";
-    private static Vehiculo Leer(System.Data.Common.DbDataReader lector) => Vehiculo.Restaurar((Guid)lector["id"], (Guid)lector["clienteid"], (string)lector["placa"], Convert.ToBoolean(lector["esplacaextranjera"]), (string)lector["marca"], (string)lector["modelo"], Convert.ToInt32(lector["anio"]), Sql.Texto(lector, "color"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"));
+    private const string Columnas = "id, clienteid, placa, esplacaextranjera, marca, modelo, anio, color, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion";
+    private static Vehiculo Leer(System.Data.Common.DbDataReader lector) => Vehiculo.Restaurar((Guid)lector["id"], (Guid)lector["clienteid"], (string)lector["placa"], Convert.ToBoolean(lector["esplacaextranjera"]), (string)lector["marca"], (string)lector["modelo"], Convert.ToInt32(lector["anio"]), Sql.Texto(lector, "color"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"), Sql.Texto(lector, "usuarioregistro"), Sql.Texto(lector, "usuarioactualizacion"));
     public async Task<IReadOnlyList<Vehiculo>> ListarAsync(CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
@@ -31,8 +31,8 @@ public sealed class VehiculoRepositorio(Conexion conexiones) : IVehiculoReposito
     public async Task<Resultado<Vehiculo>> GuardarAsync(Vehiculo entidad, bool nuevo, CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        var sql = nuevo ? "INSERT INTO vehiculos (" + Columnas + ") VALUES (@id, @clienteid, @placa, @esplacaextranjera, @marca, @modelo, @anio, @color, @activo, @fecharegistro, @fechaactualizacion)" : "UPDATE vehiculos SET clienteid=@clienteid, placa=@placa, esplacaextranjera=@esplacaextranjera, marca=@marca, modelo=@modelo, anio=@anio, color=@color, activo=@activo, fechaactualizacion=@fechaactualizacion WHERE id=@id";
-        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id), ("clienteid", entidad.ClienteId), ("placa", entidad.Placa), ("esplacaextranjera", entidad.EsPlacaExtranjera), ("marca", entidad.Marca), ("modelo", entidad.Modelo), ("anio", entidad.Anio), ("color", entidad.Color), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime));
+        var sql = nuevo ? "INSERT INTO vehiculos (" + Columnas + ") VALUES (@id, @clienteid, @placa, @esplacaextranjera, @marca, @modelo, @anio, @color, @activo, @fecharegistro, @fechaactualizacion, @usuarioregistro, @usuarioactualizacion)" : "UPDATE vehiculos SET clienteid=@clienteid, placa=@placa, esplacaextranjera=@esplacaextranjera, marca=@marca, modelo=@modelo, anio=@anio, color=@color, activo=@activo, fechaactualizacion=@fechaactualizacion, usuarioactualizacion=@usuarioactualizacion WHERE id=@id";
+        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id), ("clienteid", entidad.ClienteId), ("placa", entidad.Placa), ("esplacaextranjera", entidad.EsPlacaExtranjera), ("marca", entidad.Marca), ("modelo", entidad.Modelo), ("anio", entidad.Anio), ("color", entidad.Color), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime), ("usuarioregistro", entidad.UsuarioRegistro), ("usuarioactualizacion", entidad.UsuarioActualizacion));
         try
         {
             var filas = await comando.ExecuteNonQueryAsync(ct);

@@ -3,6 +3,9 @@ namespace AutoTallerPro.Frontend.GrupoUno;
 public sealed class ClienteInput
 {
     public string Id { get; set; } = string.Empty;
+    // Bitácora: solo se muestra; la API la toma del token, no del formulario.
+    public string? UsuarioRegistro { get; set; }
+    public string? UsuarioActualizacion { get; set; }
     [Display(Name = "CI/NIT")]
     [Required(ErrorMessage = "CI/NIT: este campo es obligatorio.")]
     [StringLength(20, ErrorMessage = "CI/NIT: admite hasta 20 caracteres.")]

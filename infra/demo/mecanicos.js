@@ -7,6 +7,6 @@ const ahora = new Date();
   { nombres: 'Luis', apellidos: 'Mamani Choque', documento: '3456789-1B', telefono: '61234567', especialidad: 'Electricidad' }
 ].forEach(({ documento, ...datos }) => db.mecanicos.updateOne(
   { documento },
-  { $setOnInsert: { ...datos, correo: null, activo: true, fechaRegistro: ahora, fechaActualizacion: ahora, versionEsquema: 1 } },
+  { $setOnInsert: { ...datos, correo: null, activo: true, fechaRegistro: ahora, fechaActualizacion: ahora, versionEsquema: 1, usuarioRegistro: 'datos-demo', usuarioActualizacion: 'datos-demo' } },
   { upsert: true }
 ));

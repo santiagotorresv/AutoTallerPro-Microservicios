@@ -25,7 +25,7 @@ public sealed class CategoriaServicioServicio(ICategoriaServicioRepositorio repo
         var entidad = await repositorio.ObtenerAsync(id, ct);
         return entidad is null ? Resultado<CategoriaServicio>.Fallo("categoriaservicio.ausente", "No se encontró el registro.", TipoError.NoEncontrado) : Resultado<CategoriaServicio>.Exito(entidad);
     }
-    public async Task<Resultado<CategoriaServicio>> GuardarAsync(Guid? id, DatosCategoriaServicio datos, CancellationToken ct)
+    public async Task<Resultado<CategoriaServicio>> GuardarAsync(Guid? id, DatosCategoriaServicio datos, CancellationToken ct, string? usuario = null)
     {
         CategoriaServicio? anterior = null;
         if (id.HasValue)
@@ -34,7 +34,7 @@ public sealed class CategoriaServicioServicio(ICategoriaServicioRepositorio repo
             if (!consulta.EsExitoso) return consulta;
             anterior = consulta.Valor;
         }
-        var resultado = CategoriaServicio.Crear(id ?? Guid.NewGuid(), datos.Nombre, datos.Descripcion, datos.Activo, anterior?.FechaRegistro);
+        var resultado = CategoriaServicio.Crear(id ?? Guid.NewGuid(), datos.Nombre, datos.Descripcion, datos.Activo, anterior?.FechaRegistro, usuarioRegistro: anterior is null ? usuario : anterior.UsuarioRegistro, usuarioActualizacion: usuario);
         if (!resultado.EsExitoso) return resultado;
         if (await repositorio.ExisteIdentificadorAsync(resultado.Valor.Nombre, resultado.Valor.Id, ct))
             return Resultado<CategoriaServicio>.Fallo("categoriaservicio.duplicado", "Ya existe un registro con ese identificador de negocio.", TipoError.Conflicto);

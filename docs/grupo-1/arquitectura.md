@@ -28,7 +28,7 @@ flowchart LR
   Sistema --> Datos[Datos propios del taller]
 ```
 
-El contexto describe el producto objetivo. El flujo de login del Frontend aún corresponde a P4/P5.
+El contexto describe el producto integrado: el Frontend inicia sesión con Keycloak (P4/P5) y envía el access token al Gateway.
 
 ## C4 nivel 2 · Contenedores
 
@@ -46,7 +46,7 @@ flowchart TB
   C -.-> K
   S -.-> K
   M -.-> K
-  R -.->|Login y sesión pendientes de P4/P5| K
+  R -.->|Login OIDC y renovación del token| K
 ```
 
 Las bases se ejecutan en los servicios propios de Compose, con cuentas y almacenamiento separados.

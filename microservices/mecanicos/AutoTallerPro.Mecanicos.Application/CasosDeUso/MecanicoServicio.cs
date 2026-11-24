@@ -25,7 +25,7 @@ public sealed class MecanicoServicio(IMecanicoRepositorio repositorio)
         var entidad = await repositorio.ObtenerAsync(id.ToLowerInvariant(), ct);
         return entidad is null ? Resultado<Mecanico>.Fallo("mecanico.ausente", "No se encontró el mecánico.", TipoError.NoEncontrado) : Resultado<Mecanico>.Exito(entidad);
     }
-    public async Task<Resultado<Mecanico>> GuardarAsync(string? id, DatosMecanico datos, CancellationToken ct)
+    public async Task<Resultado<Mecanico>> GuardarAsync(string? id, DatosMecanico datos, CancellationToken ct, string? usuario = null)
     {
         Mecanico? anterior = null;
         if (id is not null)
@@ -35,7 +35,7 @@ public sealed class MecanicoServicio(IMecanicoRepositorio repositorio)
             anterior = consulta.Valor;
         }
         var resultado = Mecanico.Crear(id ?? Convert.ToHexString(RandomNumberGenerator.GetBytes(12)).ToLowerInvariant(),
-            datos.Nombres, datos.Apellidos, datos.Documento, datos.Telefono, datos.Correo, datos.Especialidad, datos.Activo, anterior?.FechaRegistro);
+            datos.Nombres, datos.Apellidos, datos.Documento, datos.Telefono, datos.Correo, datos.Especialidad, datos.Activo, anterior?.FechaRegistro, usuarioRegistro: anterior is null ? usuario : anterior.UsuarioRegistro, usuarioActualizacion: usuario);
         if (!resultado.EsExitoso) return resultado;
         if (await repositorio.ExisteIdentificadorAsync(resultado.Valor.Documento, resultado.Valor.Id, ct))
             return Resultado<Mecanico>.Fallo("mecanico.duplicado", "Ya existe un mecánico con ese documento.", TipoError.Conflicto);

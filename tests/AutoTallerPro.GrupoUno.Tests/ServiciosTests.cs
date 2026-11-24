@@ -21,6 +21,15 @@ public sealed class ServiciosTests
     [Fact] public async Task ServicioDuplicadoNoEscribe() { var id = await Categoria(); await Servicio.GuardarAsync(null, new(id, "Lavado", null, 10, null), default); var r = await Servicio.GuardarAsync(null, new(id, "LAVADO", null, 10, null), default); Assert.Equal(TipoError.Conflicto, r.Error!.Tipo); Assert.Equal(1, servicios.Escrituras); }
     [Fact] public async Task ActualizarValidoPersiste() { var id = await Categoria(); var creado = (await Servicio.GuardarAsync(null, new(id, "Lavado", null, 10, null), default)).Valor; var r = await Servicio.GuardarAsync(creado.Id, new(id, "Lavado completo", null, 20, 40), default); Assert.True(r.EsExitoso); Assert.Equal(20, servicios.Datos[creado.Id].PrecioBase); }
     [Fact] public async Task ActualizarInvalidoNoModifica() { var id = await Categoria(); var creado = (await Servicio.GuardarAsync(null, new(id, "Lavado", null, 10, null), default)).Valor; Assert.False((await Servicio.GuardarAsync(creado.Id, new(id, "", null, 10, null), default)).EsExitoso); Assert.Equal(1, servicios.Escrituras); }
+    [Fact] public async Task BitacoraGuardaQuienRegistraYQuienModifica()
+    {
+        var categoria = (await Categorias.GuardarAsync(null, new("Mantenimiento", null), default, "ana.admin")).Valor;
+        var categoriaEditada = (await Categorias.GuardarAsync(categoria.Id, new("Mantenimiento general", null), default, "luis.recepcion")).Valor;
+        Assert.Equal(("ana.admin", "luis.recepcion"), (categoriaEditada.UsuarioRegistro, categoriaEditada.UsuarioActualizacion));
+        var servicio = (await Servicio.GuardarAsync(null, new(categoria.Id, "Lavado", null, 10, null), default, "ana.admin")).Valor;
+        var servicioEditado = (await Servicio.GuardarAsync(servicio.Id, new(categoria.Id, "Lavado completo", null, 20, null), default, "luis.recepcion")).Valor;
+        Assert.Equal(("ana.admin", "luis.recepcion"), (servicioEditado.UsuarioRegistro, servicioEditado.UsuarioActualizacion));
+    }
     [Fact] public async Task AusenteDevuelveNoEncontrado() { var r = await Servicio.ObtenerAsync(Guid.NewGuid(), default); Assert.Equal(TipoError.NoEncontrado, r.Error!.Tipo); }
     [Fact] public async Task EliminarValidoRetiraRegistro() { var id = await Categoria(); var creado = (await Servicio.GuardarAsync(null, new(id, "Lavado", null, 10, null), default)).Valor; Assert.True((await Servicio.EliminarAsync(creado.Id, default)).EsExitoso); Assert.Empty(servicios.Datos); }
     [Fact] public async Task ListadoFiltraYOrdena() { var id = await Categoria(); await Servicio.GuardarAsync(null, new(id, "Lavado", null, 10, null), default); await Servicio.GuardarAsync(null, new(id, "Alineación", null, 20, null), default); var r = (await Servicio.ListarAsync(null, "nombre", false, default)).Valor; Assert.Equal("Alineación", r[0].Nombre); Assert.Single((await Servicio.ListarAsync("lav", null, true, default)).Valor); }

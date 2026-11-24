@@ -5,7 +5,7 @@
 Se implementaron los tres microservicios asignados, con cinco recursos CRUD: Clientes, Vehículos,
 Categorías, Servicios y Mecánicos. Cada módulo incluye persistencia real, reglas con Result, validación JWT,
 páginas Razor, pruebas y documentación. El trabajo está en `microservicios-grupo-1`.
-El producto todavía requiere la sesión real y configuración de integración que corresponden a P4/P5/P6.
+La sesión real con Keycloak, el menú principal y la configuración de Compose ya están integrados (P4/P5/P6). Cada escritura guarda en la bitácora el usuario del token.
 
 ## 2. Archivos creados y modificados
 
@@ -86,9 +86,9 @@ Las API de los tests se ejecutaron con SDK/Kestrel; no se atribuye esta verifica
 
 ## 11. Pendientes y riesgos
 
-P4/P5: login real, sesión y renovación del access token compatibles con `GetTokenAsync("access_token")`.
-P5: habilitar enlaces del menú global; las páginas se abren por sus rutas directas y tienen navegación interna.
-P6: aplicar los esquemas revisados a las bases propias y agregar discovery/JWKS interno y emisor correcto a las tres APIs en Compose.
+Resuelto el 24/11/2026: login real y renovación del token (P4/P5, PR #7), enlaces del menú global (P5),
+`Authentication__*` de las tres APIs en Compose (P6, PR #8) y aplicación de esquemas con `node infra/levantar-entorno.cjs`.
+Bitácora: las cinco tablas guardan `usuarioregistro` y `usuarioactualizacion` con el usuario del token; las bajas físicas no quedan registradas.
 Las modificaciones exactas propuestas están en [integración](integracion.md); no se aplicaron a archivos fuera de alcance.
 
 No quedan pruebas fallidas en la ejecución final. No se verificó login real, despliegue global con Compose ni capturas de un usuario real autenticado.

@@ -85,6 +85,7 @@ public sealed class SeguridadHttpTests
         var creado = await cliente.PostAsJsonAsync("/clientes", datos);
         Assert.Equal(HttpStatusCode.Created, creado.StatusCode);
         var entidad = await creado.Content.ReadFromJsonAsync<JsonElement>(); var id = entidad.GetProperty("id").GetString();
+        Assert.Equal("prueba", entidad.GetProperty("usuarioRegistro").GetString());
         Assert.Equal($"/api/clientes-vehiculos/clientes/{id}", creado.Headers.Location!.ToString());
         Assert.Equal(HttpStatusCode.Conflict, (await cliente.PostAsJsonAsync("/clientes", datos)).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await cliente.PostAsJsonAsync("/clientes", datos with { nombre = "" })).StatusCode);

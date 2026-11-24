@@ -180,9 +180,8 @@ No toma tokens de parámetros, HTML, archivos del proyecto o un formulario propi
 No sigue redirecciones HTTP del Gateway, y traduce 401/403 e indisponibilidad a mensajes de usuario.
 El antiforgery de Razor se conserva en POST, PUT lógico y confirmación de eliminación.
 
-P4/P5 deben configurar su sesión real para que `AuthenticateAsync` pueda recuperar el access token del usuario,
-renovarlo cuando corresponda y atender login/logout. Este cambio no se implementó en `frontend-app/Program.cs`.
-Sin esa integración, las páginas muestran la dependencia de sesión y no consultan datos como anónimas.
+La sesión real está integrada desde el PR #7: `frontend-app/Seguridad/SesionKeycloak.cs` guarda el access token
+en la cookie, lo renueva con el refresh token y atiende login/logout. Sin sesión, las páginas redirigen al login de Keycloak.
 No se crea un login alternativo ni se usa un token técnico para actuar como usuario.
 
 `GrupoUno:GatewayUrl` permite configurar la URL del proxy (debe terminar en `/`).

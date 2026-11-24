@@ -15,8 +15,10 @@ public sealed class Mecanico
     public bool Activo { get; }
     public DateTimeOffset FechaRegistro { get; }
     public DateTimeOffset FechaActualizacion { get; }
-    private Mecanico(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset fechaRegistro, DateTimeOffset fechaActualizacion) { Id = id; Nombres = nombres; Apellidos = apellidos; Documento = documento; Telefono = telefono; Correo = correo; Especialidad = especialidad; Activo = activo; FechaRegistro = fechaRegistro; FechaActualizacion = fechaActualizacion; }
-    public static Resultado<Mecanico> Crear(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset? fechaRegistro = null, DateTimeOffset? fechaActualizacion = null)
+    public string? UsuarioRegistro { get; }
+    public string? UsuarioActualizacion { get; }
+    private Mecanico(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset fechaRegistro, DateTimeOffset fechaActualizacion, string? usuarioRegistro, string? usuarioActualizacion) { Id = id; Nombres = nombres; Apellidos = apellidos; Documento = documento; Telefono = telefono; Correo = correo; Especialidad = especialidad; Activo = activo; FechaRegistro = fechaRegistro; FechaActualizacion = fechaActualizacion; UsuarioRegistro = usuarioRegistro; UsuarioActualizacion = usuarioActualizacion; }
+    public static Resultado<Mecanico> Crear(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset? fechaRegistro = null, DateTimeOffset? fechaActualizacion = null, string? usuarioRegistro = null, string? usuarioActualizacion = null)
     {
         if (!IdValido(id)) return Resultado<Mecanico>.Fallo("mecanico.id", "El identificador del mecánico debe tener 24 caracteres hexadecimales.");
         var nombresLimpios = Reglas.UnEspacio(nombres);
@@ -30,10 +32,10 @@ public sealed class Mecanico
         if (!Reglas.Celular(celular)) return Resultado<Mecanico>.Fallo("mecanico.telefono", "El celular debe tener 8 dígitos y comenzar en 5, 6 o 7.");
         if (!Reglas.Correo(correo)) return Resultado<Mecanico>.Fallo("mecanico.correo", "El correo electrónico no es válido.");
         if (!Especialidades.Contains(especialidad?.Trim() ?? "", StringComparer.Ordinal)) return Resultado<Mecanico>.Fallo("mecanico.especialidad", "Seleccione una especialidad válida: Mecánica general, Electricidad, Diagnóstico o Carrocería.");
-        return Resultado<Mecanico>.Exito(new(id.Trim().ToLowerInvariant(), nombresLimpios, apellidosLimpios, ci, celular, string.IsNullOrWhiteSpace(correo) ? null : correo.Trim(), especialidad!.Trim(), activo, fechaRegistro ?? DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()), fechaActualizacion ?? DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())));
+        return Resultado<Mecanico>.Exito(new(id.Trim().ToLowerInvariant(), nombresLimpios, apellidosLimpios, ci, celular, string.IsNullOrWhiteSpace(correo) ? null : correo.Trim(), especialidad!.Trim(), activo, fechaRegistro ?? DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()), fechaActualizacion ?? DateTimeOffset.FromUnixTimeMilliseconds(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()), usuarioRegistro, usuarioActualizacion));
     }
 
     // Reconstruye un registro ya guardado; las reglas se aplican al crear o editar.
-    public static Mecanico Restaurar(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset fechaRegistro, DateTimeOffset fechaActualizacion)
-        => new(id, nombres, apellidos, documento, telefono, correo, especialidad, activo, fechaRegistro, fechaActualizacion);
+    public static Mecanico Restaurar(string id, string nombres, string apellidos, string documento, string? telefono, string? correo, string especialidad, bool activo, DateTimeOffset fechaRegistro, DateTimeOffset fechaActualizacion, string? usuarioRegistro = null, string? usuarioActualizacion = null)
+        => new(id, nombres, apellidos, documento, telefono, correo, especialidad, activo, fechaRegistro, fechaActualizacion, usuarioRegistro, usuarioActualizacion);
 }
