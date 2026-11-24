@@ -6,8 +6,8 @@
     let enlaceOrigen;
     let guardando = false;
 
+    // jQuery Validate muestra los mensajes en la página; reportValidity() abriría el cuadro nativo del navegador.
     function validar(formulario) {
-        if (!formulario.reportValidity()) return false;
         return !window.jQuery?.validator || window.jQuery(formulario).valid();
     }
 
