@@ -5,6 +5,10 @@ Entorno: Docker Compose local desde cero, el 19/11/2026. Realm importado desde
 MySQL `001`–`003` aplicado y primer administrador aprovisionado. SMTP en Mailpit.
 Navegador: Chrome sobre `http://127.0.0.1:5105`.
 
+El 24/11/2026 se repitió la verificación sobre `main`, después del PR #9 de P4
+(ajustes de pantallas y tema de login), con SMTP en Gmail. El resultado está en
+[Repetición del 24/11 sobre `main`](#repetición-del-2411-sobre-main).
+
 ## Resultado
 
 | Funcionalidad | Resultado | Evidencia |
@@ -40,6 +44,34 @@ Navegador: Chrome sobre `http://127.0.0.1:5105`.
 Pruebas automáticas: `AutoTallerPro.Frontend.Tests` (11 pruebas del adaptador
 `ClienteUsuarios`) y `GatewayRazorTests` del Grupo 1 (9 pruebas), todas en verde.
 
+## Repetición del 24/11 sobre `main`
+
+Mismo entorno local, con `main` en `2034733`, el tema `autotaller` aplicado con
+`configurar-usuarios-admin.cjs --tema` y Keycloak enviando por Gmail
+(`--smtp gmail`) desde la cuenta del proyecto. Las direcciones de prueba usan
+alias `+pruebaN` de esa cuenta.
+
+| Funcionalidad | Resultado | Evidencia |
+| --- | --- | --- |
+| Gmail: invitación de un alta nueva | Pasa | El correo llegó a Gmail; Mailpit no recibió nada |
+| Gmail: reenvío de invitación | Pasa | Primero `429` («Debe esperar 83 segundos»); pasado el intervalo, el correo llegó |
+| Gmail: recuperación de contraseña por username | Pasa | El correo llegó |
+| Login con el tema AutoTaller Pro | Pasa | Administrador y Recepcionista |
+| Recepcionista: menú sin Usuarios y URL directa | Pasa | «Acceso denegado» |
+| Búsqueda con filtro por rol y estado | Pasa | `adrian` + Recepcionista + activos: 3 resultados |
+| Validación del alta y `409 correo_duplicado` | Pasa | Mensajes bajo cada campo; «El correo ya está asociado…» |
+| Cambio de rol | Pasa | Administradores activos 1 → 2 → 1 |
+| Desactivar con confirmación y reactivar | Pasa | Reactivar no abre el diálogo de confirmación |
+| `cuenta_propia` y `ultimo_administrador` | Pasa | Mensajes de la API mostrados en la página |
+| API caída y «Reintentar» con `ReintentosUsuarios` | Pasa | Con `ms-usuarios` detenido, la página ofrece reintentar; al volver la API, una sola alta |
+| Auditoría en MySQL | Pasa | Altas, reenvíos, ediciones, desactivación, reactivación y rechazos del día |
+| Cambio de contraseña | Pasa | Reautenticación, política aplicada y cancelación con aviso |
+| Páginas del Grupo 1 con la sesión de P5 | Parcial | El Gateway y las API aceptan el token. Mecánicos carga; Clientes, Vehículos y Servicios fallan porque la base local nueva no tenía sus tablas |
+
+Pruebas automáticas sobre `main`: `AutoTallerPro.sln` con 19 pruebas del
+Frontend y 101 de Usuarios (36 omitidas), y `AutoTallerPro.GrupoUno.Tests` con
+66 (3 omitidas), todas en verde.
+
 ## Hallazgos para P4
 
 1. **La invitación no informa el username** y el realm tiene
@@ -57,6 +89,17 @@ Pruebas automáticas: `AutoTallerPro.Frontend.Tests` (11 pruebas del adaptador
    «longitud minima» sin tilde, «al menos 1 letras mayúsculas», «expirará en
    12 horas minutos» en el correo y mezcla de «tú» y «usted». Se corrigen con
    *Realm settings → Localization → Realm overrides* para `es`.
+   Con el tema del 24/11, «longitud mínima 8» ya sale bien, pero siguen «al
+   menos 1 letras mayúsculas», «1 caracteres numéricos» y «1 caracteres
+   especiales». Propuesta para
+   `infra/keycloak/themes/autotaller/login/messages/messages_es.properties`:
+
+   ```properties
+   invalidPasswordMinUpperCaseCharsMessage=Contraseña no válida: debe contener al menos {0} letra mayúscula.
+   invalidPasswordMinLowerCaseCharsMessage=Contraseña no válida: debe contener al menos {0} letra minúscula.
+   invalidPasswordMinDigitsMessage=Contraseña no válida: debe contener al menos {0} número.
+   invalidPasswordMinSpecialCharsMessage=Contraseña no válida: debe contener al menos {0} carácter especial.
+   ```
 4. **Auditoría de altas rechazadas**: un alta con `correo_duplicado` no deja
    registro en `AuditoriaAdministrativa`. Las demás operaciones sí registran
    sus rechazos.
@@ -79,20 +122,25 @@ Pruebas automáticas: `AutoTallerPro.Frontend.Tests` (11 pruebas del adaptador
   `Location` es relativo, por lo que Razor usa el `id` del cuerpo 201.
 - **Adapter del Frontend**: `ApiUsuarios/ClienteUsuarios.cs` traduce las
   llamadas de las páginas a HTTP y los ProblemDetails a mensajes de la interfaz.
+  Desde el PR #9, `ApiUsuarios/ReintentosUsuarios.cs` protege con Data
+  Protection la clave y los datos de un reintento, y las páginas solo muestran
+  el resultado.
 
 No se modificó la arquitectura del backend.
 
 ## Pendientes
 
-- **Gmail SMTP**: falta la contraseña de aplicación en el `.env` local para
-  probar envío real, reenvío y recuperación, y volver a Mailpit.
+- **SMTP activo**: el entorno local quedó con Gmail. Para volver a Mailpit:
+  `node infra/keycloak/configurar-usuarios-admin.cjs --smtp mailpit`.
 - **Enlaces de Keycloak** (`127.0.0.1:8180`): solo funcionan en la computadora
   anfitriona. Para otros dispositivos hace falta una URL accesible. Identificado,
   no resuelto.
-- **APIs del Grupo 1 en Compose**: les faltan las variables `Authentication__*`
-  documentadas en `docs/grupo-1/integracion.md` (P6).
+- **Tablas del Grupo 1 en un entorno nuevo**: Compose ya entrega
+  `Authentication__*` a sus API (PR #8), pero sus tablas se crean con sus
+  propios scripts.
 - **Bitácora del Grupo 1**: sus tablas guardan fechas pero no el usuario que
   creó o modificó cada registro. La rúbrica del Grupo 2 asigna 20 puntos a la
   bitácora de los CRUD en atributos de auditoría.
 - **Data Protection del Frontend** sin persistencia: al recrear el contenedor se
-  pierde la cookie y Keycloak vuelve a iniciar la sesión por SSO.
+  pierde la cookie y Keycloak vuelve a iniciar la sesión por SSO. También deja
+  de valer un «Reintentar» pendiente.
