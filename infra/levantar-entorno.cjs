@@ -1,7 +1,7 @@
 // Prepara y levanta el entorno local completo en un solo paso. Se puede repetir:
 // conserva .env, volúmenes y datos, y solo completa lo que falta.
-// No inserta datos de negocio; crea la estructura de cada base y, si no existe,
-// el primer administrador de Usuarios por invitación.
+// Crea la estructura de cada base y, si no existe, el primer administrador de
+// Usuarios por invitación. Con --datos-demo agrega datos de ejemplo (DEMO-*).
 const { existsSync, readFileSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -18,7 +18,8 @@ const secretosClientes = {
     'autotaller-frontend': 'KEYCLOAK_FRONTEND_CLIENT_SECRET'
 };
 
-const clienteMysql = 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysql --protocol=TCP --host=127.0.0.1 --user="$MYSQL_USER" --database="$MYSQL_DATABASE"';
+const clienteMysql = 'MYSQL_PWD="$MYSQL_PASSWORD" exec mysql --default-character-set=utf8mb4 --protocol=TCP '
+    + '--host=127.0.0.1 --user="$MYSQL_USER" --database="$MYSQL_DATABASE"';
 const clientePostgres = 'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -v ON_ERROR_STOP=1 -q -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"';
 const clienteMongo = 'archivo=/tmp/esquema-$$.js; cat > "$archivo"; mongosh --quiet --norc --host 127.0.0.1 '
     + '--username "$MONGO_APP_USERNAME" --password "$MONGO_APP_PASSWORD" '
@@ -35,6 +36,12 @@ const esquemas = [
         archivos: ['microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/001_catalogo_servicios.sql'] },
     { modulo: 'Mecánicos', servicio: 'mongo-mecanicos', cliente: clienteMongo,
         archivos: ['microservices/mecanicos/AutoTallerPro.Mecanicos.Infrastructure/Esquema/001_mecanicos.js'] }
+];
+
+const datosDemo = [
+    { modulo: 'Clientes/Vehículos', servicio: 'postgres-clientes', cliente: clientePostgres, archivo: 'infra/demo/clientes_vehiculos.sql' },
+    { modulo: 'Servicios', servicio: 'mysql-servicios', cliente: clienteMysql, archivo: 'infra/demo/servicios.sql' },
+    { modulo: 'Mecánicos', servicio: 'mongo-mecanicos', cliente: clienteMongo, archivo: 'infra/demo/mecanicos.js' }
 ];
 
 class ErrorEntorno extends Error {}
@@ -54,7 +61,9 @@ function ejecutar(comando, argumentos, { entrada, capturar = false, permitirFall
         encoding: capturar ? 'utf8' : undefined
     });
     exigir(!resultado.error, 'No se pudo ejecutar ' + comando + '. ¿Está instalado y en el PATH?');
-    exigir(permitirFallo || resultado.status === 0, 'Falló: ' + comando + ' ' + argumentos.join(' '));
+    const detalle = capturar ? (resultado.stderr || '').trim().split(/\r?\n/).slice(-3).join('\n') : '';
+    exigir(permitirFallo || resultado.status === 0, 'Falló: ' + comando + ' ' + argumentos.slice(0, 4).join(' ')
+        + (detalle ? '\n' + detalle : ''));
     return resultado;
 }
 
@@ -63,13 +72,18 @@ const enContenedor = (servicio, script, opciones) =>
     compose(['exec', '-T', servicio, 'sh', '-ec', script], opciones);
 
 function leerArgumentos() {
-    const opciones = { admin: 'administrador@autotaller.test', nombre: 'Administrador', apellido: 'Principal', clave: null };
+    const opciones = { admin: 'administrador@autotaller.test', nombre: 'Administrador', apellido: 'Principal', clave: null, demo: false };
     const nombres = { '--admin': 'admin', '--nombre': 'nombre', '--apellido': 'apellido', '--clave': 'clave' };
     const argumentos = process.argv.slice(2);
-    for (let i = 0; i < argumentos.length; i += 2) {
+    for (let i = 0; i < argumentos.length; i++) {
+        if (argumentos[i] === '--datos-demo') {
+            opciones.demo = true;
+            continue;
+        }
         const campo = nombres[argumentos[i]];
-        exigir(campo && argumentos[i + 1], 'Uso: node infra/levantar-entorno.cjs [--admin correo] [--nombre N] [--apellido A] [--clave uuid]');
-        opciones[campo] = argumentos[i + 1];
+        exigir(campo && argumentos[i + 1], 'Uso: node infra/levantar-entorno.cjs [--datos-demo] [--admin correo] '
+            + '[--nombre N] [--apellido A] [--clave uuid]');
+        opciones[campo] = argumentos[++i];
     }
     return opciones;
 }
@@ -175,6 +189,13 @@ function aplicarEsquemas() {
     }
 }
 
+function aplicarDatosDemo() {
+    for (const { modulo, servicio, cliente, archivo } of datosDemo) {
+        enContenedor(servicio, cliente, { entrada: readFileSync(archivo), capturar: true });
+        console.log(modulo + ': datos de ejemplo listos (' + archivo + ').');
+    }
+}
+
 function primerAdministrador(opciones) {
     const consulta = enContenedor('mysql-usuarios', clienteMysql + ' -N -e "SELECT COUNT(*) FROM FichasAdministrativas"',
         { capturar: true });
@@ -219,8 +240,9 @@ async function principal() {
     ejecutar(process.execPath, ['infra/keycloak/configurar-usuarios-admin.cjs', '--tema']);
     await guardarSecretos();
 
-    paso('5/7 Estructura de las bases (sin datos)');
+    paso('5/7 Estructura de las bases' + (opciones.demo ? ' y datos de ejemplo' : ' (sin datos)'));
     aplicarEsquemas();
+    if (opciones.demo) aplicarDatosDemo();
 
     paso('6/7 Aplicaciones con los secretos actualizados');
     compose(['up', '-d', '--wait', '--wait-timeout', '300']);
@@ -236,6 +258,12 @@ async function principal() {
     console.log('  Aplicación: http://127.0.0.1:5105  (usa 127.0.0.1, no localhost)');
     console.log('  Correo de prueba (Mailpit): http://127.0.0.1:' + (env.MAILPIT_WEB_PORT || 8025));
     console.log('  Consola de Keycloak: http://127.0.0.1:' + (env.KEYCLOAK_PORT || 8180) + '/admin/');
+    console.log('Bases para DBeaver o Compass (host 127.0.0.1; usuario y contraseña en .env):');
+    console.log('  PostgreSQL Clientes/Vehículos: puerto ' + (env.POSTGRES_CLIENTES_PORT || 5433) + ', base ' + env.POSTGRES_CLIENTES_DB);
+    console.log('  MySQL Servicios: puerto ' + (env.MYSQL_SERVICIOS_PORT || 3307) + ', base ' + env.MYSQL_SERVICIOS_DB);
+    console.log('  MySQL Usuarios: puerto ' + (env.MYSQL_USUARIOS_PORT || 3308) + ', base ' + env.MYSQL_USUARIOS_DB);
+    console.log('  MongoDB Mecánicos: puerto ' + (env.MONGO_MECANICOS_PORT || 27018) + ', base ' + env.MONGO_MECANICOS_DB
+        + ' (authSource ' + env.MONGO_MECANICOS_DB + ')');
     console.log('Para detenerlo sin perder datos: docker compose stop');
 }
 

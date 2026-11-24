@@ -87,6 +87,12 @@ El script se puede repetir y conserva lo que ya existe. Hace estos pasos:
 5. Crea las tablas y colecciones de los cuatro microservicios, sin datos de ejemplo.
 6. La primera vez, crea el administrador inicial.
 
+Para una demostración, `node infra/levantar-entorno.cjs --datos-demo` agrega
+datos de ejemplo de `infra/demo/`: 3 clientes con sus vehículos, 2 categorías,
+4 servicios y 3 mecánicos. Sus documentos y placas empiezan por `DEMO`. Se
+pueden agregar varias veces sin duplicarse. Para ver las bases desde DBeaver o
+MongoDB Compass, consulta la [guía de Docker](infra/README.md#ver-las-bases-con-dbeaver-y-compass).
+
 La invitación del administrador llega a Mailpit, en `http://127.0.0.1:8025`.
 Ábrela, verifica el correo, elige la contraseña y entra en
 `http://127.0.0.1:5105` con el usuario que muestra el script. Para usar un
