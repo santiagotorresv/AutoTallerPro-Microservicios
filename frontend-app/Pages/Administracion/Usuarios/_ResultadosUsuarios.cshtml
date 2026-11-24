@@ -36,6 +36,7 @@
                     }
                     @foreach (var usuario in resultado.Usuarios)
                     {
+                        var pendiente = Model.Pendiente?.Id == usuario.Id && Model.Reintento is not null;
                         var espera = Model.EsperaReenvio is { } e && e.Id == usuario.Id ? e.Segundos : 0;
                         <tr>
                             <td>@usuario.Username</td>
@@ -49,7 +50,7 @@
                             <td class="text-end">
                                 <div class="d-flex flex-wrap gap-1 justify-content-end">
                                     <a asp-page="./Editar" asp-route-id="@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
-                                    <form method="post" asp-page-handler="Accion"
+                                    <form method="post" asp-page-handler="Accion" data-usuarios-escritura
                                           asp-route-Busqueda="@Model.Busqueda" asp-route-RolFiltro="@Model.RolFiltro"
                                           asp-route-ActivoFiltro="@Model.ActivoFiltro" asp-route-Pagina="@Model.Pagina"
                                           data-confirmar-desactivar="@(usuario.Activo ? usuario.Username : null)">
@@ -59,16 +60,16 @@
                                         <input type="hidden" name="usuario" value="@usuario.Username" />
                                         @if (usuario.Activo)
                                         {
-                                            <button type="submit" class="btn btn-sm btn-outline-warning">Desactivar</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" disabled="@pendiente">Desactivar</button>
                                         }
                                         else
                                         {
-                                            <button type="submit" class="btn btn-sm btn-outline-success">Reactivar</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-success" disabled="@pendiente">Reactivar</button>
                                         }
                                     </form>
                                     @if (usuario.PuedeReenviarInvitacion)
                                     {
-                                        <form method="post" asp-page-handler="Accion"
+                                        <form method="post" asp-page-handler="Accion" data-usuarios-escritura
                                               asp-route-Busqueda="@Model.Busqueda" asp-route-RolFiltro="@Model.RolFiltro"
                                               asp-route-ActivoFiltro="@Model.ActivoFiltro" asp-route-Pagina="@Model.Pagina">
                                             <input type="hidden" name="id" value="@usuario.Id" />
@@ -76,7 +77,7 @@
                                             <input type="hidden" name="clave" value="@Guid.NewGuid()" />
                                             <input type="hidden" name="usuario" value="@usuario.Username" />
                                             <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                                    data-espera="@(espera > 0 ? espera : null)" disabled="@(espera > 0)">
+                                                    data-espera="@(!pendiente && espera > 0 ? espera : null)" disabled="@(pendiente || espera > 0)">
                                                 Reenviar invitación
                                             </button>
                                         </form>

@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="~/css/usuarios-form.css" asp-append-version="true" />
 }
 
+
+@section Scripts {
+    <script src="~/js/usuarios.js" asp-append-version="true"></script>
+}
+
 @{
     ViewData["Title"] = "Editar Usuario";
 }
@@ -22,7 +27,7 @@
             @Model.Error
             @if (Model.PuedeReintentar)
             {
-                <div class="mt-1">Puede reintentar con los mismos datos; la operación no se duplicará.</div>
+                <div class="mt-1">Puede reintentar con la clave y los datos originales.</div>
             }
         </div>
     }
@@ -32,9 +37,9 @@
         <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
             <span>Estado de la invitación:</span>
             <span class="badge @EstadosInvitacion.Clase(usuario.EstadoInvitacion)">@EstadosInvitacion.Texto(usuario.EstadoInvitacion)</span>
-            @if (usuario.PuedeReenviarInvitacion)
+            @if (usuario.PuedeReenviarInvitacion && !Model.PuedeReintentar)
             {
-                <form method="post" asp-page="./Index" asp-page-handler="Accion">
+                <form method="post" asp-page="./Index" asp-page-handler="Accion" data-usuarios-escritura>
                     <input type="hidden" name="id" value="@usuario.Id" />
                     <input type="hidden" name="accion" value="reenviar" />
                     <input type="hidden" name="clave" value="@Guid.NewGuid()" />
@@ -49,56 +54,60 @@
     {
         <div class="card">
             <div class="card-body">
-                <form method="post" aria-label="Editar usuario">
+                <form method="post" aria-label="Editar usuario" data-usuarios-escritura>
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
                     <input type="hidden" asp-for="Clave" />
+                    <input type="hidden" asp-for="Reintento" />
+                    <fieldset disabled="@Model.PuedeReintentar">
 
-                    <div class="row mb-3">
-                        <label asp-for="Input.Username" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <input asp-for="Input.Username" class="form-control" readonly />
-                            <div class="form-text">El nombre de usuario se genera al crear la cuenta y no se puede modificar.</div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label asp-for="Input.NombreCompleto" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <input asp-for="Input.NombreCompleto" class="form-control" readonly />
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label asp-for="Input.Email" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <input asp-for="Input.Email" class="form-control" autocomplete="email" maxlength="254" />
-                            <span asp-validation-for="Input.Email" class="text-danger"></span>
-                            <div class="form-text">Si cambia el correo, el usuario deberá verificarlo nuevamente.</div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label asp-for="Input.Rol" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <select asp-for="Input.Rol" class="form-select">
-                                <option value="Administrador">Administrador</option>
-                                <option value="Recepcionista">Recepcionista</option>
-                            </select>
-                            <span asp-validation-for="Input.Rol" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label asp-for="Input.Activo" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <div class="form-check form-switch">
-                                <input asp-for="Input.Activo" class="form-check-input" type="checkbox" />
-                                <label class="form-check-label" asp-for="Input.Activo">
-                                    Usuario activo (puede iniciar sesión)
-                                </label>
+                        <div class="row mb-3">
+                            <label asp-for="Input.Username" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Input.Username" class="form-control" readonly />
+                                <div class="form-text">El nombre de usuario se genera al crear la cuenta y no se puede modificar.</div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="Input.NombreCompleto" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Input.NombreCompleto" class="form-control" readonly />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="Input.Email" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Input.Email" class="form-control" autocomplete="email" maxlength="254" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                <div class="form-text">Si cambia el correo, el usuario deberá verificarlo nuevamente.</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="Input.Rol" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <select asp-for="Input.Rol" class="form-select">
+                                    <option value="">Seleccione un rol</option>
+                                    <option value="Administrador">Administrador</option>
+                                    <option value="Recepcionista">Recepcionista</option>
+                                </select>
+                                <span asp-validation-for="Input.Rol" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="Input.Activo" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <div class="form-check form-switch">
+                                    <input asp-for="Input.Activo" class="form-check-input" type="checkbox" />
+                                    <label class="form-check-label" asp-for="Input.Activo">
+                                        Usuario activo (puede iniciar sesión)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
 
                     <div class="row mb-3">
                         <div class="col-sm-2"></div>

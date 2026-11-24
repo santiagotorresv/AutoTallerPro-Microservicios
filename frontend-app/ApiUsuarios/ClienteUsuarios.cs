@@ -77,14 +77,33 @@ public sealed class ClienteUsuarios(HttpClient http, IHttpContextAccessor acceso
             var estado = (int)respuesta.StatusCode;
             if (respuesta.IsSuccessStatusCode)
             {
-                var valor = respuesta.Content.Headers.ContentLength == 0 || estado == 204
-                    ? default
-                    : await respuesta.Content.ReadFromJsonAsync<T>(cancelacion);
-                return new(valor, estado, null, null);
+                var esperado = metodo == HttpMethod.Get ? 200 : typeof(T) == typeof(UsuarioCreado) ? 201 : 204;
+                if (estado == esperado)
+                {
+                    if (estado == 204)
+                    {
+                        return new(default, estado, null, null);
+                    }
+
+                    if (respuesta.Content.Headers.ContentLength != 0 &&
+                        await respuesta.Content.ReadFromJsonAsync<T>(cancelacion) is { } valor &&
+                        (valor is not UsuarioCreado alta || alta is { Id: > 0, Username.Length: > 0,
+                            EstadoInvitacion: "pendiente" or "envioIncierto" or "correoSolicitado" }))
+                    {
+                        return new(valor, estado, null, null);
+                    }
+                }
+
+                return new(default, 0, null, Mensaje(0, null, null));
             }
 
             var (codigo, titulo) = await LeerProblemaAsync(respuesta, cancelacion);
-            int? espera = respuesta.Headers.RetryAfter?.Delta is { } delta ? (int)delta.TotalSeconds : null;
+            var retryAfter = respuesta.Headers.RetryAfter;
+            var restante = retryAfter?.Delta ??
+                (retryAfter?.Date is { } fecha ? fecha - DateTimeOffset.UtcNow : (TimeSpan?)null);
+            int? espera = restante is { } tiempo
+                ? (int)Math.Clamp(Math.Ceiling(tiempo.TotalSeconds), 0, int.MaxValue)
+                : estado == 429 ? 120 : null;
             return new(default, estado, codigo, Mensaje(estado, codigo, titulo, espera), espera);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)

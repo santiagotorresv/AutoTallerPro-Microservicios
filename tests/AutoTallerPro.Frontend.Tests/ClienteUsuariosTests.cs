@@ -3,8 +3,12 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using AutoTallerPro.Frontend.ApiUsuarios;
+using AutoTallerPro.Frontend.Pages.Administracion.Usuarios;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoTallerPro.Frontend.Tests;
@@ -56,6 +60,78 @@ public sealed class ClienteUsuariosTests
         Assert.Contains("90 segundos", respuesta.Mensaje);
         Assert.Equal("/api/usuarios/usuarios/42/reenviar-invitacion", api.Ruta);
     }
+
+    [Fact]
+    public async Task RetryAfterComoFechaYRespuestaSinCabeceraTienenEspera()
+    {
+        var fecha = ApiFalsa.Problema(HttpStatusCode.TooManyRequests, "intervalo_invitacion");
+        fecha.RetryAt = DateTimeOffset.UtcNow.AddMinutes(10);
+        var conFecha = await Cliente(fecha).ReenviarInvitacionAsync(42, Clave);
+        Assert.InRange(conFecha.EsperaSegundos!.Value, 570, 600);
+
+        var sinFecha = await Cliente(new ApiFalsa(HttpStatusCode.TooManyRequests, ""))
+            .ReenviarInvitacionAsync(42, Clave);
+        Assert.Equal(120, sinFecha.EsperaSegundos);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Created, "")]
+    [InlineData(HttpStatusCode.Created, "{}")]
+    [InlineData(HttpStatusCode.OK, """{"id":42,"username":"ana","estadoInvitacion":"correoSolicitado"}""")]
+    public async Task AltaSinConfirmacionValidaConservaElIntento(HttpStatusCode estado, string cuerpo)
+    {
+        var api = new ApiFalsa(estado, cuerpo);
+        var respuesta = await Cliente(api).CrearAsync("ana@ejemplo.invalid", "Recepcionista", "Ana", "Pérez", Clave);
+        Assert.False(respuesta.Exito);
+        Assert.True(respuesta.ConservarClave);
+        Assert.Null(respuesta.Valor);
+    }
+
+    [Theory]
+    [InlineData(401, "Su sesión expiró")]
+    [InlineData(403, "no tiene permiso")]
+    public async Task ErrorDeSesionSinCuerpoConservaSuSignificado(int estado, string fragmento)
+    {
+        var respuesta = await Cliente(new ApiFalsa((HttpStatusCode)estado, "")).ResumenAsync();
+        Assert.Equal(estado, respuesta.Estado);
+        Assert.Contains(fragmento, respuesta.Mensaje);
+    }
+
+    [Fact]
+    public async Task ReintentoDelAltaUsaLaClaveYElCuerpoOriginal()
+    {
+        var api = ApiFalsa.Problema(HttpStatusCode.ServiceUnavailable, "alta_pendiente");
+        var modelo = new CrearModel(Cliente(api), new ReintentosUsuarios(new EphemeralDataProtectionProvider()))
+        {
+            PageContext = new PageContext { HttpContext = new DefaultHttpContext { User = Actor("administrador") } },
+            Clave = Clave,
+            Input = new() { Email = "ana@ejemplo.invalid", Rol = "Recepcionista", Nombre = "Ana", Apellido = "Pérez" }
+        };
+        Assert.IsType<PageResult>(await modelo.OnPostAsync());
+        Assert.True(modelo.PuedeReintentar);
+        var cuerpo = api.Cuerpo;
+        modelo.Input.Email = "cambiado@ejemplo.invalid";
+        modelo.Clave = Guid.NewGuid();
+        modelo.ModelState.AddModelError("Input.Nombre", "Campo deshabilitado");
+
+        Assert.IsType<PageResult>(await modelo.OnPostAsync());
+        Assert.Equal(cuerpo, api.Cuerpo);
+        Assert.Equal(Clave.ToString("D"), api.ClaveIdempotencia);
+    }
+
+    [Fact]
+    public void ComprobanteDeReintentoPerteneceAlActorYALaOperacion()
+    {
+        var servicio = new ReintentosUsuarios(new EphemeralDataProtectionProvider());
+        var comprobante = servicio.Guardar(Actor("administrador"), "editar:42", Clave, "correo@ejemplo.invalid")!;
+
+        Assert.Equal(Clave, servicio.Recuperar<string>(Actor("administrador"), "editar:42", comprobante)!.Clave);
+        Assert.Null(servicio.Recuperar<string>(Actor("administrador"), "editar:43", comprobante));
+        Assert.Null(servicio.Recuperar<string>(Actor("otro"), "editar:42", comprobante));
+        Assert.Null(servicio.Recuperar<string>(Actor("administrador"), "editar:42", "alterado"));
+    }
+
+    private static ClaimsPrincipal Actor(string sujeto) => new(new ClaimsIdentity([new Claim("sub", sujeto)], "Prueba"));
 
     [Theory]
     [InlineData("administracion_pendiente")]
@@ -136,6 +212,7 @@ public sealed class ClienteUsuariosTests
         public string? ClaveIdempotencia { get; private set; }
         public string? Cuerpo { get; private set; }
         public int? RetryAfter { get; set; }
+        public DateTimeOffset? RetryAt { get; set; }
         public Exception? Error { get; init; }
 
         public static ApiFalsa Problema(HttpStatusCode estado, string codigo) =>
@@ -162,6 +239,10 @@ public sealed class ClienteUsuariosTests
             if (RetryAfter is { } segundos)
             {
                 respuesta.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(TimeSpan.FromSeconds(segundos));
+            }
+            else if (RetryAt is { } fecha)
+            {
+                respuesta.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(fecha);
             }
 
             return respuesta;

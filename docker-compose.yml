@@ -104,6 +104,8 @@ services:
       KC_METRICS_ENABLED: "true"
     ports:
       - "127.0.0.1:${KEYCLOAK_PORT:-8180}:8080"
+    volumes:
+      - ./infra/keycloak/themes/autotaller:/opt/keycloak/themes/autotaller:ro
     depends_on:
       postgres-keycloak:
         condition: service_healthy

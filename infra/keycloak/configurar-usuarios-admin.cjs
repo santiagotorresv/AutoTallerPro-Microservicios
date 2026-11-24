@@ -21,14 +21,16 @@ function iguales(a = [], b = []) {
 async function configurar() {
     const [, , operacion, modo, direccionSmtp] = process.argv;
     const smtp = operacion === '--smtp';
+    const tema = operacion === '--tema';
     exigir(!smtp || (['estado', 'gmail', 'mailpit'].includes(modo) && process.argv.length <= 5),
         'Usa --smtp estado, --smtp gmail o --smtp mailpit.');
+    exigir(!tema || process.argv.length <= 4, 'Usa --tema con la URL de Keycloak como argumento opcional.');
     const archivo = existsSync('.env') ? parseEnv(readFileSync('.env', 'utf8')) : {};
     const local = { ...archivo, ...process.env };
     const smtpServer = smtp && modo === 'gmail' ? prepararGmail(local) : realm.smtpServer;
     exigir(local.KEYCLOAK_BOOTSTRAP_ADMIN_USERNAME && local.KEYCLOAK_BOOTSTRAP_ADMIN_PASSWORD,
         'Completa las credenciales administrativas locales de Keycloak.');
-    const direccion = smtp ? direccionSmtp : operacion;
+    const direccion = smtp ? direccionSmtp : tema ? modo : operacion;
     const url = new URL(direccion ?? ('http://127.0.0.1:' + (local.KEYCLOAK_PORT || 8180)));
     exigir(!url.username && !url.password && !url.search && !url.hash &&
         (url.protocol === 'https:' || (url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname))),
@@ -47,8 +49,8 @@ async function configurar() {
     const { access_token: token } = await tokenResponse.json();
     const raiz = base + '/admin/realms/' + realm.realm;
 
-    async function solicitar(ruta, metodo = 'GET', datos, esperados = [200]) {
-        const respuesta = await fetch(raiz + ruta, {
+    async function solicitar(ruta, metodo = 'GET', datos, esperados = [200], baseSolicitud = raiz) {
+        const respuesta = await fetch(baseSolicitud + ruta, {
             method: metodo, redirect: 'error', signal: AbortSignal.timeout(20000),
             headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
             ...(datos === undefined ? {} : { body: JSON.stringify(datos) })
@@ -57,6 +59,25 @@ async function configurar() {
         return respuesta;
     }
     const leer = async ruta => (await solicitar(ruta)).json();
+    if (tema) {
+        const info = await (await solicitar('/admin/serverinfo', 'GET', undefined, [200], base)).json();
+        exigir(info.themes?.login?.some(actual => actual.name === realm.loginTheme),
+            'Keycloak no encontró el tema de login. Comprueba el montaje de Compose.');
+        const configuracion = {
+            loginTheme: realm.loginTheme,
+            internationalizationEnabled: realm.internationalizationEnabled,
+            supportedLocales: realm.supportedLocales,
+            defaultLocale: realm.defaultLocale
+        };
+        const coincide = actual => actual.loginTheme === configuracion.loginTheme
+            && actual.internationalizationEnabled === configuracion.internationalizationEnabled
+            && iguales(actual.supportedLocales, configuracion.supportedLocales)
+            && actual.defaultLocale === configuracion.defaultLocale;
+        if (!coincide(await leer(''))) await solicitar('', 'PUT', configuracion, [204]);
+        exigir(coincide(await leer('')), 'Keycloak no confirmó el tema y el idioma solicitados.');
+        console.log('Tema de inicio de sesión activo: ' + realm.loginTheme + ' (' + realm.defaultLocale + ').');
+        return;
+    }
     if (smtp) {
         if (modo !== 'estado') await solicitar('', 'PUT', { smtpServer }, [204]);
         const { smtpServer: activo } = await leer('');
