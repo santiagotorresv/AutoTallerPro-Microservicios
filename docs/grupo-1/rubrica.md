@@ -37,9 +37,10 @@ Todas las pruebas pertenecen a `tests/AutoTallerPro.GrupoUno.Tests/`.
 | Gateway | Proyecto de verificación enlaza fuente original y carga configuración original | Enrutamiento y token forwarding verificados en Kestrel. Despliegue general pendiente. |
 | Razor real | `GatewayRazorTests`, antiforgery, `ClienteGateway` | CRUD de cinco recursos verificado mediante formularios y bases reales con sesión de prueba. |
 | Interfaz | `verificar_interfaz.cjs`, seis PNG en evidencia | 20 páginas, validación cliente, cero errores JavaScript, 390 px sin desbordamiento. |
-| Login real de Keycloak | Competencia P4/P5 | Pendiente; no se reemplaza por un login alternativo. |
+| Login real de Keycloak | Competencia P4/P5 | Integrado: sesión OIDC con renovación del token (PR #7). |
+| Bitácora de usuarios | `usuarioregistro` y `usuarioactualizacion` en las cinco tablas | El usuario del token se guarda al crear y en cada edición. |
 | Bases del equipo | Scripts preparados; guía de configuración para P6 | Inicialización no aplicada sobre bases existentes. |
-| Menú principal | Cambios puntuales propuestos en integración | Pendiente de P5; navegación interna disponible. |
+| Menú principal | Enlaces del menú global | Integrado por P5. |
 | Capturas de producto autenticado / defensa | Capturas actuales muestran formularios sin sesión | Completar con despliegue integrado del equipo. |
 
 ## Evaluación responsable

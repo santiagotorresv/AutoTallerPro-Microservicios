@@ -32,9 +32,11 @@ const esquemas = [
             'infra/mysql/usuarios/003_administracion_usuarios.sql'] },
     { modulo: 'Clientes/Vehículos', servicio: 'postgres-clientes', cliente: clientePostgres,
         archivos: ['microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/001_clientes_vehiculos.sql',
-            'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/002_placa_extranjera.sql'] },
+            'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/002_placa_extranjera.sql',
+            'microservices/clientes-vehiculos/AutoTallerPro.ClientesVehiculos.Infrastructure/Esquema/003_auditoria_clientes_vehiculos.sql'] },
     { modulo: 'Servicios', servicio: 'mysql-servicios', cliente: clienteMysql,
-        archivos: ['microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/001_catalogo_servicios.sql'] },
+        archivos: ['microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/001_catalogo_servicios.sql',
+            'microservices/servicios/AutoTallerPro.Servicios.Infrastructure/Esquema/002_auditoria_catalogo_servicios.sql'] },
     { modulo: 'Mecánicos', servicio: 'mongo-mecanicos', cliente: clienteMongo,
         archivos: ['microservices/mecanicos/AutoTallerPro.Mecanicos.Infrastructure/Esquema/001_mecanicos.js'] }
 ];

@@ -27,7 +27,8 @@ public sealed class VehiculoServicio(IVehiculoRepositorio repositorio, IClienteR
         var entidad = await repositorio.ObtenerAsync(id, ct);
         return entidad is null ? Resultado<Vehiculo>.Fallo("vehiculo.ausente", "No se encontró el registro.", TipoError.NoEncontrado) : Resultado<Vehiculo>.Exito(entidad);
     }
-    public async Task<Resultado<Vehiculo>> GuardarAsync(Guid? id, DatosVehiculo datos, CancellationToken ct)
+    // usuario: quien realiza la operación (bitácora); el registro conserva a quien lo creó.
+    public async Task<Resultado<Vehiculo>> GuardarAsync(Guid? id, DatosVehiculo datos, CancellationToken ct, string? usuario = null)
     {
         Vehiculo? anterior = null;
         if (id.HasValue)
@@ -36,7 +37,8 @@ public sealed class VehiculoServicio(IVehiculoRepositorio repositorio, IClienteR
             if (!consulta.EsExitoso) return consulta;
             anterior = consulta.Valor;
         }
-        var resultado = Vehiculo.Crear(id ?? Guid.NewGuid(), datos.ClienteId, datos.Placa, datos.Marca, datos.Modelo, datos.Anio, datos.Color, datos.Activo, anterior?.FechaRegistro, esPlacaExtranjera: datos.EsPlacaExtranjera);
+        var resultado = Vehiculo.Crear(id ?? Guid.NewGuid(), datos.ClienteId, datos.Placa, datos.Marca, datos.Modelo, datos.Anio, datos.Color, datos.Activo, anterior?.FechaRegistro, esPlacaExtranjera: datos.EsPlacaExtranjera,
+            usuarioRegistro: anterior is null ? usuario : anterior.UsuarioRegistro, usuarioActualizacion: usuario);
         if (!resultado.EsExitoso) return resultado;
         var relacionado = await relacionados.ObtenerAsync(datos.ClienteId, ct);
         if (relacionado is null) return Resultado<Vehiculo>.Fallo("vehiculo.relacion", "No se encontró el registro relacionado.", TipoError.NoEncontrado);

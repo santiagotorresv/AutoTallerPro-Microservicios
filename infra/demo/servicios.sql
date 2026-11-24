@@ -1,15 +1,15 @@
 -- Datos de ejemplo de Categorías y Servicios.
 -- Se puede repetir: solo inserta los nombres que todavía no existen.
-INSERT INTO categorias_servicio (id, nombre, descripcion, activo, fecharegistro, fechaactualizacion)
-SELECT UUID(), d.nombre, d.descripcion, true, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
+INSERT INTO categorias_servicio (id, nombre, descripcion, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion)
+SELECT UUID(), d.nombre, d.descripcion, true, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6), 'datos-demo', 'datos-demo'
 FROM (
  SELECT 'Mantenimiento preventivo' AS nombre, 'Revisiones periódicas para evitar fallas.' AS descripcion
  UNION ALL SELECT 'Frenos y suspensión', 'Revisión y cambio de piezas de frenado y suspensión.'
 ) d
 WHERE NOT EXISTS (SELECT 1 FROM categorias_servicio c WHERE c.nombre = d.nombre COLLATE utf8mb4_0900_as_ci);
 
-INSERT INTO servicios (id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion)
-SELECT UUID(), c.id, d.nombre, d.descripcion, d.precio, d.duracion, true, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6)
+INSERT INTO servicios (id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion)
+SELECT UUID(), c.id, d.nombre, d.descripcion, d.precio, d.duracion, true, UTC_TIMESTAMP(6), UTC_TIMESTAMP(6), 'datos-demo', 'datos-demo'
 FROM (
  SELECT 'Mantenimiento preventivo' AS categoria, 'Cambio de aceite y filtro' AS nombre,
         'Aceite de motor y filtro nuevo.' AS descripcion, 180.00 AS precio, 45 AS duracion

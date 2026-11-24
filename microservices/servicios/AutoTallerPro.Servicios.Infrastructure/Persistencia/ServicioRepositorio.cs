@@ -5,11 +5,11 @@ using AutoTallerPro.Servicios.Application.Puertos;
 namespace AutoTallerPro.Servicios.Infrastructure.Persistencia;
 public sealed class ServicioRepositorio(Conexion conexiones) : IServicioRepositorio
 {
-    private static Servicio Leer(System.Data.Common.DbDataReader lector) => Servicio.Restaurar(Guid.Parse(Convert.ToString(lector["id"])!), Guid.Parse(Convert.ToString(lector["categoriaservicioid"])!), (string)lector["nombre"], Sql.Texto(lector, "descripcion"), (decimal)lector["preciobase"], lector["duracionestimada"] is DBNull ? null : Convert.ToInt32(lector["duracionestimada"]), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"));
+    private static Servicio Leer(System.Data.Common.DbDataReader lector) => Servicio.Restaurar(Guid.Parse(Convert.ToString(lector["id"])!), Guid.Parse(Convert.ToString(lector["categoriaservicioid"])!), (string)lector["nombre"], Sql.Texto(lector, "descripcion"), (decimal)lector["preciobase"], lector["duracionestimada"] is DBNull ? null : Convert.ToInt32(lector["duracionestimada"]), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"), Sql.Texto(lector, "usuarioregistro"), Sql.Texto(lector, "usuarioactualizacion"));
     public async Task<IReadOnlyList<Servicio>> ListarAsync(CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        await using var comando = Sql.Comando(conexion, "SELECT id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion FROM servicios");
+        await using var comando = Sql.Comando(conexion, "SELECT id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion FROM servicios");
         await using var lector = await comando.ExecuteReaderAsync(ct);
         var entidades = new List<Servicio>(); while (await lector.ReadAsync(ct)) entidades.Add(Leer(lector));
         return entidades;
@@ -17,7 +17,7 @@ public sealed class ServicioRepositorio(Conexion conexiones) : IServicioReposito
     public async Task<Servicio?> ObtenerAsync(Guid id, CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        await using var comando = Sql.Comando(conexion, "SELECT id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion FROM servicios WHERE id=@id", ("id", id.ToString()));
+        await using var comando = Sql.Comando(conexion, "SELECT id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion FROM servicios WHERE id=@id", ("id", id.ToString()));
         await using var lector = await comando.ExecuteReaderAsync(ct);
         return await lector.ReadAsync(ct) ? Leer(lector) : null;
     }
@@ -30,8 +30,8 @@ public sealed class ServicioRepositorio(Conexion conexiones) : IServicioReposito
     public async Task<Resultado<Servicio>> GuardarAsync(Servicio entidad, bool nuevo, CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        var sql = nuevo ? "INSERT INTO servicios (id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion) VALUES (@id, @categoriaservicioid, @nombre, @descripcion, @preciobase, @duracionestimada, @activo, @fecharegistro, @fechaactualizacion)" : "UPDATE servicios SET categoriaservicioid=@categoriaservicioid, nombre=@nombre, descripcion=@descripcion, preciobase=@preciobase, duracionestimada=@duracionestimada, activo=@activo, fechaactualizacion=@fechaactualizacion WHERE id=@id";
-        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id.ToString()), ("categoriaservicioid", entidad.CategoriaServicioId.ToString()), ("nombre", entidad.Nombre), ("descripcion", entidad.Descripcion), ("preciobase", entidad.PrecioBase), ("duracionestimada", entidad.DuracionEstimada), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime));
+        var sql = nuevo ? "INSERT INTO servicios (id, categoriaservicioid, nombre, descripcion, preciobase, duracionestimada, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion) VALUES (@id, @categoriaservicioid, @nombre, @descripcion, @preciobase, @duracionestimada, @activo, @fecharegistro, @fechaactualizacion, @usuarioregistro, @usuarioactualizacion)" : "UPDATE servicios SET categoriaservicioid=@categoriaservicioid, nombre=@nombre, descripcion=@descripcion, preciobase=@preciobase, duracionestimada=@duracionestimada, activo=@activo, fechaactualizacion=@fechaactualizacion, usuarioactualizacion=@usuarioactualizacion WHERE id=@id";
+        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id.ToString()), ("categoriaservicioid", entidad.CategoriaServicioId.ToString()), ("nombre", entidad.Nombre), ("descripcion", entidad.Descripcion), ("preciobase", entidad.PrecioBase), ("duracionestimada", entidad.DuracionEstimada), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime), ("usuarioregistro", entidad.UsuarioRegistro), ("usuarioactualizacion", entidad.UsuarioActualizacion));
         try
         {
             var filas = await comando.ExecuteNonQueryAsync(ct);

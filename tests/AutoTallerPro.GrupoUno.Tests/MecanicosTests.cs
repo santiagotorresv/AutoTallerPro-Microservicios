@@ -13,6 +13,13 @@ public sealed class MecanicosTests
     [Fact] public async Task DuplicadoEsConflicto() { await Servicio.GuardarAsync(null, Valido(), default); var r = await Servicio.GuardarAsync(null, Valido(), default); Assert.Equal(TipoError.Conflicto, r.Error!.Tipo); Assert.Equal(1, memoria.Escrituras); }
     [Fact] public async Task ActualizarValidoConservaRegistro() { var creado = (await Servicio.GuardarAsync(null, Valido(), default)).Valor; var r = await Servicio.GuardarAsync(creado.Id, Valido(apellidos: "López"), default); Assert.True(r.EsExitoso); Assert.Equal("López", memoria.Datos[creado.Id].Apellidos); Assert.Equal(creado.FechaRegistro, r.Valor.FechaRegistro); }
     [Fact] public async Task ActualizarInvalidoNoModifica() { var creado = (await Servicio.GuardarAsync(null, Valido(), default)).Valor; Assert.False((await Servicio.GuardarAsync(creado.Id, Valido() with { Nombres = "" }, default)).EsExitoso); Assert.Equal(1, memoria.Escrituras); }
+    [Fact] public async Task BitacoraGuardaQuienRegistraYQuienModifica()
+    {
+        var creado = (await Servicio.GuardarAsync(null, Valido(), default, "ana.admin")).Valor;
+        var editado = (await Servicio.GuardarAsync(creado.Id, Valido(apellidos: "López"), default, "luis.recepcion")).Valor;
+        Assert.Equal(("ana.admin", "luis.recepcion"), (editado.UsuarioRegistro, editado.UsuarioActualizacion));
+        Assert.Equal("luis.recepcion", memoria.Datos[creado.Id].UsuarioActualizacion);
+    }
     [Fact] public async Task AusenteDevuelveNoEncontrado() { var r = await Servicio.ObtenerAsync("0123456789abcdef01234567", default); Assert.Equal(TipoError.NoEncontrado, r.Error!.Tipo); }
     [Theory] [InlineData("invalido")] [InlineData("")] [InlineData("00000000-0000-0000-0000-000000000000")]
     public async Task IdInvalidoEsErrorControlado(string id) { var r = await Servicio.ObtenerAsync(id, default); Assert.Equal(TipoError.Validacion, r.Error!.Tipo); Assert.False((await Servicio.EliminarAsync(id, default)).EsExitoso); }

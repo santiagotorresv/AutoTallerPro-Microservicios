@@ -5,11 +5,12 @@ using AutoTallerPro.ClientesVehiculos.Application.Puertos;
 namespace AutoTallerPro.ClientesVehiculos.Infrastructure.Persistencia;
 public sealed class ClienteRepositorio(Conexion conexiones) : IClienteRepositorio
 {
-    private static Cliente Leer(System.Data.Common.DbDataReader lector) => Cliente.Restaurar((Guid)lector["id"], (string)lector["documento"], (string)lector["nombre"], Sql.Texto(lector, "telefono"), Sql.Texto(lector, "correo"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"));
+    private const string Columnas = "id, documento, nombre, telefono, correo, activo, fecharegistro, fechaactualizacion, usuarioregistro, usuarioactualizacion";
+    private static Cliente Leer(System.Data.Common.DbDataReader lector) => Cliente.Restaurar((Guid)lector["id"], (string)lector["documento"], (string)lector["nombre"], Sql.Texto(lector, "telefono"), Sql.Texto(lector, "correo"), Convert.ToBoolean(lector["activo"]), Sql.Fecha(lector, "fecharegistro"), Sql.Fecha(lector, "fechaactualizacion"), Sql.Texto(lector, "usuarioregistro"), Sql.Texto(lector, "usuarioactualizacion"));
     public async Task<IReadOnlyList<Cliente>> ListarAsync(CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        await using var comando = Sql.Comando(conexion, "SELECT id, documento, nombre, telefono, correo, activo, fecharegistro, fechaactualizacion FROM clientes");
+        await using var comando = Sql.Comando(conexion, "SELECT " + Columnas + " FROM clientes");
         await using var lector = await comando.ExecuteReaderAsync(ct);
         var entidades = new List<Cliente>(); while (await lector.ReadAsync(ct)) entidades.Add(Leer(lector));
         return entidades;
@@ -17,7 +18,7 @@ public sealed class ClienteRepositorio(Conexion conexiones) : IClienteRepositori
     public async Task<Cliente?> ObtenerAsync(Guid id, CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        await using var comando = Sql.Comando(conexion, "SELECT id, documento, nombre, telefono, correo, activo, fecharegistro, fechaactualizacion FROM clientes WHERE id=@id", ("id", id));
+        await using var comando = Sql.Comando(conexion, "SELECT " + Columnas + " FROM clientes WHERE id=@id", ("id", id));
         await using var lector = await comando.ExecuteReaderAsync(ct);
         return await lector.ReadAsync(ct) ? Leer(lector) : null;
     }
@@ -30,8 +31,8 @@ public sealed class ClienteRepositorio(Conexion conexiones) : IClienteRepositori
     public async Task<Resultado<Cliente>> GuardarAsync(Cliente entidad, bool nuevo, CancellationToken ct)
     {
         await using var conexion = conexiones.Crear(); await conexion.OpenAsync(ct);
-        var sql = nuevo ? "INSERT INTO clientes (id, documento, nombre, telefono, correo, activo, fecharegistro, fechaactualizacion) VALUES (@id, @documento, @nombre, @telefono, @correo, @activo, @fecharegistro, @fechaactualizacion)" : "UPDATE clientes SET documento=@documento, nombre=@nombre, telefono=@telefono, correo=@correo, activo=@activo, fechaactualizacion=@fechaactualizacion WHERE id=@id";
-        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id), ("documento", entidad.Documento), ("nombre", entidad.Nombre), ("telefono", entidad.Telefono), ("correo", entidad.Correo), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime));
+        var sql = nuevo ? "INSERT INTO clientes (" + Columnas + ") VALUES (@id, @documento, @nombre, @telefono, @correo, @activo, @fecharegistro, @fechaactualizacion, @usuarioregistro, @usuarioactualizacion)" : "UPDATE clientes SET documento=@documento, nombre=@nombre, telefono=@telefono, correo=@correo, activo=@activo, fechaactualizacion=@fechaactualizacion, usuarioactualizacion=@usuarioactualizacion WHERE id=@id";
+        await using var comando = Sql.Comando(conexion, sql, ("id", entidad.Id), ("documento", entidad.Documento), ("nombre", entidad.Nombre), ("telefono", entidad.Telefono), ("correo", entidad.Correo), ("activo", entidad.Activo), ("fecharegistro", entidad.FechaRegistro.UtcDateTime), ("fechaactualizacion", entidad.FechaActualizacion.UtcDateTime), ("usuarioregistro", entidad.UsuarioRegistro), ("usuarioactualizacion", entidad.UsuarioActualizacion));
         try
         {
             var filas = await comando.ExecuteNonQueryAsync(ct);

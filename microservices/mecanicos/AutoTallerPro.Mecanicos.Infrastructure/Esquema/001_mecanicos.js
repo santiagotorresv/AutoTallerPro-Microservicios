@@ -11,7 +11,8 @@ if (!db.getCollectionNames().includes('mecanicos')) {
         telefono: { bsonType: ['string', 'null'] }, correo: { bsonType: ['string', 'null'] },
         especialidad: { enum: ['Mecánica general', 'Electricidad', 'Diagnóstico', 'Carrocería'] },
         activo: { bsonType: 'bool' }, fechaRegistro: { bsonType: 'date' }, fechaActualizacion: { bsonType: 'date' },
-        versionEsquema: { enum: [1] }
+        versionEsquema: { enum: [1] },
+        usuarioRegistro: { bsonType: ['string', 'null'] }, usuarioActualizacion: { bsonType: ['string', 'null'] }
       }
     } }, validationAction: 'error'
   });

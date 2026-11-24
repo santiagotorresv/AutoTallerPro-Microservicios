@@ -4,6 +4,9 @@ namespace AutoTallerPro.Frontend.GrupoUno;
 public sealed class VehiculoInput : IValidatableObject
 {
     public string Id { get; set; } = string.Empty;
+    // Bitácora: solo se muestra; la API la toma del token, no del formulario.
+    public string? UsuarioRegistro { get; set; }
+    public string? UsuarioActualizacion { get; set; }
     [Display(Name = "Propietario")]
     [Required(ErrorMessage = "Propietario: este campo es obligatorio.")]
     [StringLength(36, ErrorMessage = "Propietario: admite hasta 36 caracteres.")]

@@ -137,6 +137,11 @@ suyos.
   gratuito, con la URI
   `mongodb://mecanicos_app:<contraseña>@127.0.0.1:27018/mecanicos?authSource=mecanicos`.
   Si la contraseña tiene caracteres reservados de URI, codifícalos.
+- **Bitácora del Grupo 1.** Las tablas `clientes`, `vehiculos`,
+  `categorias_servicio` y `servicios`, y la colección `mecanicos`, guardan
+  `usuarioregistro` y `usuarioactualizacion`: el usuario de Keycloak que creó
+  el registro y el que lo modificó por última vez. Los datos de ejemplo usan
+  `datos-demo`.
 - **Usuarios.** `FichasAdministrativas` guarda la ficha y quién la creó o
   modificó, y `AuditoriaAdministrativa` es la bitácora. Ninguna tabla guarda
   contraseñas. La columna `Clave` de `AltasUsuarios` y `OperacionesUsuarios`

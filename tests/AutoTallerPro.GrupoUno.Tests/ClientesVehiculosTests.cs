@@ -39,5 +39,16 @@ public sealed class ClientesVehiculosTests
         Assert.False(Vehiculo.Crear(Guid.NewGuid(), Guid.NewGuid(), "AB123CD", "Toyota", "Corolla", 2020, null, true).EsExitoso);
         Assert.False(Vehiculo.Crear(Guid.NewGuid(), Guid.NewGuid(), "A", "Toyota", "Corolla", 2020, null, true, esPlacaExtranjera: true).EsExitoso);
     }
+    [Fact] public async Task BitacoraGuardaQuienRegistraYQuienModifica()
+    {
+        var cliente = (await Servicio.GuardarAsync(null, Valido(), default, "ana.admin")).Valor;
+        Assert.Equal(("ana.admin", "ana.admin"), (cliente.UsuarioRegistro, cliente.UsuarioActualizacion));
+        var editado = (await Servicio.GuardarAsync(cliente.Id, Valido(nombre: "Ana López"), default, "luis.recepcion")).Valor;
+        Assert.Equal(("ana.admin", "luis.recepcion"), (editado.UsuarioRegistro, editado.UsuarioActualizacion));
+        var vehiculos = new VehiculoServicio(new VehiculoMemoria(), clientes);
+        var vehiculo = (await vehiculos.GuardarAsync(null, new(cliente.Id, "1234ABC", "Toyota", "Corolla", 2020, null), default, "ana.admin")).Valor;
+        var vehiculoEditado = (await vehiculos.GuardarAsync(vehiculo.Id, new(cliente.Id, "1234ABC", "Toyota", "Yaris", 2020, null), default, "luis.recepcion")).Valor;
+        Assert.Equal(("ana.admin", "luis.recepcion"), (vehiculoEditado.UsuarioRegistro, vehiculoEditado.UsuarioActualizacion));
+    }
     [Fact] public void ResultadoFallidoNoExponeValor() { var r = Resultado<Cliente>.Fallo("prueba", "Validación fallida."); Assert.Throws<InvalidOperationException>(() => r.Valor); }
 }

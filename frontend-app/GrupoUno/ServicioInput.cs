@@ -3,6 +3,9 @@ namespace AutoTallerPro.Frontend.GrupoUno;
 public sealed class ServicioInput
 {
     public string Id { get; set; } = string.Empty;
+    // Bitácora: solo se muestra; la API la toma del token, no del formulario.
+    public string? UsuarioRegistro { get; set; }
+    public string? UsuarioActualizacion { get; set; }
     [Display(Name = "Categoría")]
     [Required(ErrorMessage = "Categoría: este campo es obligatorio.")]
     [StringLength(36, ErrorMessage = "Categoría: admite hasta 36 caracteres.")]

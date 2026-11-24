@@ -26,7 +26,7 @@ public sealed class ServicioServicio(IServicioRepositorio repositorio, ICategori
         var entidad = await repositorio.ObtenerAsync(id, ct);
         return entidad is null ? Resultado<Servicio>.Fallo("servicio.ausente", "No se encontró el registro.", TipoError.NoEncontrado) : Resultado<Servicio>.Exito(entidad);
     }
-    public async Task<Resultado<Servicio>> GuardarAsync(Guid? id, DatosServicio datos, CancellationToken ct)
+    public async Task<Resultado<Servicio>> GuardarAsync(Guid? id, DatosServicio datos, CancellationToken ct, string? usuario = null)
     {
         Servicio? anterior = null;
         if (id.HasValue)
@@ -35,7 +35,7 @@ public sealed class ServicioServicio(IServicioRepositorio repositorio, ICategori
             if (!consulta.EsExitoso) return consulta;
             anterior = consulta.Valor;
         }
-        var resultado = Servicio.Crear(id ?? Guid.NewGuid(), datos.CategoriaServicioId, datos.Nombre, datos.Descripcion, datos.PrecioBase, datos.DuracionEstimada, datos.Activo, anterior?.FechaRegistro);
+        var resultado = Servicio.Crear(id ?? Guid.NewGuid(), datos.CategoriaServicioId, datos.Nombre, datos.Descripcion, datos.PrecioBase, datos.DuracionEstimada, datos.Activo, anterior?.FechaRegistro, usuarioRegistro: anterior is null ? usuario : anterior.UsuarioRegistro, usuarioActualizacion: usuario);
         if (!resultado.EsExitoso) return resultado;
         var relacionado = await relacionados.ObtenerAsync(datos.CategoriaServicioId, ct);
         if (relacionado is null) return Resultado<Servicio>.Fallo("servicio.relacion", "No se encontró el registro relacionado.", TipoError.NoEncontrado);

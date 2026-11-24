@@ -27,7 +27,8 @@ public sealed class ClienteServicio(IClienteRepositorio repositorio)
         var entidad = await repositorio.ObtenerAsync(id, ct);
         return entidad is null ? Resultado<Cliente>.Fallo("cliente.ausente", "No se encontró el registro.", TipoError.NoEncontrado) : Resultado<Cliente>.Exito(entidad);
     }
-    public async Task<Resultado<Cliente>> GuardarAsync(Guid? id, DatosCliente datos, CancellationToken ct)
+    // usuario: quien realiza la operación (bitácora); el registro conserva a quien lo creó.
+    public async Task<Resultado<Cliente>> GuardarAsync(Guid? id, DatosCliente datos, CancellationToken ct, string? usuario = null)
     {
         Cliente? anterior = null;
         if (id.HasValue)
@@ -36,7 +37,8 @@ public sealed class ClienteServicio(IClienteRepositorio repositorio)
             if (!consulta.EsExitoso) return consulta;
             anterior = consulta.Valor;
         }
-        var resultado = Cliente.Crear(id ?? Guid.NewGuid(), datos.Documento, datos.Nombre, datos.Telefono, datos.Correo, datos.Activo, anterior?.FechaRegistro);
+        var resultado = Cliente.Crear(id ?? Guid.NewGuid(), datos.Documento, datos.Nombre, datos.Telefono, datos.Correo, datos.Activo, anterior?.FechaRegistro,
+            usuarioRegistro: anterior is null ? usuario : anterior.UsuarioRegistro, usuarioActualizacion: usuario);
         if (!resultado.EsExitoso) return resultado;
         if (await repositorio.ExisteIdentificadorAsync(resultado.Valor.Documento, resultado.Valor.Id, ct))
             return Resultado<Cliente>.Fallo("cliente.duplicado", "Ya existe un registro con ese identificador de negocio.", TipoError.Conflicto);
